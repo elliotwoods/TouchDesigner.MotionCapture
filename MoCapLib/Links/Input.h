@@ -9,8 +9,7 @@ namespace TD_MoCap {
 		{
 		public:
 			virtual ~Input();
-			void setupParameters(OP_ParameterManager*);
-			void update(const OP_Inputs*);
+			void update(const OP_DATInput*);
 
 			void unsubscribe();
 			void subscribe(Output::ID);

@@ -23,6 +23,8 @@ namespace TD_MoCap {
 			void update();
 			void send(std::shared_ptr<BaseFrame>);
 			void populateMainThreadOutput(DAT_Output*);
+
+			static bool getIDFromDAT(const OP_DATInput*, Output::ID& result);
 		protected:
 			friend Input;
 			void addSubscriber(Input*);

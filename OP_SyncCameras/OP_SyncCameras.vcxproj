@@ -12,12 +12,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SyncCameras.h" />
-    <ClInclude Include="pch_SyncCameras.h" />
+    <ClInclude Include="pch_OP_SyncCameras.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="SyncCameras.cpp" />
-    <ClCompile Include="pch_SyncCameras.cpp">
+    <ClCompile Include="pch_OP_SyncCameras.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
@@ -29,7 +29,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{92884d68-147a-4270-b517-f57727c76ca5}</ProjectGuid>
+    <ProjectGuid>{6492F259-D30C-4690-973F-056BF1665FCE}</ProjectGuid>
     <RootNamespace>TD_MoCap</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>OP_SyncCameras</ProjectName>

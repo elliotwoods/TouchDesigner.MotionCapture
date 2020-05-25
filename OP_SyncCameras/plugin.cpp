@@ -1,4 +1,4 @@
-#include "pch_OP_XimeaCamera.h"
+#include "pch_OP_SyncCameras.h"
 #include "SyncCameras.h"
 
 extern "C"

@@ -2,12 +2,6 @@
 #include "Input.h"
 #include "OutputsRegister.h"
 
-bool is_number(const std::string& s)
-{
-	return !s.empty() && std::find_if(s.begin(),
-		s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
-}
-
 
 namespace TD_MoCap {
 	namespace Links {
@@ -19,39 +13,13 @@ namespace TD_MoCap {
 
 		//----------
 		void
-			Input::setupParameters(OP_ParameterManager* manager)
+			Input::update(const OP_DATInput* dat)
 		{
-				{
-					OP_StringParameter param;
+			Output::ID newID;
 
-					param.name = "Source";
-					param.label = param.name;
-
-					auto res = manager->appendDAT(param);
-					assert(res == OP_ParAppendResult::Success);
-				}
-		}
-
-		//----------
-		void
-			Input::update(const OP_Inputs* inputs)
-		{
-			auto dat = inputs->getParDAT("Source");
-			if(dat->numCols < 2 || dat->numRows < 1) {
+			if (!Output::getIDFromDAT(dat, newID)) {
 				this->unsubscribe();
-				return;
 			}
-			if (strcmp(dat->getCell(0, 0), "ID") != 0) {
-				this->unsubscribe();
-				return;
-			}
-
-			auto cellString = dat->getCell(0, 1);
-			if (!is_number(cellString)) {
-				this->unsubscribe();
-				return;
-			}
-			auto newID = strtol(cellString, nullptr, 10);
 
 			// if we stayed the same, ignore it
 			if (this->connectedOutput) {

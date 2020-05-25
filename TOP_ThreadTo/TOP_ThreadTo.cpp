@@ -47,7 +47,7 @@ namespace TD_MoCap {
 			TOP_Context* context,
 			void* reserved1)
 	{
-		this->input.update(inputs);
+		this->input.update(inputs->getParDAT("Source"));
 
 		if (!this->input.channel.empty()) {
 			while (this->input.channel.tryReceive(this->lastFrameReceived)) {
@@ -86,7 +86,15 @@ namespace TD_MoCap {
 	void
 		TOP_ThreadTo::setupParameters(OP_ParameterManager* manager, void* reserved1)
 	{
-		this->input.setupParameters(manager);
+		{
+			OP_StringParameter param;
+
+			param.name = "Source";
+			param.label = param.name;
+
+			auto res = manager->appendDAT(param);
+			assert(res == OP_ParAppendResult::Success);
+		}
 	}
 
 	//----------

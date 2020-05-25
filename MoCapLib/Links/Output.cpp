@@ -6,6 +6,12 @@
 
 #include "OutputsRegister.h"
 
+bool is_number(const std::string& s)
+{
+	return !s.empty() && std::find_if(s.begin(),
+		s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
+}
+
 namespace TD_MoCap {
 	namespace Links {
 		//----------
@@ -85,6 +91,25 @@ namespace TD_MoCap {
 			table.newRow() << "subscriberCount" << this->info.subscriberCount;
 
 			table.populateOutput(output);
+		}
+
+		//----------
+		bool
+			Output::getIDFromDAT(const OP_DATInput* dat, Output::ID & result) {
+			if (dat->numCols < 2 || dat->numRows < 1) {
+				return false;
+			}
+			if (strcmp(dat->getCell(0, 0), "ID") != 0) {
+				return false;
+			}
+
+			auto cellString = dat->getCell(0, 1);
+			if (!is_number(cellString)) {
+				return false;
+			}
+
+			result = strtol(cellString, nullptr, 10);
+			return true;
 		}
 
 		//----------
