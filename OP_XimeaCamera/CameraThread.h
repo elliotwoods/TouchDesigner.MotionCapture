@@ -6,7 +6,8 @@
 #include "Utils/Parameter.h"
 
 namespace TD_MoCap {
-	class CameraThread {
+	class CameraThread
+	{
 	public:
 		CameraThread(const OP_Inputs*, const Utils::ParameterList &, Links::Output&);
 		~CameraThread();

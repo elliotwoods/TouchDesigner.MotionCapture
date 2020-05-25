@@ -11,38 +11,43 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C:\XIMEA\Examples\Sources\_libs\xiAPIplus\xiapiplus.h" />
-    <ClInclude Include="CameraThread.h" />
-    <ClInclude Include="XimeaCamera.h" />
-    <ClInclude Include="pch_OP_XimeaCamera.h" />
-    <ClInclude Include="XimeaCameraFrame.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="C:\XIMEA\Examples\Sources\_libs\xiAPIplus\xiAPIplus_core.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="CameraThread.cpp" />
-    <ClCompile Include="plugin.cpp" />
-    <ClCompile Include="XimeaCamera.cpp" />
-    <ClCompile Include="pch_OP_XimeaCamera.cpp">
+    <ClCompile Include="Exception.cpp" />
+    <ClCompile Include="ImageFormat.cpp" />
+    <ClCompile Include="Links\BaseFrame.cpp" />
+    <ClCompile Include="Links\Input.cpp" />
+    <ClCompile Include="Links\Output.cpp" />
+    <ClCompile Include="Links\OutputsRegister.cpp" />
+    <ClCompile Include="pch_MoCapLib.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="XimeaCameraFrame.cpp" />
+    <ClCompile Include="Utils\FrameRateCounter.cpp" />
+    <ClCompile Include="Utils\Parameter.cpp" />
+    <ClCompile Include="Utils\Table.cpp" />
+    <ClCompile Include="Utils\WorkerThread.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MoCapLib\MoCapLib.vcxproj">
-      <Project>{503e8306-8576-4e6c-a1db-109f90ec6127}</Project>
-    </ProjectReference>
+    <ClInclude Include="Exception.h" />
+    <ClInclude Include="ImageFormat.h" />
+    <ClInclude Include="Links\BaseFrame.h" />
+    <ClInclude Include="Links\Input.h" />
+    <ClInclude Include="Links\Output.h" />
+    <ClInclude Include="Links\OutputsRegister.h" />
+    <ClInclude Include="pch_MoCapLib.h" />
+    <ClInclude Include="MoCapLib.h" />
+    <ClInclude Include="Utils\Channel.h" />
+    <ClInclude Include="Utils\Event.h" />
+    <ClInclude Include="Utils\FrameRateCounter.h" />
+    <ClInclude Include="Utils\Parameter.h" />
+    <ClInclude Include="Utils\Table.h" />
+    <ClInclude Include="Utils\WorkerThread.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{92884d68-147a-4270-b517-f57727c76ca5}</ProjectGuid>
-    <RootNamespace>TD_MoCap</RootNamespace>
+    <ProjectGuid>{503e8306-8576-4e6c-a1db-109f90ec6127}</ProjectGuid>
+    <RootNamespace>TDMoCap</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>OP_XimeaCamera</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -65,12 +70,10 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\XimeaSDK.props" />
     <Import Project="..\TD_MoCap_Common.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\XimeaSDK.props" />
     <Import Project="..\TD_MoCap_Common.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -84,16 +87,18 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;OP_XIMEACAMERA_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;TDMOCAP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\ximea\Examples\Sources\_libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>C:\ximea\API\64bit\xiapi64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>robocopy "../thirdparty/opencv/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
+if errorlevel 1 exit 0 else exit %errorlevel%</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -101,7 +106,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;OP_XIMEACAMERA_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;TDMOCAP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -110,8 +115,11 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>C:\ximea\API\64bit\xiapi64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>robocopy "../thirdparty/opencv/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
+if errorlevel 1 exit 0 else exit %errorlevel%</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

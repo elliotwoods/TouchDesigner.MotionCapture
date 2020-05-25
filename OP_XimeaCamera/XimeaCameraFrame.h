@@ -5,10 +5,13 @@
 #include <chrono>
 
 namespace TD_MoCap {
-	class OP_XIMEACAMERA_API XimeaCameraFrame : public Links::BaseFrame {
+	class OP_XIMEACAMERA_API XimeaCameraFrame : public Links::BaseFrame
+	{
 	public:
 		XimeaCameraFrame();
 		std::string getTypeName() const override;
+
+		bool getPreviewImage(cv::Mat&) const override;
 
 		cv::Mat image;
 

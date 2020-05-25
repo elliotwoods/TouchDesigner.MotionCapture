@@ -1,21 +1,25 @@
-#include "pch_TD_MoCap.h"
+#include "pch_MoCapLib.h"
 #include "FrameRateCounter.h"
 
 namespace TD_MoCap {
 	namespace Utils {
 		//----------
-		FrameRateCounter::FrameRateCounter(uint16_t windowSize) {
+		FrameRateCounter::FrameRateCounter(uint16_t windowSize)
+		{
 			this->data = new std::chrono::high_resolution_clock::time_point[windowSize];
 			this->windowSize = windowSize;
 		}
 
 		//----------
-		FrameRateCounter::~FrameRateCounter() {
+		FrameRateCounter::~FrameRateCounter()
+		{
 			delete[] this->data;
 		}
 
 		//----------
-		void FrameRateCounter::tick() {
+		void
+			FrameRateCounter::tick()
+		{
 			this->position++;
 			this->position %= this->windowSize;
 			this->data[this->position] = std::chrono::high_resolution_clock::now();
@@ -26,7 +30,9 @@ namespace TD_MoCap {
 		}
 
 		//----------
-		float FrameRateCounter::getFPS() const {
+		float
+			FrameRateCounter::getFPS() const
+		{
 			if (this->firstRun < this->windowSize) {
 				if (this->firstRun < 2) {
 					// not enough data yet

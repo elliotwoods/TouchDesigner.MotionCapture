@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TD_MoCap", "TD_MoCap\TD_MoCap.vcxproj", "{503E8306-8576-4E6C-A1DB-109F90EC6127}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MoCapLib", "MoCapLib\MoCapLib.vcxproj", "{503E8306-8576-4E6C-A1DB-109F90EC6127}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OP_XimeaCamera", "OP_XimeaCamera\OP_XimeaCamera.vcxproj", "{92884D68-147A-4270-B517-F57727C76CA5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TOP_ThreadTo", "TOP_ThreadTo\TOP_ThreadTo.vcxproj", "{81EB8E36-C698-47C7-B3A3-69C1D97568C5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{92884D68-147A-4270-B517-F57727C76CA5}.Debug|x64.Build.0 = Debug|x64
 		{92884D68-147A-4270-B517-F57727C76CA5}.Release|x64.ActiveCfg = Release|x64
 		{92884D68-147A-4270-B517-F57727C76CA5}.Release|x64.Build.0 = Release|x64
+		{81EB8E36-C698-47C7-B3A3-69C1D97568C5}.Debug|x64.ActiveCfg = Debug|x64
+		{81EB8E36-C698-47C7-B3A3-69C1D97568C5}.Debug|x64.Build.0 = Debug|x64
+		{81EB8E36-C698-47C7-B3A3-69C1D97568C5}.Release|x64.ActiveCfg = Release|x64
+		{81EB8E36-C698-47C7-B3A3-69C1D97568C5}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -8,16 +8,32 @@
 
 namespace TD_MoCap {
 	namespace Links {
+		class Input;
 
 		class TDMOCAP_API Output
 		{
 		public:
+			typedef uint16_t ID;
+
 			Output();
+			virtual ~Output();
+
+			ID getID() const;
 
 			void update();
 			void send(std::shared_ptr<BaseFrame>);
 			void populateMainThreadOutput(DAT_Output*);
 		protected:
+			friend Input;
+			void addSubscriber(Input*);
+			void removeSubscriber(Input*);
+
+			static ID nextID;
+			ID id = nextID++;
+
+			std::mutex lockSubscribers;
+			std::set<Input*> subscribedInputs;
+
 			std::mutex lockInfo;
 
 			Utils::FrameRateCounter frameRateCounter;
@@ -28,7 +44,6 @@ namespace TD_MoCap {
 			} incomingInfo;
 
 			struct {
-				std::string ID = "TEST";
 				uint32_t countThisFrame = 0;
 				uint64_t totalCount = 0;
 				float frameRate = 0;

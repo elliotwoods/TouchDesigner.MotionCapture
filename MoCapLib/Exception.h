@@ -3,7 +3,8 @@
 #include <string>
 
 namespace TD_MoCap {
-	class TDMOCAP_API Exception {
+	class TDMOCAP_API Exception
+	{
 	public:
 		Exception();
 		Exception(const char*);
@@ -15,7 +16,8 @@ namespace TD_MoCap {
 		std::string message;
 	};
 
-	class NoException : public Exception {
+	class NoException : public Exception
+	{
 	public:
 		operator bool() const override {
 			return false;

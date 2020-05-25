@@ -1,4 +1,4 @@
-#include "pch_TD_MoCap.h"
+#include "pch_MoCapLib.h"
 #include "WorkerThread.h"
 #include "../Exception.h"
 
@@ -7,7 +7,8 @@
 namespace TD_MoCap {
 	namespace Utils {
 		//----------
-		WorkerThread::WorkerThread() {
+		WorkerThread::WorkerThread()
+		{
 			this->thread = std::thread([this] {
 				while (this->running) {
 					std::function<void()> action;
@@ -19,24 +20,31 @@ namespace TD_MoCap {
 		}
 
 		//----------
-		WorkerThread::~WorkerThread() {
+		WorkerThread::~WorkerThread()
+		{
 			this->join();
 		}
 
 		//----------
-		void WorkerThread::join() {
+		void
+			WorkerThread::join()
+		{
 			this->running = false;
 			this->perform([] {}); // send an empty action to nudge it out of waiting
 			this->thread.join();
 		}
 
 		//----------
-		void WorkerThread::perform(const std::function<void()>& action) {
+		void
+			WorkerThread::perform(const std::function<void()>& action)
+		{
 			this->workQueue.send(action);
 		}
 
 		//----------
-		void WorkerThread::performBlocking(const std::function<void()>& action) {
+		void
+			WorkerThread::performBlocking(const std::function<void()>& action)
+		{
 			std::mutex mutex;
 			std::condition_variable cv;
 

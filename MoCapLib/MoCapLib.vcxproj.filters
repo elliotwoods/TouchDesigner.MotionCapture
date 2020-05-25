@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="pch_TD_MoCap.cpp" />
+    <ClCompile Include="pch_MoCapLib.cpp" />
     <ClCompile Include="Links\Output.cpp">
       <Filter>Links</Filter>
     </ClCompile>
@@ -24,10 +24,13 @@
     <ClCompile Include="Utils\FrameRateCounter.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Links\OutputsRegister.cpp">
+      <Filter>Links</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageFormat.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch_TD_MoCap.h" />
-    <ClInclude Include="TD_MoCap.h" />
+    <ClInclude Include="pch_MoCapLib.h" />
     <ClInclude Include="Links\Output.h">
       <Filter>Links</Filter>
     </ClInclude>
@@ -56,6 +59,11 @@
     <ClInclude Include="Utils\FrameRateCounter.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="MoCapLib.h" />
+    <ClInclude Include="Links\OutputsRegister.h">
+      <Filter>Links</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageFormat.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Links">

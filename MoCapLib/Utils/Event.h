@@ -9,7 +9,7 @@
 namespace TD_MoCap {
 	namespace Utils {
 		template<class ArgType>
-		class Event {
+		class TDMOCAP_API Event {
 		public:
 			//this used to be
 			/*

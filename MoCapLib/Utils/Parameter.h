@@ -6,7 +6,8 @@
 
 namespace TD_MoCap {
 	namespace Utils {
-		class TDMOCAP_API AbstractParameter {
+		class TDMOCAP_API AbstractParameter
+		{
 		public:
 			AbstractParameter(const std::string& name)
 				: name(name) {
@@ -23,24 +24,28 @@ namespace TD_MoCap {
 		};
 
 		template<typename T>
-		class TDMOCAP_API ValueParameter : public AbstractParameter {
+		class TDMOCAP_API ValueParameter : public AbstractParameter
+		{
 		public:
 			ValueParameter(const std::string &name, const T& value, const T& defaultValue)
 				: AbstractParameter(name)
 				, value(value)
-				, defaultValue(defaultValue) {
-			}
+				, defaultValue(defaultValue)
+			{ }
 
-			const T& getValue() const {
+			const T& getValue() const
+			{
 				return this->value;
 			}
 
-			void setValue(const T& value) {
+			void setValue(const T& value)
+			{
 				this->value = value;
 				this->onChange.notifyListeners();
 			}
 
-			const T& getDefaultValue() const {
+			const T& getDefaultValue() const
+			{
 				return this->defaultValue;
 			}
 
@@ -50,7 +55,8 @@ namespace TD_MoCap {
 		};
 
 		template<typename T>
-		class TDMOCAP_API NumberParameter : public ValueParameter<T> {
+		class TDMOCAP_API NumberParameter : public ValueParameter<T>
+		{
 		public:
 			NumberParameter(const std::string & name, const std::string& units, T value = 0, T defaultValue = 0, T min = 0, T max = 0)
 				: ValueParameter<T>(name, value, defaultValue)
@@ -58,33 +64,40 @@ namespace TD_MoCap {
 				, min(min)
 				, max(max)
 				, sliderMin(min)
-				, sliderMax(max) {
-			}
+				, sliderMax(max)
+			{ }
+
 			NumberParameter(const std::string& name, const std::string& units, T value, T defaultValue, T min, T max, T sliderMin, T sliderMax)
 				: ValueParameter<T>(name, value, defaultValue)
+				, units(units)
 				, min(min)
 				, max(max)
 				, sliderMin(sliderMin)
-				, sliderMax(sliderMax) {
-			}
+				, sliderMax(sliderMax)
+			{ }
 
-			const std::string& getUnits() const {
+			const std::string& getUnits() const
+			{
 				return this->units;
 			}
 
-			const T& getMin() const {
+			const T& getMin() const
+			{
 				return this->min;
 			}
 
-			const T& getMax() const {
+			const T& getMax() const
+			{
 				return this->max;
 			}
 
-			const T& getSliderMin() const {
+			const T& getSliderMin() const
+			{
 				return this->sliderMin;
 			}
 
-			const T& getSliderMax() const {
+			const T& getSliderMax() const
+			{
 				return this->sliderMax;
 			}
 
@@ -98,7 +111,8 @@ namespace TD_MoCap {
 			T sliderMax;
 		};
 
-		class TDMOCAP_API ParameterList : public std::vector<AbstractParameter*> {
+		class TDMOCAP_API ParameterList : public std::vector<AbstractParameter*>
+		{
 		public:
 			ParameterList(std::initializer_list<AbstractParameter *> parameters);
 			

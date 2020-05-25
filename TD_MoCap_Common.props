@@ -15,7 +15,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PrecompiledHeaderFile>pch_$(ProjectName).h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../thirdparty/TouchDesigner/include;../thirdparty/opencv/include;../TD_MoCap;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../thirdparty/TouchDesigner/include;../thirdparty/opencv/include;../MoCapLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>..\thirdparty\opencv\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

@@ -5,7 +5,7 @@
 #include "GL_Extensions.h"
 
 #include "CameraThread.h"
-#include "TD_MoCap.h"
+#include "MoCapLib.h"
 
 #include <memory>
 #include <vector>
@@ -50,16 +50,21 @@ namespace TD_MoCap {
 		std::vector<Exception> errors;
 		bool needsReopen = false;
 
-		struct {
-			Utils::NumberParameter<float> exposure{
+		struct
+		{
+			Utils::NumberParameter<float> exposure
+			{
 				"Exposure", "ms"
 				, 10, 10
 				, 0, 10000
 				, 0, 100
 			};
-			Utils::ValueParameter<bool> preview{
-				"Preview", true, true
+
+			Utils::ValueParameter<bool> preview
+			{
+				"Preview", false, false
 			};
+
 			Utils::ParameterList list{ &exposure, &preview };
 			std::set<Utils::AbstractParameter *> stale;
 			std::mutex mutex;

@@ -11,39 +11,28 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Exception.cpp" />
-    <ClCompile Include="Links\BaseFrame.cpp" />
-    <ClCompile Include="Links\Input.cpp" />
-    <ClCompile Include="Links\Output.cpp" />
-    <ClCompile Include="pch_TD_MoCap.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    <ClCompile Include="pch_TOP_ThreadTo.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Utils\FrameRateCounter.cpp" />
-    <ClCompile Include="Utils\Parameter.cpp" />
-    <ClCompile Include="Utils\Table.cpp" />
-    <ClCompile Include="Utils\WorkerThread.cpp" />
+    <ClCompile Include="plugin.cpp" />
+    <ClCompile Include="TOP_ThreadTo.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Exception.h" />
-    <ClInclude Include="Links\BaseFrame.h" />
-    <ClInclude Include="Links\Input.h" />
-    <ClInclude Include="Links\Output.h" />
-    <ClInclude Include="pch_TD_MoCap.h" />
-    <ClInclude Include="TD_MoCap.h" />
-    <ClInclude Include="Utils\Channel.h" />
-    <ClInclude Include="Utils\Event.h" />
-    <ClInclude Include="Utils\FrameRateCounter.h" />
-    <ClInclude Include="Utils\Parameter.h" />
-    <ClInclude Include="Utils\Table.h" />
-    <ClInclude Include="Utils\WorkerThread.h" />
+    <ProjectReference Include="..\MoCapLib\MoCapLib.vcxproj">
+      <Project>{503e8306-8576-4e6c-a1db-109f90ec6127}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch_TOP_ThreadTo.h" />
+    <ClInclude Include="TOP_ThreadTo.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{503e8306-8576-4e6c-a1db-109f90ec6127}</ProjectGuid>
-    <RootNamespace>TDMoCap</RootNamespace>
+    <ProjectGuid>{81EB8E36-C698-47C7-B3A3-69C1D97568C5}</ProjectGuid>
+    <RootNamespace>TD_MoCap</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>TOP_ThreadTo</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -83,7 +72,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;TDMOCAP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;TOP_THREADTO_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -91,10 +80,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
-    <PostBuildEvent>
-      <Command>robocopy "../thirdparty/opencv/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
-if errorlevel 1 exit 0 else exit %errorlevel%</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -102,7 +87,7 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;TDMOCAP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;TOP_THREADTO_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -112,10 +97,6 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
-    <PostBuildEvent>
-      <Command>robocopy "../thirdparty/opencv/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
-if errorlevel 1 exit 0 else exit %errorlevel%</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

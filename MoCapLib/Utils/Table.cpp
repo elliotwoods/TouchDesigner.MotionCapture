@@ -1,16 +1,17 @@
-#include "pch_TD_MoCap.h"
+#include "pch_MoCapLib.h"
 #include "Table.h"
 
 namespace TD_MoCap {
 	namespace Utils {
 		//----------
 		Table::RowBuilder::RowBuilder(Table& table)
-			: table(table) {
-
+			: table(table)
+		{
 		}
 
 		//----------
-		Table::RowBuilder::~RowBuilder() {
+		Table::RowBuilder::~RowBuilder()
+		{
 			table.addRow(this->cells);
 		}
 
@@ -21,19 +22,22 @@ namespace TD_MoCap {
 
 		//----------
 		Table::RowBuilder
-		Table::newRow() {
+			Table::newRow()
+		{
 			return RowBuilder(*this);
 		}
 
 		//----------
 		void
-		Table::addRow(const std::vector<std::string>& cells) {
+			Table::addRow(const std::vector<std::string>& cells)
+		{
 			this->cells.push_back(cells);
 		}
 
 		//----------
 		void
-		Table::populateOutput(DAT_Output* output) {
+			Table::populateOutput(DAT_Output* output)
+		{
 			output->setOutputDataType(DAT_OutDataType::Table);
 			
 			//find column count;

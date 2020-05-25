@@ -6,7 +6,8 @@
 namespace TD_MoCap {
 	//----------
 	CameraThread::CameraThread(const OP_Inputs* inputs, const Utils::ParameterList & parameterList, Links::Output& output)
-	: output(output) {
+	: output(output)
+	{
 		auto serialNumber = std::string(inputs->getParString("Serial"));
 
 		this->workerThread.performBlocking([this, serialNumber, &parameterList] {
@@ -37,17 +38,20 @@ namespace TD_MoCap {
 	}
 
 	//----------
-	CameraThread::~CameraThread() {
+	CameraThread::~CameraThread()
+	{
 		this->joining = true;
 		this->workerThread.performBlocking([this] {
 			this->camera.StopAcquisition();
 			this->camera.Close();
 		});
-		cv::destroyWindow(this->windowName);
+//		cv::destroyWindow(this->windowName); // this seems to hang
 	}
 
 	//----------
-	void CameraThread::performInThread(std::function<void(xiAPIplus_Camera&)> action, bool blocking) {
+	void
+		CameraThread::performInThread(std::function<void(xiAPIplus_Camera&)> action, bool blocking)
+	{
 		if (blocking) {
 			this->workerThread.performBlocking([this, action] {
 				this->runAndFormatExceptions([&] {
@@ -70,7 +74,9 @@ namespace TD_MoCap {
 	}
 
 	//----------
-	void CameraThread::pushToCamera(Utils::AbstractParameter* parameter) {
+	void
+		CameraThread::pushToCamera(Utils::AbstractParameter* parameter)
+	{
 		auto name = parameter->getName();
 		if (name == "Exposure") {
 			auto typedParameter = dynamic_cast<Utils::NumberParameter<float>*>(parameter);
@@ -90,7 +96,9 @@ namespace TD_MoCap {
 	}
 
 	//----------
-	void CameraThread::pullFromCamera(Utils::AbstractParameter* parameter) {
+	void
+		CameraThread::pullFromCamera(Utils::AbstractParameter* parameter)
+	{
 		auto name = parameter->getName();
 		if (name == "Exposure") {
 			auto typedParameter = dynamic_cast<Utils::NumberParameter<float>*>(parameter);
@@ -101,8 +109,10 @@ namespace TD_MoCap {
 	}
 
 	//----------
-	void CameraThread::requestCapture() {
-		this->performInThread([this](xiAPIplus_Camera& camera) {
+	void
+		CameraThread::requestCapture() {
+		this->performInThread([this](xiAPIplus_Camera& camera)
+		{
 			try {
 				xiAPIplus_Image image;
 				camera.GetNextImage(&image);
@@ -146,7 +156,9 @@ namespace TD_MoCap {
 	}
 
 	//----------
-	void CameraThread::runAndFormatExceptions(std::function<void()> action) {
+	void
+		CameraThread::runAndFormatExceptions(std::function<void()> action)
+	{
 		try {
 			action();
 		}

@@ -5,8 +5,8 @@ extern "C"
 {
 
 	DLLEXPORT
-	void
-	FillDATPluginInfo(DAT_PluginInfo* info)
+		void
+		FillDATPluginInfo(DAT_PluginInfo* info)
 	{
 		// Always return DAT_CPLUSPLUS_API_VERSION in this function.
 		info->apiVersion = DATCPlusPlusAPIVersion;
@@ -32,8 +32,8 @@ extern "C"
 	}
 
 	DLLEXPORT
-	DAT_CPlusPlusBase*
-	CreateDATInstance(const OP_NodeInfo* info)
+		DAT_CPlusPlusBase*
+		CreateDATInstance(const OP_NodeInfo* info)
 	{
 		// Return a new instance of your class every time this is called.
 		// It will be called once per DAT that is using the .dll
@@ -41,8 +41,8 @@ extern "C"
 	}
 
 	DLLEXPORT
-	void
-	DestroyDATInstance(DAT_CPlusPlusBase* instance)
+		void
+		DestroyDATInstance(DAT_CPlusPlusBase* instance)
 	{
 		// Delete the instance here, this will be called when
 		// Touch is shutting down, when the DAT using that instance is deleted, or
