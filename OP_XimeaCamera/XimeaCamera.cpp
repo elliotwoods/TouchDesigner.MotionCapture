@@ -61,7 +61,7 @@ namespace TD_MoCap {
 				if (enabled) {
 					// check all parameters are up to date on device
 					{
-						std::lock_guard<std::mutex>(this->parameters.mutex);
+						std::lock_guard<std::mutex> lock(this->parameters.mutex);
 
 						for (auto parameter : this->parameters.list) {
 							// float parameter
@@ -114,7 +114,7 @@ namespace TD_MoCap {
 					// perform the updates
 					this->cameraThread->performInThread([this](xiAPIplus_Camera& camera) {
 						try {
-							std::lock_guard<std::mutex>(this->parameters.mutex);
+							std::lock_guard<std::mutex> lock(this->parameters.mutex);
 
 							for (auto parameter : this->parameters.stale) {
 								this->cameraThread->pushToCamera(parameter);
@@ -122,7 +122,7 @@ namespace TD_MoCap {
 							this->parameters.stale.clear();
 						}
 						catch (const Exception& e) {
-							std::lock_guard<std::mutex>(this->errorsLock);
+							std::lock_guard<std::mutex> lock(this->errorsLock);
 							this->errors.push_back(e);
 						}
 					}, false);
