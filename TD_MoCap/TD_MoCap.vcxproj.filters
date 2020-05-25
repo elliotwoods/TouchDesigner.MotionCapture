@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="pch_TD_MoCap.cpp" />
+    <ClCompile Include="Links\Output.cpp">
+      <Filter>Links</Filter>
+    </ClCompile>
+    <ClCompile Include="Links\Input.cpp">
+      <Filter>Links</Filter>
+    </ClCompile>
+    <ClCompile Include="Links\BaseFrame.cpp">
+      <Filter>Links</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\Table.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\WorkerThread.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Exception.cpp" />
+    <ClCompile Include="Utils\Parameter.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch_TD_MoCap.h" />
+    <ClInclude Include="TD_MoCap.h" />
+    <ClInclude Include="Links\Output.h">
+      <Filter>Links</Filter>
+    </ClInclude>
+    <ClInclude Include="Links\Input.h">
+      <Filter>Links</Filter>
+    </ClInclude>
+    <ClInclude Include="Links\BaseFrame.h">
+      <Filter>Links</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Table.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Channel.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\WorkerThread.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Exception.h" />
+    <ClInclude Include="Utils\Parameter.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Event.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Links">
+      <UniqueIdentifier>{9fafc1fd-a587-4eea-8ffb-da4d6d6738f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{58ecc804-7e9d-44f3-bf4a-03ee127db501}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

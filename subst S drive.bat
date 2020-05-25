@@ -1,0 +1,2 @@
+subst S: "."
+explorer S:
