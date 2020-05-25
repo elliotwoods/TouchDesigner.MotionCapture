@@ -105,6 +105,14 @@ namespace TD_MoCap {
 							this->errors.push_back(e);
 						}
 					}, false);
+
+					// get all errors from camera thread
+					{
+						Exception e;
+						while (this->cameraThread->errorsFromThread.tryReceive(e)) {
+							this->errors.push_back(e);
+						}
+					}
 				}
 				else {
 				
@@ -190,8 +198,8 @@ namespace TD_MoCap {
 						param.label = label.c_str();
 
 						param.defaultValues[0] = floatParameter->getDefaultValue();
-						param.minSliders[0] = floatParameter->getMin();
-						param.maxSliders[0] = floatParameter->getMax();
+						param.minSliders[0] = floatParameter->getSliderMin();
+						param.maxSliders[0] = floatParameter->getSliderMax();
 						param.minValues[0] = floatParameter->getMin();
 						param.maxValues[0] = floatParameter->getMax();
 

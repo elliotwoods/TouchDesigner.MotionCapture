@@ -35,7 +35,18 @@ namespace TD_MoCap {
 				, value(value)
 				, defaultValue(defaultValue)
 				, min(min)
-				, max(max) {
+				, max(max)
+				, sliderMin(min)
+				, sliderMax(max) {
+			}
+			ValueParameter(const std::string& name, const std::string& units, T value, T defaultValue, T min, T max, T sliderMin, T sliderMax)
+				: AbstractParameter(name, units)
+				, value(value)
+				, defaultValue(defaultValue)
+				, min(min)
+				, max(max)
+				, sliderMin(sliderMin)
+				, sliderMax(sliderMax) {
 			}
 
 			const T& getValue() const {
@@ -59,11 +70,21 @@ namespace TD_MoCap {
 				return this->max;
 			}
 
+			const T& getSliderMin() const {
+				return this->sliderMin;
+			}
+
+			const T& getSliderMax() const {
+				return this->sliderMax;
+			}
+
 		protected:
 			T value;
 			T defaultValue;
 			T min;
 			T max;
+			T sliderMin;
+			T sliderMax;
 		};
 
 		template<>

@@ -49,17 +49,24 @@ namespace TD_MoCap {
 
 	//----------
 	void CameraThread::performInThread(std::function<void(xiAPIplus_Camera&)> action, bool blocking) {
-		auto wrappedAction = [this, action] {
-			this->runAndFormatExceptions([&] {
-				action(this->camera);
-			});
-		};
-
 		if (blocking) {
-			this->workerThread.performBlocking(wrappedAction);
+			this->workerThread.performBlocking([this, action] {
+				this->runAndFormatExceptions([&] {
+					action(this->camera);
+				});
+			});
 		}
 		else {
-			this->workerThread.perform(wrappedAction);
+			this->workerThread.perform([this, action] {
+				try {
+					this->runAndFormatExceptions([&] {
+						action(this->camera);
+					});
+				}
+				catch (const Exception& e) {
+					this->errorsFromThread.send(e);
+				}
+			});
 		}
 	}
 
@@ -87,39 +94,48 @@ namespace TD_MoCap {
 
 	//----------
 	void CameraThread::requestCapture() {
-		this->workerThread.perform([this] {
-			xiAPIplus_Image image;
-			this->camera.GetNextImage(&image);
+		this->performInThread([this](xiAPIplus_Camera& camera) {
+			try {
+				xiAPIplus_Image image;
+				camera.GetNextImage(&image);
 
-			// Send the frame
-			{
-				// Copy pixels into CV format
-				auto frame = std::make_shared<XimeaCameraFrame>();
-				frame->image = cv::Mat(cv::Size(image.GetWidth(), image.GetHeight())
-					, CV_8U
-					, image.GetPixels());
+				// Send the frame
 				{
-					cv::Mat preview;
-					cv::pyrDown(frame->image, preview);
-					cv::imshow("Ximea capture", preview);
-					cv::waitKey(1);
-				}
+					// Copy pixels into CV format
+					auto frame = std::make_shared<XimeaCameraFrame>();
+					frame->image = cv::Mat(cv::Size(image.GetWidth(), image.GetHeight())
+						, CV_8U
+						, image.GetPixels());
+					{
+						cv::Mat preview;
+						cv::pyrDown(frame->image, preview);
+						cv::imshow("Ximea capture", preview);
+						cv::waitKey(1);
+					}
 
-				// Get frame metadata
-				{
-					auto frameData = image.GetXI_IMG();
-					frame->metaData.frameIndex = frameData->acq_nframe;
-					frame->metaData.timeStamp = std::chrono::seconds(frameData->tsSec) + std::chrono::microseconds(frameData->tsUSec);
-				}
+					// Get frame metadata
+					{
+						auto frameData = image.GetXI_IMG();
+						frame->metaData.frameIndex = frameData->acq_nframe;
+						frame->metaData.timeStamp = std::chrono::seconds(frameData->tsSec) + std::chrono::microseconds(frameData->tsUSec);
+					}
 
-				this->output.send(frame);
+					this->output.send(frame);
+				}
+			}
+			catch (...) {
+				// request before rethrowing
+				if (!this->joining) {
+					this->requestCapture();
+				}
+				throw;
 			}
 
 			// If we're not closing then request another frame capture
 			if (!this->joining) {
 				this->requestCapture();
 			}
-		});
+		}, false);
 	}
 
 	//----------
@@ -140,7 +156,7 @@ namespace TD_MoCap {
 			throw(Exception(ss.str()));
 		}
 		catch (const Exception& e) {
-			throw(e);
+			throw;
 		}
 		catch (const cv::Exception& e) {
 			throw(Exception(e.what()));
