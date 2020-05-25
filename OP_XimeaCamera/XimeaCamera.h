@@ -51,13 +51,16 @@ namespace TD_MoCap {
 		bool needsReopen = false;
 
 		struct {
-			Utils::ValueParameter <float> exposure{
+			Utils::NumberParameter<float> exposure{
 				"Exposure", "ms"
 				, 10, 10
 				, 0, 10000
 				, 0, 100
 			};
-			Utils::ParameterList list{ &exposure };
+			Utils::ValueParameter<bool> preview{
+				"Preview", true, true
+			};
+			Utils::ParameterList list{ &exposure, &preview };
 			std::set<Utils::AbstractParameter *> stale;
 			std::mutex mutex;
 		} parameters;

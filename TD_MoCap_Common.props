@@ -17,9 +17,9 @@
       <PrecompiledHeaderFile>pch_$(ProjectName).h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>../thirdparty/TouchDesigner/include;../thirdparty/opencv/include;../TD_MoCap;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
-    <Lib>
+    <Link>
       <AdditionalLibraryDirectories>..\thirdparty\opencv\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <Link>
@@ -29,7 +29,6 @@
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <Link>
       <AdditionalDependencies>opencv_world430d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\thirdparty\opencv\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

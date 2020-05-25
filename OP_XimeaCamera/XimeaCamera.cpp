@@ -60,7 +60,7 @@ namespace TD_MoCap {
 						for (auto parameter : this->parameters.list) {
 							// float parameter
 							{
-								auto typedParameter = dynamic_cast<Utils::ValueParameter<float>*>(parameter);
+								auto typedParameter = dynamic_cast<Utils::NumberParameter<float>*>(parameter);
 								if (typedParameter) {
 									auto valueInTD = (float)inputs->getParDouble(typedParameter->getName().c_str(), 0);
 									auto valueInCameraDriver = typedParameter->getValue();
@@ -75,10 +75,25 @@ namespace TD_MoCap {
 
 							// int parameter
 							{
-								auto typedParameter = dynamic_cast<Utils::ValueParameter<int>*>(parameter);
+								auto typedParameter = dynamic_cast<Utils::NumberParameter<int>*>(parameter);
 								if (typedParameter) {
 									auto valueInTD = (float)inputs->getParDouble(typedParameter->getName().c_str(), 0);
 									auto valueInCameraDriver = typedParameter->getValue();
+									if (valueInTD != valueInCameraDriver) {
+										typedParameter->setValue(valueInTD);
+										{
+											this->parameters.stale.insert(parameter);
+										}
+									}
+								}
+							}
+
+							// bool parameter
+							{
+								auto typedParameter = dynamic_cast<Utils::ValueParameter<bool>*>(parameter);
+								if (typedParameter) {
+									auto valueInTD = (float)inputs->getParInt(typedParameter->getName().c_str(), 0);
+									auto valueInCameraDriver = typedParameter->getValue() ? 1 : 0;
 									if (valueInTD != valueInCameraDriver) {
 										typedParameter->setValue(valueInTD);
 										{
@@ -189,7 +204,7 @@ namespace TD_MoCap {
 		{
 			for (const auto & parameter : this->parameters.list) {
 				{
-					auto floatParameter = dynamic_cast<Utils::ValueParameter<float> *>(parameter);
+					auto floatParameter = dynamic_cast<Utils::NumberParameter<float> *>(parameter);
 					if (floatParameter) {
 						OP_NumericParameter param;
 
@@ -213,7 +228,7 @@ namespace TD_MoCap {
 						continue;
 					}
 
-					auto intParameter = dynamic_cast<Utils::ValueParameter<int>*>(parameter);
+					auto intParameter = dynamic_cast<Utils::NumberParameter<int>*>(parameter);
 					if (intParameter) {
 						OP_NumericParameter param;
 
@@ -230,6 +245,21 @@ namespace TD_MoCap {
 						param.clampMaxes[0] = minMaxEnabled;
 
 						auto res = manager->appendInt(param);
+						assert(res == OP_ParAppendResult::Success);
+
+						continue;
+					}
+
+					auto boolParameter = dynamic_cast<Utils::ValueParameter<bool>*>(parameter);
+					if (boolParameter) {
+						OP_NumericParameter param;
+
+						param.name = boolParameter->getName().c_str();
+						param.label = param.name;
+
+						param.defaultValues[0] = boolParameter->getDefaultValue() ? 1 : 0;
+
+						auto res = manager->appendToggle(param);
 						assert(res == OP_ParAppendResult::Success);
 
 						continue;

@@ -21,6 +21,9 @@
     <ClCompile Include="Utils\Parameter.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Utils\FrameRateCounter.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch_TD_MoCap.h" />
@@ -48,6 +51,9 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Event.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\FrameRateCounter.h">
       <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>

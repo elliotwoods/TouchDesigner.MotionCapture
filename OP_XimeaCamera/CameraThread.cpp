@@ -33,7 +33,6 @@ namespace TD_MoCap {
 			}
 		});
 
-		cv::namedWindow("Ximea capture");
 		this->requestCapture();
 	}
 
@@ -44,7 +43,7 @@ namespace TD_MoCap {
 			this->camera.StopAcquisition();
 			this->camera.Close();
 		});
-		cv::destroyAllWindows();
+		cv::destroyWindow(this->windowName);
 	}
 
 	//----------
@@ -74,9 +73,18 @@ namespace TD_MoCap {
 	void CameraThread::pushToCamera(Utils::AbstractParameter* parameter) {
 		auto name = parameter->getName();
 		if (name == "Exposure") {
-			auto typedParameter = dynamic_cast<Utils::ValueParameter<float>*>(parameter);
+			auto typedParameter = dynamic_cast<Utils::NumberParameter<float>*>(parameter);
 			if (typedParameter) {
 				this->camera.SetExposureTime(typedParameter->getValue() * 1000.0f);
+			}
+		}
+		else if (name == "Preview") {
+			auto typedParameter = dynamic_cast<Utils::ValueParameter<bool>*>(parameter);
+			if (typedParameter) {
+				this->showPreviewWindow = typedParameter->getValue();
+				if (!this->showPreviewWindow) {
+					cv::destroyWindow(this->windowName);
+				}
 			}
 		}
 	}
@@ -85,7 +93,7 @@ namespace TD_MoCap {
 	void CameraThread::pullFromCamera(Utils::AbstractParameter* parameter) {
 		auto name = parameter->getName();
 		if (name == "Exposure") {
-			auto typedParameter = dynamic_cast<Utils::ValueParameter<float>*>(parameter);
+			auto typedParameter = dynamic_cast<Utils::NumberParameter<float>*>(parameter);
 			if (typedParameter) {
 				typedParameter->setValue(this->camera.GetExposureTime() / 1000.0f);
 			}
@@ -99,29 +107,28 @@ namespace TD_MoCap {
 				xiAPIplus_Image image;
 				camera.GetNextImage(&image);
 
-				// Send the frame
-				{
-					// Copy pixels into CV format
-					auto frame = std::make_shared<XimeaCameraFrame>();
-					frame->image = cv::Mat(cv::Size(image.GetWidth(), image.GetHeight())
-						, CV_8U
-						, image.GetPixels());
-					{
-						cv::Mat preview;
-						cv::pyrDown(frame->image, preview);
-						cv::imshow("Ximea capture", preview);
-						cv::waitKey(1);
-					}
+				// Copy pixels into CV format
+				auto frame = std::make_shared<XimeaCameraFrame>();
+				frame->image = cv::Mat(cv::Size(image.GetWidth(), image.GetHeight())
+					, CV_8U
+					, image.GetPixels());
 
-					// Get frame metadata
-					{
-						auto frameData = image.GetXI_IMG();
-						frame->metaData.frameIndex = frameData->acq_nframe;
-						frame->metaData.timeStamp = std::chrono::seconds(frameData->tsSec) + std::chrono::microseconds(frameData->tsUSec);
-					}
-
-					this->output.send(frame);
+				if (this->showPreviewWindow) {
+					cv::Mat preview;
+					cv::pyrDown(frame->image, preview);
+					cv::imshow(this->windowName, preview);
+					cv::waitKey(1);
 				}
+
+				// Get frame metadata
+				{
+					auto frameData = image.GetXI_IMG();
+					frame->metaData.frameIndex = frameData->acq_nframe;
+					frame->metaData.timeStamp = std::chrono::seconds(frameData->tsSec) + std::chrono::microseconds(frameData->tsUSec);
+				}
+
+				// Send the frame
+				this->output.send(frame);
 			}
 			catch (...) {
 				// request before rethrowing

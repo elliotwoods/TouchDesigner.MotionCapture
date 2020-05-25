@@ -23,8 +23,11 @@ namespace TD_MoCap {
 
 		Links::Output& output;
 
+		bool showPreviewWindow = false;
 		bool joining = false;
 		Utils::WorkerThread workerThread;
 		xiAPIplus_Camera camera;
+
+		const std::string windowName = "Ximea preview";
 	};
 }

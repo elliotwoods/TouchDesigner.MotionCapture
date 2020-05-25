@@ -12,12 +12,13 @@ namespace TD_MoCap {
 		void Output::update() {
 			{
 				std::lock_guard<std::mutex> mutex(this->lockInfo);
-				this->info.receivedThisFrame = this->incomingInfo.receivedCount;
+				this->info.countThisFrame = this->incomingInfo.receivedCount;
+				this->info.frameRate = this->incomingInfo.fps;
 
 				// reset the frame info
 				this->incomingInfo.receivedCount = 0;
 			}
-			this->info.totalReceivedFrames += this->info.receivedThisFrame;
+			this->info.totalCount += this->info.countThisFrame;
 		}
 
 		//----------
@@ -25,6 +26,8 @@ namespace TD_MoCap {
 			{
 				std::lock_guard<std::mutex> mutex(this->lockInfo);
 				this->incomingInfo.receivedCount++;
+				this->frameRateCounter.tick();
+				this->incomingInfo.fps = this->frameRateCounter.getFPS();
 			}
 		}
 
@@ -33,10 +36,10 @@ namespace TD_MoCap {
 			Utils::Table table;
 
 			table.newRow() << "ID" << this->info.ID;
-			table.newRow() << "receivedThisFrame" << this->info.receivedThisFrame;
-			table.newRow() << "totalReceivedFrames" << this->info.totalReceivedFrames;
-			table.newRow() << "incomingFrameRate" << this->info.incomingFrameRate;
-			table.newRow() << "subscribers" << this->info.subscribers;
+			table.newRow() << "framesSentThisMainloopFrame" << this->info.countThisFrame;
+			table.newRow() << "totalFrameCount" << this->info.totalCount;
+			table.newRow() << "outputFrameRate" << this->info.frameRate;
+			table.newRow() << "subscriberCount" << this->info.subscriberCount;
 
 			table.populateOutput(output);
 		}

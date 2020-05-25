@@ -19,6 +19,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Utils\FrameRateCounter.cpp" />
     <ClCompile Include="Utils\Parameter.cpp" />
     <ClCompile Include="Utils\Table.cpp" />
     <ClCompile Include="Utils\WorkerThread.cpp" />
@@ -32,6 +33,7 @@
     <ClInclude Include="TD_MoCap.h" />
     <ClInclude Include="Utils\Channel.h" />
     <ClInclude Include="Utils\Event.h" />
+    <ClInclude Include="Utils\FrameRateCounter.h" />
     <ClInclude Include="Utils\Parameter.h" />
     <ClInclude Include="Utils\Table.h" />
     <ClInclude Include="Utils\WorkerThread.h" />
