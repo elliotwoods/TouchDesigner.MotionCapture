@@ -3,23 +3,27 @@
 
 namespace TD_MoCap {
 	//----------
-	XimeaCamera::XimeaCamera(const OP_NodeInfo* info) {
+	XimeaCamera::XimeaCamera(const OP_NodeInfo* info)
+	{
 	}
 
 	//----------
-	XimeaCamera::~XimeaCamera() {
+	XimeaCamera::~XimeaCamera()
+	{
 		this->close();
 	}
 
 	//----------
 	void
-		XimeaCamera::getGeneralInfo(DAT_GeneralInfo* info, const OP_Inputs*, void* reserved1) {
+		XimeaCamera::getGeneralInfo(DAT_GeneralInfo* info, const OP_Inputs*, void* reserved1)
+	{
 		info->cookEveryFrame = true;
 	}
 
 	//----------
 	void
-		XimeaCamera::execute(DAT_Output* output, const OP_Inputs* inputs, void* reserved) {
+		XimeaCamera::execute(DAT_Output* output, const OP_Inputs* inputs, void* reserved)
+	{
 		if (!output) {
 			return;
 		}
@@ -141,36 +145,41 @@ namespace TD_MoCap {
 			this->output.populateMainThreadOutput(output);
 		}
 		catch (const Exception & e) {
-			std::lock_guard<std::mutex>(this->errorsLock);
+			std::lock_guard<std::mutex> lock(this->errorsLock);
 			this->errors.push_back(e);
 		}
 	}
 
 	//----------
 	int32_t
-		XimeaCamera::getNumInfoCHOPChans(void* reserved1) {
+		XimeaCamera::getNumInfoCHOPChans(void* reserved1)
+	{
 		return 0;
 	}
 
 	//----------
 	void
-		XimeaCamera::getInfoCHOPChan(int index, OP_InfoCHOPChan* chan, void* reserved1) {
+		XimeaCamera::getInfoCHOPChan(int index, OP_InfoCHOPChan* chan, void* reserved1)
+	{
 	}
 
 	//----------
 	bool
-		XimeaCamera::getInfoDATSize(OP_InfoDATSize* infoSize, void* reserved1) {
+		XimeaCamera::getInfoDATSize(OP_InfoDATSize* infoSize, void* reserved1)
+	{
 		return false;
 	}
 
 	//----------
 	void
-		XimeaCamera::getInfoDATEntries(int32_t index, int32_t nEntries, OP_InfoDATEntries* entries, void* reserved1) {
+		XimeaCamera::getInfoDATEntries(int32_t index, int32_t nEntries, OP_InfoDATEntries* entries, void* reserved1)
+	{
 	}
 
 	//----------
 	void
-		XimeaCamera::setupParameters(OP_ParameterManager* manager, void* reserved1) {
+		XimeaCamera::setupParameters(OP_ParameterManager* manager, void* reserved1)
+	{
 		// Serial number
 		{
 			OP_StringParameter param;
@@ -303,7 +312,8 @@ namespace TD_MoCap {
 
 	//----------
 	void
-		XimeaCamera::pulsePressed(const char* name, void* reserved1) {
+		XimeaCamera::pulsePressed(const char* name, void* reserved1)
+	{
 		if (!strcmp(name, "Reopen")) {
 			this->needsReopen = true;
 		}
@@ -311,7 +321,8 @@ namespace TD_MoCap {
 
 	//----------
 	void
-		XimeaCamera::getErrorString(OP_String* error, void* reserved1) {
+		XimeaCamera::getErrorString(OP_String* error, void* reserved1)
+	{
 		std::lock_guard<std::mutex> lock(this->errorsLock);
 
 		if (!this->errors.empty()) {
@@ -325,13 +336,15 @@ namespace TD_MoCap {
 
 	//----------
 	void
-		XimeaCamera::open(const OP_Inputs* inputs) {
+		XimeaCamera::open(const OP_Inputs* inputs)
+	{
 		this->cameraThread = std::make_shared<CameraThread>(inputs, this->parameters.list, this->output);
 	}
 
 	//----------
 	void
-		XimeaCamera::close() {
+		XimeaCamera::close()
+	{
 		this->cameraThread.reset();
 	}
 }
