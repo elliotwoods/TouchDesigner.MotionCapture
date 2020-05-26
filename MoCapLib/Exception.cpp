@@ -18,4 +18,28 @@ namespace TD_MoCap {
 	{
 		this->message = message;
 	}
+
+	//----------
+	const std::string & 
+		Exception::what() const {
+		return this->message;
+	}
+
+	//----------
+	void
+		rethrowFormattedExceptions(const std::function<void()>& action)
+	{
+		try {
+			action();
+		}
+		catch (const Exception&) {
+			throw; // rethrow
+		}
+		catch (const std::exception& e) {
+			throw(Exception(e.what()));
+		}
+		catch (...) {
+			throw(Exception("Unknown exception"));
+		}
+	}
 }

@@ -13,7 +13,7 @@
   <ItemGroup>
     <ClInclude Include="C:\XIMEA\Examples\Sources\_libs\xiAPIplus\xiapiplus.h" />
     <ClInclude Include="CameraThread.h" />
-    <ClInclude Include="XimeaCamera.h" />
+    <ClInclude Include="OP_XimeaCamera.h" />
     <ClInclude Include="pch_OP_XimeaCamera.h" />
     <ClInclude Include="XimeaCameraFrame.h" />
   </ItemGroup>
@@ -24,7 +24,7 @@
     </ClCompile>
     <ClCompile Include="CameraThread.cpp" />
     <ClCompile Include="plugin.cpp" />
-    <ClCompile Include="XimeaCamera.cpp" />
+    <ClCompile Include="OP_XimeaCamera.cpp" />
     <ClCompile Include="pch_OP_XimeaCamera.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

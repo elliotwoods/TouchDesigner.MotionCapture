@@ -111,6 +111,18 @@ namespace TD_MoCap {
 			T sliderMax;
 		};
 
+		class TDMOCAP_API SelectorParameter : public ValueParameter<std::string>
+		{
+		public:
+			SelectorParameter(const std::string& name
+				, const std::initializer_list<std::string>& options
+				, const std::string& defaultValue);
+
+			const std::vector<std::string> & getOptions();
+		protected:
+			std::vector<std::string> options;
+		};
+
 		class TDMOCAP_API ParameterList : public std::vector<AbstractParameter*>
 		{
 		public:

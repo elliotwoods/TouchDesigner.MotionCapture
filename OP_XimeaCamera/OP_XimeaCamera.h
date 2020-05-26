@@ -12,11 +12,11 @@
 #include <set>
 
 namespace TD_MoCap {
-	class XimeaCamera : public DAT_CPlusPlusBase
+	class OP_XimeaCamera : public DAT_CPlusPlusBase
 	{
 	public:
-		XimeaCamera(const OP_NodeInfo* info);
-		virtual ~XimeaCamera();
+		OP_XimeaCamera(const OP_NodeInfo* info);
+		virtual ~OP_XimeaCamera();
 
 		virtual void		getGeneralInfo(DAT_GeneralInfo*, const OP_Inputs*, void* reserved1) override;
 
@@ -38,7 +38,7 @@ namespace TD_MoCap {
 		virtual void		setupParameters(OP_ParameterManager* manager, void* reserved1) override;
 		virtual void		pulsePressed(const char* name, void* reserved1) override;
 
-		virtual void		getErrorString(OP_String* error, void* reserved1);
+		virtual void		getErrorString(OP_String* error, void* reserved1) override;
 	protected:
 		void open(const OP_Inputs*);
 		void close();
@@ -65,7 +65,15 @@ namespace TD_MoCap {
 				"Preview", false, false
 			};
 
-			Utils::ParameterList list{ &exposure, &preview };
+			Utils::SelectorParameter trigger
+			{
+				"Trigger"
+				, {"Freerun", "Mainloop", "Manual", "Follower"}
+				, "Freerun"
+			};
+
+
+			Utils::ParameterList list{ &exposure, &preview, &trigger};
 			std::set<Utils::AbstractParameter *> stale;
 			std::mutex mutex;
 		} parameters;

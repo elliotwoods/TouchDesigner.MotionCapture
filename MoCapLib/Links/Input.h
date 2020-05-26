@@ -5,6 +5,8 @@
 
 namespace TD_MoCap {
 	namespace Links {
+		class Output;
+
 		class TDMOCAP_API Input
 		{
 		public:
@@ -14,9 +16,19 @@ namespace TD_MoCap {
 			void unsubscribe();
 			void subscribe(Output::ID);
 			
-			Utils::Channel<std::shared_ptr<BaseFrame>> channel;
+			// called from Links::Output
+			void send(std::shared_ptr<BaseFrame>);
+
+			// called from host class
+			std::shared_ptr<BaseFrame> receiveNextFrame(bool waitForFrame);
+
+			// called from host class
+			std::shared_ptr<BaseFrame> receiveLatestFrame(bool useCached);
 		protected:
 			Output* connectedOutput = nullptr;
+			Utils::Channel<std::shared_ptr<BaseFrame>> channel;
+
+			std::shared_ptr<BaseFrame> lastFrame;
 		};
 	}
 }

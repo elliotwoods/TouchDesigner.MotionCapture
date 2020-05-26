@@ -41,7 +41,7 @@ namespace TD_MoCap {
 				else {
 					// buffer is only partially full
 					auto dt = this->data[this->firstRun - 1] - this->data[0];
-					return (1000.0f * firstRun) / std::chrono::duration<float, std::milli>(dt).count();
+					return (1000.0f * (firstRun - 1)) / std::chrono::duration<float, std::milli>(dt).count();
 				}
 			}
 			else {
@@ -50,7 +50,7 @@ namespace TD_MoCap {
 				auto windowBegin = (this->position + 1) % this->windowSize;
 
 				auto dt = this->data[windowEnd] - this->data[windowBegin];
-				return (1000.0f * this->windowSize) / std::chrono::duration<float, std::milli>(dt).count();
+				return (1000.0f * (this->windowSize - 1)) / std::chrono::duration<float, std::milli>(dt).count();
 			}
 		}
 	}

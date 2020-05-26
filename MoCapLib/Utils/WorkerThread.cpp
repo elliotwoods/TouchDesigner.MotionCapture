@@ -7,11 +7,30 @@
 namespace TD_MoCap {
 	namespace Utils {
 		//----------
+		WorkerThread::PerformLock::~PerformLock()
+		{
+			this->actionQueue->close();
+		}
+
+		//----------
+		void
+			WorkerThread::PerformLock::perform(const Action& action)
+		{
+			this->actionQueue->send(action);
+		}
+
+		//----------
+		WorkerThread::PerformLock::PerformLock(std::shared_ptr<ActionQueue> actionQueue)
+		{
+			this->actionQueue = actionQueue;
+		}
+
+		//----------
 		WorkerThread::WorkerThread()
 		{
 			this->thread = std::thread([this] {
 				while (this->running) {
-					std::function<void()> action;
+					Action action;
 					if (workQueue.tryReceive(action, 1000)) {
 						action();
 					}
@@ -30,20 +49,27 @@ namespace TD_MoCap {
 			WorkerThread::join()
 		{
 			this->running = false;
-			this->perform([] {}); // send an empty action to nudge it out of waiting
+			this->workQueue.close();
 			this->thread.join();
 		}
 
 		//----------
 		void
-			WorkerThread::perform(const std::function<void()>& action)
+			WorkerThread::perform(const Action& action)
 		{
-			this->workQueue.send(action);
+			workQueue.send([this, action] {
+				try {
+					rethrowFormattedExceptions(action);
+				}
+				catch (Exception& e) {
+					this->exceptionsInThread.send(e);
+				}
+			});
 		}
 
 		//----------
 		void
-			WorkerThread::performBlocking(const std::function<void()>& action)
+			WorkerThread::performBlocking(const Action& action)
 		{
 			std::mutex mutex;
 			std::condition_variable cv;
@@ -86,6 +112,33 @@ namespace TD_MoCap {
 			if (exceptionThrown) {
 				throw(exception);
 			}
+		}
+
+		//----------
+		std::shared_ptr<WorkerThread::PerformLock>
+			WorkerThread::acquirePerformLock()
+		{
+			auto actionChannel = std::make_shared<ActionQueue>();
+			auto performLock = std::shared_ptr<PerformLock>(new PerformLock(actionChannel));
+			auto weakPerformLock = std::weak_ptr<PerformLock>(performLock);
+
+			this->perform([weakPerformLock, actionChannel] {
+				// when performLock goes out of scope elsewhere, we no longer continue here
+				auto performLock = weakPerformLock.lock();
+				while (performLock) {
+					performLock.reset();
+					
+					Action action;
+					// the wait for receive is overriden by the close() called in the destructor of PerformLock
+					while (actionChannel->receive(action)) {
+						action();
+					}
+
+					performLock = weakPerformLock.lock(); 
+				}
+			});
+
+			return performLock;
 		}
 	}
 }

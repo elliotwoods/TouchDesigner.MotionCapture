@@ -49,10 +49,11 @@ namespace TD_MoCap {
 	{
 		this->input.update(inputs->getParDAT("Source"));
 
-		if (!this->input.channel.empty()) {
-			while (this->input.channel.tryReceive(this->lastFrameReceived)) {
-				// flush frames until most recent
+		{
+			auto newFrame = this->input.receiveLatestFrame(false);
+			if (newFrame) {
 				this->previewDirty = true;
+				this->lastFrameReceived = newFrame;
 			}
 		}
 
@@ -79,6 +80,8 @@ namespace TD_MoCap {
 			memcpy(output->cpuPixelData[0]
 				, image.data
 				, image.total() * image.elemSize());
+
+			this->previewDirty = false;
 		}
 	}
 

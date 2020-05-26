@@ -11,19 +11,24 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SyncCameras.h" />
+    <ClInclude Include="OP_SyncCameras.h" />
     <ClInclude Include="pch_OP_SyncCameras.h" />
+    <ClInclude Include="Synchroniser.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp" />
-    <ClCompile Include="SyncCameras.cpp" />
+    <ClCompile Include="OP_SyncCameras.cpp" />
     <ClCompile Include="pch_OP_SyncCameras.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Synchroniser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MoCapLib\MoCapLib.vcxproj">
       <Project>{503e8306-8576-4e6c-a1db-109f90ec6127}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\OP_XimeaCamera\OP_XimeaCamera.vcxproj">
+      <Project>{92884d68-147a-4270-b517-f57727c76ca5}</Project>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -56,10 +61,12 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\TD_MoCap_Common.props" />
+    <Import Project="..\XimeaSDK.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\TD_MoCap_Common.props" />
+    <Import Project="..\XimeaSDK.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -74,6 +81,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;OP_SYNCCAMERAS_EXPORT;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../OP_XimeaCamera;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -89,6 +97,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;OP_SYNCCAMERAS_EXPORT;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../OP_XimeaCamera;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

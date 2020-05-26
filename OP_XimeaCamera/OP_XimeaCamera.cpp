@@ -1,28 +1,28 @@
 #include "pch_OP_XimeaCamera.h"
-#include "XimeaCamera.h"
+#include "OP_XimeaCamera.h"
 
 namespace TD_MoCap {
 	//----------
-	XimeaCamera::XimeaCamera(const OP_NodeInfo* info)
+	OP_XimeaCamera::OP_XimeaCamera(const OP_NodeInfo* info)
 	{
 	}
 
 	//----------
-	XimeaCamera::~XimeaCamera()
+	OP_XimeaCamera::~OP_XimeaCamera()
 	{
 		this->close();
 	}
 
 	//----------
 	void
-		XimeaCamera::getGeneralInfo(DAT_GeneralInfo* info, const OP_Inputs*, void* reserved1)
+		OP_XimeaCamera::getGeneralInfo(DAT_GeneralInfo* info, const OP_Inputs*, void* reserved1)
 	{
 		info->cookEveryFrame = true;
 	}
 
 	//----------
 	void
-		XimeaCamera::execute(DAT_Output* output, const OP_Inputs* inputs, void* reserved)
+		OP_XimeaCamera::execute(DAT_Output* output, const OP_Inputs* inputs, void* reserved)
 	{
 		if (!output) {
 			return;
@@ -98,9 +98,24 @@ namespace TD_MoCap {
 							{
 								auto typedParameter = dynamic_cast<Utils::ValueParameter<bool>*>(parameter);
 								if (typedParameter) {
-									auto valueInTD = (float)inputs->getParInt(typedParameter->getName().c_str(), 0);
+									auto valueInTD = (bool)inputs->getParInt(typedParameter->getName().c_str(), 0);
 									auto valueInCameraDriver = typedParameter->getValue() ? 1 : 0;
 									if (valueInTD != valueInCameraDriver) {
+										typedParameter->setValue(valueInTD);
+										{
+											this->parameters.stale.insert(parameter);
+										}
+									}
+								}
+							}
+
+							// string parameter
+							{
+								auto typedParameter = dynamic_cast<Utils::ValueParameter<std::string>*>(parameter);
+								if (typedParameter) {
+									auto valueInTD = inputs->getParString(typedParameter->getName().c_str());
+									auto valueInCameraDriver = typedParameter->getValue();
+									if (std::string(valueInTD) != valueInCameraDriver) {
 										typedParameter->setValue(valueInTD);
 										{
 											this->parameters.stale.insert(parameter);
@@ -127,10 +142,27 @@ namespace TD_MoCap {
 						}
 					}, false);
 
+					// perform mainloop trigger if we're in that mode
+					{
+						if (this->cameraThread && this->parameters.trigger.getValue() == "Mainloop") {
+							this->cameraThread->requestManualTrigger();
+						}
+					}
+
+					// update parameter states
+					{
+						if (this->cameraThread && this->parameters.trigger.getValue() == "Manual") {
+							inputs->enablePar("Manualtrigger", true);
+						}
+						else {
+							inputs->enablePar("Manualtrigger", false);
+						}
+					}
+
 					// get all errors from camera thread
 					{
 						Exception e;
-						while (this->cameraThread->errorsFromThread.tryReceive(e)) {
+						while (this->cameraThread->getThreadExceptionQueue().tryReceive(e)) {
 							this->errors.push_back(e);
 						}
 					}
@@ -152,33 +184,33 @@ namespace TD_MoCap {
 
 	//----------
 	int32_t
-		XimeaCamera::getNumInfoCHOPChans(void* reserved1)
+		OP_XimeaCamera::getNumInfoCHOPChans(void* reserved1)
 	{
 		return 0;
 	}
 
 	//----------
 	void
-		XimeaCamera::getInfoCHOPChan(int index, OP_InfoCHOPChan* chan, void* reserved1)
+		OP_XimeaCamera::getInfoCHOPChan(int index, OP_InfoCHOPChan* chan, void* reserved1)
 	{
 	}
 
 	//----------
 	bool
-		XimeaCamera::getInfoDATSize(OP_InfoDATSize* infoSize, void* reserved1)
+		OP_XimeaCamera::getInfoDATSize(OP_InfoDATSize* infoSize, void* reserved1)
 	{
 		return false;
 	}
 
 	//----------
 	void
-		XimeaCamera::getInfoDATEntries(int32_t index, int32_t nEntries, OP_InfoDATEntries* entries, void* reserved1)
+		OP_XimeaCamera::getInfoDATEntries(int32_t index, int32_t nEntries, OP_InfoDATEntries* entries, void* reserved1)
 	{
 	}
 
 	//----------
 	void
-		XimeaCamera::setupParameters(OP_ParameterManager* manager, void* reserved1)
+		OP_XimeaCamera::setupParameters(OP_ParameterManager* manager, void* reserved1)
 	{
 		// Serial number
 		{
@@ -280,22 +312,29 @@ namespace TD_MoCap {
 
 						continue;
 					}
+
+					auto selectorParameter = dynamic_cast<Utils::SelectorParameter*> (parameter);
+					if (selectorParameter) {
+						OP_StringParameter param;
+
+						param.name = selectorParameter->getName().c_str();
+						param.label = param.name;
+
+						param.defaultValue = selectorParameter->getDefaultValue().c_str();
+
+						std::vector<const char*> optionsC;
+						const auto& options = selectorParameter->getOptions();
+						for (const auto& option : options) {
+							optionsC.push_back(option.c_str());
+						}
+
+						auto res = manager->appendMenu(param, options.size(), optionsC.data(), optionsC.data());
+						assert(res == OP_ParAppendResult::Success);
+
+						continue;
+					}
 				}
 			}
-		}
-
-		// Trigger
-		{
-			OP_StringParameter param;
-
-			param.name = "Trigger";
-			param.label = param.name;
-
-			param.defaultValue = "Off";
-
-			const char* options[] = { "Off", "Manual", "Leader", "Follower" };
-			auto res = manager->appendMenu(param, 4, options, options);
-			assert(res == OP_ParAppendResult::Success);
 		}
 
 		// One shot
@@ -312,23 +351,28 @@ namespace TD_MoCap {
 
 	//----------
 	void
-		XimeaCamera::pulsePressed(const char* name, void* reserved1)
+		OP_XimeaCamera::pulsePressed(const char* name, void* reserved1)
 	{
-		if (!strcmp(name, "Reopen")) {
+		if (strcmp(name, "Reopen") == 0) {
 			this->needsReopen = true;
+		}
+		if (strcmp(name, "Manualtrigger") == 0) {
+			if (this->cameraThread) {
+				this->cameraThread->requestManualTrigger();
+			}
 		}
 	}
 
 	//----------
 	void
-		XimeaCamera::getErrorString(OP_String* error, void* reserved1)
+		OP_XimeaCamera::getErrorString(OP_String* error, void* reserved1)
 	{
 		std::lock_guard<std::mutex> lock(this->errorsLock);
 
 		if (!this->errors.empty()) {
 			std::string errorString;
 			for (const auto& error : this->errors) {
-				errorString += error + "\n";
+				errorString += error.what() +"\n";
 			}
 			error->setString(errorString.c_str());
 		}
@@ -336,14 +380,14 @@ namespace TD_MoCap {
 
 	//----------
 	void
-		XimeaCamera::open(const OP_Inputs* inputs)
+		OP_XimeaCamera::open(const OP_Inputs* inputs)
 	{
 		this->cameraThread = std::make_shared<CameraThread>(inputs, this->parameters.list, this->output);
 	}
 
 	//----------
 	void
-		XimeaCamera::close()
+		OP_XimeaCamera::close()
 	{
 		this->cameraThread.reset();
 	}

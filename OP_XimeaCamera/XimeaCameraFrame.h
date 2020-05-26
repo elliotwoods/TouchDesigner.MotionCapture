@@ -5,6 +5,8 @@
 #include <chrono>
 
 namespace TD_MoCap {
+	class CameraThread;
+
 	class OP_XIMEACAMERA_API XimeaCameraFrame : public Links::BaseFrame
 	{
 	public:
@@ -13,12 +15,13 @@ namespace TD_MoCap {
 
 		bool getPreviewImage(cv::Mat&) const override;
 
+		std::weak_ptr<CameraThread> cameraThread;
+
 		cv::Mat image;
 
 		struct {
 			uint64_t frameIndex;
 			std::chrono::microseconds timeStamp;
 		} metaData;
-		
 	};
 }

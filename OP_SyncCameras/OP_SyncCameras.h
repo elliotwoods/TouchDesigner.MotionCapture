@@ -4,21 +4,18 @@
 #include "DAT_CPlusPlusBase.h"
 
 #include "MoCapLib.h"
+#include "Synchroniser.h"
 
 #include <memory>
 #include <vector>
 #include <set>
 
 namespace TD_MoCap {
-	class SyncCameras : public DAT_CPlusPlusBase
+	class OP_SyncCameras : public DAT_CPlusPlusBase
 	{
 	public:
-		struct Camera {
-			Links::Input input;
-		};
-
-		SyncCameras(const OP_NodeInfo* info);
-		virtual ~SyncCameras();
+		OP_SyncCameras(const OP_NodeInfo* info);
+		virtual ~OP_SyncCameras();
 
 		virtual void		getGeneralInfo(DAT_GeneralInfo*, const OP_Inputs*, void* reserved1) override;
 
@@ -43,7 +40,7 @@ namespace TD_MoCap {
 		virtual void		getErrorString(OP_String* error, void* reserved1);
 	protected:
 		Links::Output output;
-		std::map<Links::Output::ID, std::unique_ptr<Camera>> cameras;
+		Synchroniser synchroniser;
 
 		std::mutex errorsLock;
 		std::vector<Exception> errors;

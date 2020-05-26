@@ -2,8 +2,11 @@
 
 #include "MoCapLib.h"
 
-#ifdef OP_XIMEACAMERA_EXPORTS
-	#define OP_XIMEACAMERA_API DLLEXPORT
+#include "CameraThread.h"
+#include "pch_OP_SyncCameras.h"
+
+#ifdef OP_SYNCCAMERAS_EXPORTS
+	#define OP_SYNCCAMERAS_API DLLEXPORT
 #else
-	#define OP_XIMEACAMERA_API
+	#define OP_SYNCCAMERAS_API
 #endif

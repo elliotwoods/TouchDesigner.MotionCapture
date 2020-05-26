@@ -26,7 +26,9 @@ namespace TD_MoCap {
 		//----------
 		Output::~Output()
 		{
-			for (const auto input : this->subscribedInputs)
+			// we copy the list because calling unsubscribe edits the list
+			auto copyOfSubscribers = this->subscribedInputs;
+			for (const auto input : copyOfSubscribers)
 			{
 				input->unsubscribe();
 			}
@@ -73,7 +75,7 @@ namespace TD_MoCap {
 				this->incomingInfo.fps = this->frameRateCounter.getFPS();
 
 				for (auto input : this->subscribedInputs) {
-					input->channel.send(frame);
+					input->send(frame);
 				}
 			}
 		}

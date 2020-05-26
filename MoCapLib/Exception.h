@@ -12,6 +12,8 @@ namespace TD_MoCap {
 		virtual operator bool() const {
 			return true;
 		}
+
+		const std::string& what() const;
 	protected:
 		std::string message;
 	};
@@ -23,4 +25,6 @@ namespace TD_MoCap {
 			return false;
 		}
 	};
+
+	void TDMOCAP_API rethrowFormattedExceptions(const std::function<void()>&);
 }

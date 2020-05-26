@@ -5,34 +5,32 @@
 
 namespace TD_MoCap {
 	//----------
-	CameraThread::CameraThread(const OP_Inputs* inputs, const Utils::ParameterList & parameterList, Links::Output& output)
-	: output(output)
+	CameraThread::CameraThread(const OP_Inputs* inputs, const Utils::ParameterList& parameterList, Links::Output& output)
+		: output(output)
 	{
 		auto serialNumber = std::string(inputs->getParString("Serial"));
 
-		this->workerThread.performBlocking([this, serialNumber, &parameterList] {
-			this->runAndFormatExceptions([&] {
-				// Open device
-				if (!serialNumber.empty()) {
-					this->camera.OpenBySN(const_cast<char*>(serialNumber.c_str()));
-				}
-				else {
-					this->camera.OpenFirst();
-				}
+		this->performInThread([this, serialNumber, &parameterList] (xiAPIplus_Camera &) {
+			// Open device
+			if (!serialNumber.empty()) {
+				this->camera.OpenBySN(const_cast<char*>(serialNumber.c_str()));
+			}
+			else {
+				this->camera.OpenFirst();
+			}
 
-				// Setup parameters
-				for (auto parameter : parameterList) {
-					this->pushToCamera(parameter);
-				}
+			// Setup parameters
+			for (auto parameter : parameterList) {
+				this->pushToCamera(parameter);
+			}
 
-				// Start acquisition
-				this->camera.StartAcquisition();
-			});
+			// Start acquisition
+			this->camera.StartAcquisition();
 
 			if (!this->camera.IsAcquisitionActive()) {
 				throw(Exception("Failed to open camera"));
 			}
-		});
+		}, true);
 
 		this->requestCapture();
 	}
@@ -45,7 +43,7 @@ namespace TD_MoCap {
 			this->camera.StopAcquisition();
 			this->camera.Close();
 		});
-//		cv::destroyWindow(this->windowName); // this seems to hang
+		//		cv::destroyWindow(this->windowName); // this seems to hang
 	}
 
 	//----------
@@ -54,21 +52,16 @@ namespace TD_MoCap {
 	{
 		if (blocking) {
 			this->workerThread.performBlocking([this, action] {
-				this->runAndFormatExceptions([&] {
+				this->rethrowFormattedExceptions([&] {
 					action(this->camera);
 				});
 			});
 		}
 		else {
 			this->workerThread.perform([this, action] {
-				try {
-					this->runAndFormatExceptions([&] {
-						action(this->camera);
-					});
-				}
-				catch (const Exception& e) {
-					this->errorsFromThread.send(e);
-				}
+				this->rethrowFormattedExceptions([&] {
+					action(this->camera);
+				});
 			});
 		}
 	}
@@ -93,6 +86,47 @@ namespace TD_MoCap {
 				}
 			}
 		}
+		else if (name == "Trigger") {
+			auto typedParameter = dynamic_cast<Utils::SelectorParameter*> (parameter);
+
+			bool acquisitionWasActive = camera.IsAcquisitionActive();
+			if (acquisitionWasActive) {
+				camera.StopAcquisition();
+			}
+
+			if (typedParameter) {
+				const auto& trigger = typedParameter->getValue();
+
+				//reference : https://www.ximea.com/support/wiki/apis/XiAPI_Camera_Trigger_and_Synchronization_Signals
+				if (trigger == "Freerun") {
+					this->camera.SetTriggerSource(XI_TRG_SOURCE::XI_TRG_OFF);
+				}
+				else if (trigger == "Mainloop") {
+					this->camera.SetTriggerSource(XI_TRG_SOURCE::XI_TRG_SOFTWARE);
+				}
+				else if (trigger == "Manual") {
+					this->camera.SetTriggerSource(XI_TRG_SOURCE::XI_TRG_SOFTWARE);
+				}
+				else if (trigger == "Follower") {
+					this->camera.SetGPISelector(XI_GPI_SELECTOR::XI_GPI_PORT1);
+					this->camera.SetGPIMode(XI_GPI_TRIGGER);
+					this->camera.SetTriggerSource(XI_TRG_SOURCE::XI_TRG_EDGE_RISING);
+				}
+				else {
+					throw(Exception("Trigger mode not supported"));
+				}
+
+				// If we're not following, then always enable the trigger output
+				if (trigger != "Follower") {
+					this->camera.SetGPOSelector(XI_GPO_SELECTOR::XI_GPO_PORT1);
+					this->camera.SetGPOMode(XI_GPO_MODE::XI_GPO_EXPOSURE_ACTIVE);
+				}
+			}
+
+			if (acquisitionWasActive) {
+				camera.StartAcquisition();
+			}
+		}
 	}
 
 	//----------
@@ -110,35 +144,81 @@ namespace TD_MoCap {
 
 	//----------
 	void
+		CameraThread::requestManualTrigger()
+	{
+		this->performInThread([this] (xiAPIplus_Camera & camera) {
+			// it seems this flag will be automatically cleared
+			// reference Setup 2 at https://www.ximea.com/support/wiki/apis/XiAPI_Camera_Trigger_and_Synchronization_Signals
+			camera.SetTriggerSoftware(1);
+		}, false);
+	}
+
+	//----------
+	xiAPIplus_Camera & 
+		CameraThread::getCamera()
+	{
+		return this->camera;
+	}
+
+	//----------
+	Utils::WorkerThread &
+		CameraThread::getThread()
+	{
+		return this->workerThread;
+	}
+
+	//----------
+	Utils::Channel<Exception>&
+		CameraThread::getThreadExceptionQueue()
+	{
+		return this->workerThread.exceptionsInThread;
+	}
+
+	//----------
+	void
 		CameraThread::requestCapture() {
 		this->performInThread([this](xiAPIplus_Camera& camera)
 		{
 			try {
-				xiAPIplus_Image image;
-				camera.GetNextImage(&image);
+				// Get any image in the buffer (don't wait)
+				auto image = this->camera.GetLastImage();
+				auto res = xiGetImage(this->camera.GetCameraHandle()
+					, 0
+					, image->GetXI_IMG());
+				
+				if (res == XI_OK) {
+					// Copy pixels into CV format
+					auto frame = std::make_shared<XimeaCameraFrame>();
+					frame->image = cv::Mat(cv::Size(image->GetWidth(), image->GetHeight())
+						, CV_8U
+						, image->GetPixels());
 
-				// Copy pixels into CV format
-				auto frame = std::make_shared<XimeaCameraFrame>();
-				frame->image = cv::Mat(cv::Size(image.GetWidth(), image.GetHeight())
-					, CV_8U
-					, image.GetPixels());
+					if (this->showPreviewWindow) {
+						cv::Mat preview;
+						cv::pyrDown(frame->image, preview);
+						cv::imshow(this->windowName, preview);
+						cv::waitKey(1);
+					}
 
-				if (this->showPreviewWindow) {
-					cv::Mat preview;
-					cv::pyrDown(frame->image, preview);
-					cv::imshow(this->windowName, preview);
-					cv::waitKey(1);
+					// Get frame metadata
+					{
+						auto frameData = image->GetXI_IMG();
+						frame->metaData.frameIndex = frameData->acq_nframe;
+						frame->metaData.timeStamp = std::chrono::seconds(frameData->tsSec) + std::chrono::microseconds(frameData->tsUSec);
+					}
+
+					frame->cameraThread = this->shared_from_this();
+
+					// Send the frame
+					this->output.send(frame);
 				}
-
-				// Get frame metadata
-				{
-					auto frameData = image.GetXI_IMG();
-					frame->metaData.frameIndex = frameData->acq_nframe;
-					frame->metaData.timeStamp = std::chrono::seconds(frameData->tsSec) + std::chrono::microseconds(frameData->tsUSec);
+				else if (res == XI_TIMEOUT) {
+					// ignore - this is fine
 				}
-
-				// Send the frame
-				this->output.send(frame);
+				else {
+					throw(Exception("Camera capture error"));
+				}
+				
 			}
 			catch (...) {
 				// request before rethrowing
@@ -157,13 +237,10 @@ namespace TD_MoCap {
 
 	//----------
 	void
-		CameraThread::runAndFormatExceptions(std::function<void()> action)
+		CameraThread::rethrowFormattedExceptions(std::function<void()> action)
 	{
 		try {
 			action();
-		}
-		catch (const std::exception& e) {
-			throw(Exception(e.what()));
 		}
 		catch (xiAPIplus_Exception e) {
 			std::stringstream ss;
@@ -174,14 +251,9 @@ namespace TD_MoCap {
 			ss << "Ximea Error [" << e.GetErrorNumber() << "] " << description;
 			throw(Exception(ss.str()));
 		}
-		catch (const Exception& e) {
-			throw;
-		}
-		catch (const cv::Exception& e) {
-			throw(Exception(e.what()));
-		}
 		catch (...) {
-			throw(Exception("Unknown exception"));
+			// remaining exceptions will be handled by the default formatter
+			throw;
 		}
 	}
 }
