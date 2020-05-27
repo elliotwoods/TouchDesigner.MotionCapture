@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TOP_ThreadTo", "TOP_ThreadT
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OP_SyncCameras", "OP_SyncCameras\OP_SyncCameras.vcxproj", "{6492F259-D30C-4690-973F-056BF1665FCE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DAT_XimeaCameras", "DAT_XimeaCameras\DAT_XimeaCamera.vcxproj", "{E2BFDE4C-F1A1-4638-B747-559D7BCC041F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -33,6 +35,10 @@ Global
 		{6492F259-D30C-4690-973F-056BF1665FCE}.Debug|x64.Build.0 = Debug|x64
 		{6492F259-D30C-4690-973F-056BF1665FCE}.Release|x64.ActiveCfg = Release|x64
 		{6492F259-D30C-4690-973F-056BF1665FCE}.Release|x64.Build.0 = Release|x64
+		{E2BFDE4C-F1A1-4638-B747-559D7BCC041F}.Debug|x64.ActiveCfg = Debug|x64
+		{E2BFDE4C-F1A1-4638-B747-559D7BCC041F}.Debug|x64.Build.0 = Debug|x64
+		{E2BFDE4C-F1A1-4638-B747-559D7BCC041F}.Release|x64.ActiveCfg = Release|x64
+		{E2BFDE4C-F1A1-4638-B747-559D7BCC041F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
