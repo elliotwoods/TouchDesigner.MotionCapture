@@ -65,7 +65,8 @@ namespace TD_MoCap {
 	}
 
 	//----------
-	void Synchroniser::receiveAllFrames()
+	void
+		Synchroniser::receiveAllFrames()
 	{
 		for (const auto& it : this->syncMembers) {
 			auto& camera = it.second;
@@ -104,6 +105,73 @@ namespace TD_MoCap {
 			for (const auto& it : cameraThreads) {
 				performLocks.emplace(it.first, it.second->getThread().acquirePerformLock());
 			}
+		}
+
+		// WARNING!
+		// We perform all xiAPI actions from this thread
+		// According to the Ximea documentation, this is permitted
+		// Meanwhile, we pause all camera threads using performLocks
+
+		// gather the cameras for convenience
+		std::map<Links::Output::ID, xiAPIplus_Camera*> cameras;
+		for (const auto& cameraThread : cameraThreads) {
+			cameras.emplace(cameraThread.first, &cameraThread.second->getCamera());
+		}
+
+		// check trigger states on all cameras
+		{
+			auto cameraIt = cameras.begin();
+
+			// check first camera
+			{
+				auto camera = cameraIt->second;
+				if (camera->GetGPOMode() != XI_GPO_MODE::XI_GPO_EXPOSURE_ACTIVE) {
+					throw(Exception("Leader camera output trigger not active"));
+				}
+			}
+			
+			// check other cameras
+			for (cameraIt++; cameraIt != cameras.end(); cameraIt++) {
+				auto camera = cameraIt->second;
+				if (camera->GetGPIMode() != XI_GPI_MODE::XI_GPI_TRIGGER
+					|| camera->GetTriggerSource() == XI_TRG_SOURCE::XI_TRG_OFF
+					|| camera->GetTriggerSource() == XI_TRG_SOURCE::XI_TRG_SOFTWARE) {
+					throw(Exception("Follower camera output trigger not active"));
+				}
+			}
+		}
+
+		// disable acquisition on all cameras
+		for (const auto & camera : cameras) {
+			camera.second->StopAcquisition();
+		}
+
+		// enable acquisition on all follower cameras (we presume their buffers are empty)
+		{
+			auto cameraIt = cameras.begin();
+			for (cameraIt++; cameraIt != cameras.end(); cameraIt++) {
+				auto camera = cameraIt->second;
+				camera->StartAcquisition();
+			}
+		}
+
+		// enable acquisiton on the first camera
+		{
+			cameras.begin()->second->StartAcquisition();
+		}
+
+		// capture a frame and log the timestamp data for each camera
+		for (const auto& cameraIt : cameras) {
+			auto camera = cameraIt.second;
+			auto & syncMember = this->syncMembers[cameraIt.first];
+
+			xiAPIplus_Image image;
+			camera->GetNextImage(&image);
+			auto frameData = image.GetXI_IMG();
+
+			syncMember->frameNumberStart = frameData->acq_nframe;
+			syncMember->timestampStart = std::chrono::seconds(frameData->tsSec) + std::chrono::microseconds(frameData->tsUSec);
+
 		}
 	}
 }

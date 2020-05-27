@@ -204,7 +204,7 @@ namespace TD_MoCap {
 					{
 						auto frameData = image->GetXI_IMG();
 						frame->metaData.frameIndex = frameData->acq_nframe;
-						frame->metaData.timeStamp = std::chrono::seconds(frameData->tsSec) + std::chrono::microseconds(frameData->tsUSec);
+						frame->metaData.timestamp = std::chrono::seconds(frameData->tsSec) + std::chrono::microseconds(frameData->tsUSec);
 					}
 
 					frame->cameraThread = this->shared_from_this();

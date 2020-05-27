@@ -17,6 +17,7 @@ namespace TD_MoCap {
 			public:
 				virtual ~PerformLock();
 				void perform(const Action&);
+				void performBlocking(const Action&);
 			protected:
 				friend WorkerThread;
 				PerformLock(std::shared_ptr<ActionQueue>);

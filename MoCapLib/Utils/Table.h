@@ -5,7 +5,7 @@ namespace TD_MoCap {
 		class TDMOCAP_API Table
 		{
 		public:
-			class RowBuilder
+			class TDMOCAP_API RowBuilder
 			{
 			public:
 				RowBuilder(Table&);

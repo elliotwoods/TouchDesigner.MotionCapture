@@ -12,6 +12,9 @@ namespace TD_MoCap {
 			Links::Input input;
 			std::map<uint64_t, std::shared_ptr<XimeaCameraFrame>> indexedFrames;
 			std::weak_ptr<CameraThread> cameraThread;
+
+			uint64_t frameNumberStart = 0;
+			std::chrono::microseconds timestampStart;
 		};
 		Synchroniser();
 		~Synchroniser();

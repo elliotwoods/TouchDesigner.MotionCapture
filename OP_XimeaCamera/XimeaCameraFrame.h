@@ -21,7 +21,7 @@ namespace TD_MoCap {
 
 		struct {
 			uint64_t frameIndex;
-			std::chrono::microseconds timeStamp;
+			std::chrono::microseconds timestamp;
 		} metaData;
 	};
 }

@@ -36,7 +36,7 @@ namespace TD_MoCap {
 			if (this->firstRun < this->windowSize) {
 				if (this->firstRun < 2) {
 					// not enough data yet
-					return 1.0f;
+					return 0.0f;
 				}
 				else {
 					// buffer is only partially full
