@@ -140,5 +140,12 @@ namespace TD_MoCap {
 
 			return performLock;
 		}
+
+		//----------
+		bool
+			WorkerThread::isJoining() const
+		{
+			return !this->running;
+		}
 	}
 }

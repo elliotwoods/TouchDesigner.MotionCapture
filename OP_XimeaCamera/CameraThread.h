@@ -5,14 +5,17 @@
 #include "Utils/WorkerThread.h"
 #include "Utils/Parameter.h"
 
-#include <memory>
+#include "CameraParameters.h"
+
 #include "pch_OP_XimeaCamera.h"
+
+#include <memory>
 
 namespace TD_MoCap {
 	class OP_XIMEACAMERA_API CameraThread : public std::enable_shared_from_this<CameraThread>
 	{
 	public:
-		CameraThread(const OP_Inputs*, const Utils::ParameterList &, Links::Output&);
+		CameraThread(const CameraParameters&, Links::Output&);
 		~CameraThread();
 
 		void performInThread(std::function<void(xiAPIplus_Camera&)>, bool blocking);

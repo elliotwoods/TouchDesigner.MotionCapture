@@ -6,6 +6,7 @@
 
 #include "CameraThread.h"
 #include "MoCapLib.h"
+#include "CameraParameters.h"
 
 #include <memory>
 #include <vector>
@@ -50,32 +51,6 @@ namespace TD_MoCap {
 		std::vector<Exception> errors;
 		bool needsReopen = false;
 
-		struct
-		{
-			Utils::NumberParameter<float> exposure
-			{
-				"Exposure", "ms"
-				, 10, 10
-				, 0, 10000
-				, 0, 100
-			};
-
-			Utils::ValueParameter<bool> preview
-			{
-				"Preview", false, false
-			};
-
-			Utils::SelectorParameter trigger
-			{
-				"Trigger"
-				, {"Freerun", "Mainloop", "Manual", "Follower"}
-				, "Freerun"
-			};
-
-
-			Utils::ParameterList list{ &exposure, &preview, &trigger};
-			std::set<Utils::AbstractParameter *> stale;
-			std::mutex mutex;
-		} parameters;
+		CameraParameters parameters;
 	};
 }

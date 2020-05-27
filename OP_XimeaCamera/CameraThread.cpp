@@ -5,13 +5,12 @@
 
 namespace TD_MoCap {
 	//----------
-	CameraThread::CameraThread(const OP_Inputs* inputs, const Utils::ParameterList& parameterList, Links::Output& output)
+	CameraThread::CameraThread(const CameraParameters & cameraParameters, Links::Output& output)
 		: output(output)
 	{
-		auto serialNumber = std::string(inputs->getParString("Serial"));
-
-		this->performInThread([this, serialNumber, &parameterList] (xiAPIplus_Camera &) {
+		this->performInThread([this, &cameraParameters] (xiAPIplus_Camera &) {
 			// Open device
+			auto serialNumber = cameraParameters.serialNumber.getValue();
 			if (!serialNumber.empty()) {
 				this->camera.OpenBySN(const_cast<char*>(serialNumber.c_str()));
 			}
@@ -20,7 +19,7 @@ namespace TD_MoCap {
 			}
 
 			// Setup parameters
-			for (auto parameter : parameterList) {
+			for (auto parameter : cameraParameters.list) {
 				this->pushToCamera(parameter);
 			}
 
@@ -88,13 +87,13 @@ namespace TD_MoCap {
 		}
 		else if (name == "Trigger") {
 			auto typedParameter = dynamic_cast<Utils::SelectorParameter*> (parameter);
-
-			bool acquisitionWasActive = camera.IsAcquisitionActive();
-			if (acquisitionWasActive) {
-				camera.StopAcquisition();
-			}
-
+			
 			if (typedParameter) {
+				bool acquisitionWasActive = camera.IsAcquisitionActive();
+				if (acquisitionWasActive) {
+					camera.StopAcquisition();
+				}
+
 				const auto& trigger = typedParameter->getValue();
 
 				//reference : https://www.ximea.com/support/wiki/apis/XiAPI_Camera_Trigger_and_Synchronization_Signals
@@ -121,10 +120,41 @@ namespace TD_MoCap {
 					this->camera.SetGPOSelector(XI_GPO_SELECTOR::XI_GPO_PORT1);
 					this->camera.SetGPOMode(XI_GPO_MODE::XI_GPO_EXPOSURE_ACTIVE);
 				}
-			}
 
-			if (acquisitionWasActive) {
-				camera.StartAcquisition();
+				if (acquisitionWasActive) {
+					camera.StartAcquisition();
+				}
+			}
+		}
+		else if (name == "Limit bandwidth") {
+			auto typedParameter = dynamic_cast<Utils::ValueParameter<bool>*>(parameter);
+			if (typedParameter) {
+				// needs camera to be stopped during change
+				auto wasAcquisitionActive = this->camera.IsAcquisitionActive();
+				if (wasAcquisitionActive) {
+					this->camera.StopAcquisition();
+				}
+				auto enabled = typedParameter->getValue();
+				this->camera.SetBandwidthLimitMode(enabled
+					? XI_SWITCH::XI_ON
+					: XI_SWITCH::XI_OFF);
+				if (wasAcquisitionActive) {
+					this->camera.StartAcquisition();
+				}
+			}
+		}
+		else if (name == "Maximum bandwidth") {
+			auto typedParameter = dynamic_cast<Utils::ValueParameter<int>*>(parameter);
+			if (typedParameter) {
+				// needs camera to be stopped during change
+				auto wasAcquisitionActive = this->camera.IsAcquisitionActive();
+				if (wasAcquisitionActive) {
+					this->camera.StopAcquisition();
+				}
+				this->camera.SetBandwidthLimit(typedParameter->getValue());
+				if (wasAcquisitionActive) {
+					this->camera.StartAcquisition();
+				}
 			}
 		}
 	}
@@ -207,6 +237,10 @@ namespace TD_MoCap {
 						frame->metaData.timestamp = std::chrono::seconds(frameData->tsSec) + std::chrono::microseconds(frameData->tsUSec);
 					}
 
+					// don't call shared_from_this on a closing object
+					if (this->getThread().isJoining()) {
+						return;
+					}
 					frame->cameraThread = this->shared_from_this();
 
 					// Send the frame

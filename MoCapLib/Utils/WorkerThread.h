@@ -29,7 +29,7 @@ namespace TD_MoCap {
 			void join();
 			void perform(const Action&);
 			void performBlocking(const Action&);
-
+			bool isJoining() const;
 			// Acquire a unique privilege to perform actions in this thread
 			std::shared_ptr<PerformLock> acquirePerformLock();
 

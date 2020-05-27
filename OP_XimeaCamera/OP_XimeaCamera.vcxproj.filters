@@ -8,6 +8,7 @@
     <ClInclude Include="XimeaCameraFrame.h" />
     <ClInclude Include="CameraThread.h" />
     <ClInclude Include="OP_XimeaCamera.h" />
+    <ClInclude Include="CameraParameters.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp" />

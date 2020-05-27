@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\XIMEA\Examples\Sources\_libs\xiAPIplus\xiapiplus.h" />
+    <ClInclude Include="CameraParameters.h" />
     <ClInclude Include="CameraThread.h" />
     <ClInclude Include="OP_XimeaCamera.h" />
     <ClInclude Include="pch_OP_XimeaCamera.h" />

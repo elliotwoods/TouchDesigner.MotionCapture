@@ -13,14 +13,15 @@ namespace TD_MoCap {
 				: name(name) {
 			}
 			const std::string& getName() const;
+			std::string getTDShortName() const;
+
+			virtual void populateInterface(OP_ParameterManager*) const = 0;
+			virtual void updateFromInterface(const OP_Inputs* inputs) = 0;
 
 			Event<void> onChange;
 
 		protected:
 			std::string name;
-
-			// force dynamic casting to be enabled
-			virtual void virtualFunction() { }
 		};
 
 		template<typename T>
@@ -49,10 +50,22 @@ namespace TD_MoCap {
 				return this->defaultValue;
 			}
 
+			virtual void populateInterface(OP_ParameterManager*) const override {
+
+			}
+
+			virtual void updateFromInterface(const OP_Inputs* inputs) override;
+
 		protected:
 			T value;
 			T defaultValue;
 		};
+
+		// template overrides for specific populateInterface functions
+		template<> void TDMOCAP_API ValueParameter<bool>::populateInterface(OP_ParameterManager*) const;
+		template<> void TDMOCAP_API ValueParameter<std::string>::populateInterface(OP_ParameterManager*) const;
+		template<> void TDMOCAP_API ValueParameter<bool>::updateFromInterface(const OP_Inputs*);
+		template<> void TDMOCAP_API ValueParameter<std::string>::updateFromInterface(const OP_Inputs*);
 
 		template<typename T>
 		class TDMOCAP_API NumberParameter : public ValueParameter<T>
@@ -101,6 +114,8 @@ namespace TD_MoCap {
 				return this->sliderMax;
 			}
 
+			virtual void populateInterface(OP_ParameterManager*) const override;
+
 		protected:
 			std::string units;
 			T value;
@@ -118,7 +133,13 @@ namespace TD_MoCap {
 				, const std::initializer_list<std::string>& options
 				, const std::string& defaultValue);
 
-			const std::vector<std::string> & getOptions();
+			const std::vector<std::string> & getOptions() const;
+
+			virtual void populateInterface(OP_ParameterManager*) const override;
+
+			//virtual void updateFromInterface(OP_Inputs* inputs) override;
+			// we use the default ValueParameter<std::string>::updateFromInterface
+
 		protected:
 			std::vector<std::string> options;
 		};
@@ -138,6 +159,9 @@ namespace TD_MoCap {
 				}
 				return nullptr;
 			}
+
+			virtual void populateInterface(OP_ParameterManager*) const;
+			virtual void updateFromInterface(const OP_Inputs*);
 		};
 	}
 }
