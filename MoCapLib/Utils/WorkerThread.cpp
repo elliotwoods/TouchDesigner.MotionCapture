@@ -41,7 +41,10 @@ namespace TD_MoCap {
 		//----------
 		WorkerThread::~WorkerThread()
 		{
-			this->join();
+			// join thread if user has not already joined it
+			if (this->thread.joinable()) {
+				this->join();
+			}
 		}
 
 		//----------
@@ -118,25 +121,45 @@ namespace TD_MoCap {
 		std::shared_ptr<WorkerThread::PerformLock>
 			WorkerThread::acquirePerformLock()
 		{
-			auto actionChannel = std::make_shared<ActionQueue>();
-			auto performLock = std::shared_ptr<PerformLock>(new PerformLock(actionChannel));
+			auto actionQueue = std::make_shared<ActionQueue>();
+			auto performLock = std::shared_ptr<PerformLock>(new PerformLock(actionQueue));
 			auto weakPerformLock = std::weak_ptr<PerformLock>(performLock);
 
-			this->perform([weakPerformLock, actionChannel] {
-				// when performLock goes out of scope elsewhere, we no longer continue here
+			Channel<bool> enterPerformLockRegion;
+
+			// Note
+			// There are 2 mechanisms for retaining the perform lock:
+			// 1. Checking if performLock is alive
+			// 2. Checking that the actionQueue is still open
+
+			this->perform([weakPerformLock, actionQueue, &enterPerformLockRegion] {
+				// announce to acquitePerformLock thread that we've entered the perform lock region
+				enterPerformLockRegion.send(true);
+
+				// check that PerformLock is alive
 				auto performLock = weakPerformLock.lock();
 				while (performLock) {
+					// allow the PerformLock to die elsewhere
 					performLock.reset();
 					
+					// perform actions in queue
 					Action action;
-					// the wait for receive is overriden by the close() called in the destructor of PerformLock
-					while (actionChannel->receive(action)) {
+					while (actionQueue->receive(action)) {
 						action();
 					}
 
 					performLock = weakPerformLock.lock(); 
 				}
 			});
+
+			// Wait until the performLock region has been entered
+			{
+				bool enteredPerformLockRegion = false;
+				enterPerformLockRegion.receive(enteredPerformLockRegion);
+				while (!enteredPerformLockRegion) {
+					enterPerformLockRegion.receive(enteredPerformLockRegion);
+				}
+			}
 
 			return performLock;
 		}

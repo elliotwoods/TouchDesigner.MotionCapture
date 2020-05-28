@@ -12,7 +12,8 @@ namespace TD_MoCap {
 	//----------
 	Synchroniser::~Synchroniser()
 	{
-		this->joining = true;
+		std::cout << "Synchroniser closing" << std::endl;
+		this->workerThread.join();
 	}
 
 	//----------
@@ -20,7 +21,7 @@ namespace TD_MoCap {
 		Synchroniser::checkConnections(const std::vector<Links::Output::ID>& newOutputIDs)
 	{
 		this->workerThread.performBlocking([&] {
-			// gather current IDss
+			// gather current IDs
 			std::vector<Links::Output::ID> currentOutputIDs;
 			for (const auto& camera : this->syncMembers) {
 				currentOutputIDs.push_back(camera.first);
@@ -47,19 +48,36 @@ namespace TD_MoCap {
 	}
 
 	//----------
+	Utils::WorkerThread &
+		Synchroniser::getThread()
+	{
+		return this->workerThread;
+	}
+
+	//----------
 	void
 		Synchroniser::requestUpdate()
 	{
 		this->workerThread.perform([this] {
-			this->receiveAllFrames();
+			try {
+				this->receiveAllFrames();
 
-			if (this->needsResync) {
-				this->resync();
+				if (this->needsResync) {
+					this->resync();
+				}
+
+				// request next update
+				if (!this->workerThread.isJoining()) {
+					this->requestUpdate();
+				}
 			}
+			catch (...) {
+				// request next update
+				if (!this->workerThread.isJoining()) {
+					this->requestUpdate();
+				}
 
-			// request next update
-			if (!this->joining) {
-				this->requestUpdate();
+				throw;
 			}
 		});
 	}
@@ -68,12 +86,14 @@ namespace TD_MoCap {
 	void
 		Synchroniser::receiveAllFrames()
 	{
+		// Move frames from inputs into indexedFrames
+		// Note : This does not involve talking to the camera/cameraThread
+
 		for (const auto& it : this->syncMembers) {
-			auto& camera = it.second;
-			auto frame = std::dynamic_pointer_cast<XimeaCameraFrame>(camera->input.receiveNextFrame(false));
+			auto& syncMember = it.second;
+			auto frame = std::dynamic_pointer_cast<XimeaCameraFrame>(syncMember->input.receiveNextFrame(false));
 			if (frame) {
-				camera->indexedFrames.emplace(frame->metaData.frameIndex, frame);
-				camera->cameraThread = frame->cameraThread;
+				syncMember->indexedFrames.emplace(frame->metaData.frameIndex, frame);
 			}
 		}
 	}
@@ -82,6 +102,8 @@ namespace TD_MoCap {
 	void
 		Synchroniser::resync()
 	{
+		std::cout << "resync" << std::endl;
+
 		// check that we have at least 2 syncMembers
 		if (this->syncMembers.size() < 2) {
 			throw(Exception("Insufficient cameras to perform a sync"));
@@ -90,13 +112,17 @@ namespace TD_MoCap {
 		// check that we have a cameraThread for all syncMembers
 		std::map<Links::Output::ID, std::shared_ptr<CameraThread>> cameraThreads;
 		for (const auto& it: this->syncMembers) {
-			auto cameraThread = it.second->cameraThread.lock();
+			auto latestFrame = std::dynamic_pointer_cast<XimeaCameraFrame>(it.second->input.receiveLatestFrame(true));
+			if (!latestFrame) {
+				throw(Exception("Camera input does not yet have a frame"));
+			}
+
+			auto cameraThread = latestFrame->cameraThread.lock();
 			if (!cameraThread) {
-				throw(Exception("One or more cameras are not correctly initialised"));
+				throw(Exception("Cameras is not initialised"));
 			}
-			else {
-				cameraThreads.emplace(it.first, cameraThread);
-			}
+
+			cameraThreads.emplace(it.first, cameraThread);
 		}
 
 		// acquire perform locks on all cameraThreads
@@ -107,7 +133,7 @@ namespace TD_MoCap {
 			}
 		}
 
-		// WARNING!
+		// Note
 		// We perform all xiAPI actions from this thread
 		// According to the Ximea documentation, this is permitted
 		// Meanwhile, we pause all camera threads using performLocks
@@ -119,7 +145,8 @@ namespace TD_MoCap {
 		}
 
 		// check trigger states on all cameras
-		{
+		// Note : this often seems to fail when it shouldn't (i.e. camera driver reports incorrect values)
+		if(this->checkCameraTriggers) {
 			auto cameraIt = cameras.begin();
 
 			// check first camera
@@ -133,9 +160,12 @@ namespace TD_MoCap {
 			// check other cameras
 			for (cameraIt++; cameraIt != cameras.end(); cameraIt++) {
 				auto camera = cameraIt->second;
-				if (camera->GetGPIMode() != XI_GPI_MODE::XI_GPI_TRIGGER
-					|| camera->GetTriggerSource() == XI_TRG_SOURCE::XI_TRG_OFF
-					|| camera->GetTriggerSource() == XI_TRG_SOURCE::XI_TRG_SOFTWARE) {
+				auto gpiMode = camera->GetGPIMode();
+				auto triggerSource = camera->GetTriggerSource();
+				if (gpiMode != XI_GPI_MODE::XI_GPI_TRIGGER
+					|| triggerSource == XI_TRG_SOURCE::XI_TRG_OFF
+					|| triggerSource == XI_TRG_SOURCE::XI_TRG_SOFTWARE
+					) {
 					throw(Exception("Follower camera output trigger not active"));
 				}
 			}
@@ -171,7 +201,8 @@ namespace TD_MoCap {
 
 			syncMember->frameNumberStart = frameData->acq_nframe;
 			syncMember->timestampStart = std::chrono::seconds(frameData->tsSec) + std::chrono::microseconds(frameData->tsUSec);
-
 		}
+
+		this->needsResync = false;
 	}
 }

@@ -51,6 +51,15 @@ namespace TD_MoCap {
 			std::lock_guard<std::mutex> lock(this->errorsLock);
 			this->errors.push_back(e);
 		}
+
+		//receive all errors from thread
+		{
+			auto& errorsFromThread = this->synchroniser.getThread().exceptionsInThread;
+			Exception e;
+			while (errorsFromThread.tryReceive(e)) {
+				this->errors.push_back(e);
+			}
+		}
 	}
 
 	//----------
@@ -83,14 +92,26 @@ namespace TD_MoCap {
 	void
 		OP_SyncCameras::setupParameters(OP_ParameterManager* manager, void* reserved1)
 	{
-		
+		{
+			// re-init pulse
+					// Re-Open
+			OP_NumericParameter param;
+
+			param.name = "Resync";
+			param.label = "Re-Sync";
+
+			auto res = manager->appendPulse(param);
+			assert(res == OP_ParAppendResult::Success);
+		}
 	}
 
 	//----------
 	void
 		OP_SyncCameras::pulsePressed(const char* name, void* reserved1)
 	{
-
+		if (strcmp(name, "Resync") == 0) {
+			this->synchroniser.requestResync();
+		}
 	}
 
 	//----------
@@ -102,9 +123,11 @@ namespace TD_MoCap {
 		if (!this->errors.empty()) {
 			std::string errorString;
 			for (const auto& error : this->errors) {
-				errorString += error + "\n";
+				errorString += error.what() + "\n";
 			}
 			error->setString(errorString.c_str());
 		}
+
+		this->errors.clear();
 	}
 }

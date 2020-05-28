@@ -11,7 +11,6 @@ namespace TD_MoCap {
 		struct SyncMember {
 			Links::Input input;
 			std::map<uint64_t, std::shared_ptr<XimeaCameraFrame>> indexedFrames;
-			std::weak_ptr<CameraThread> cameraThread;
 
 			uint64_t frameNumberStart = 0;
 			std::chrono::microseconds timestampStart;
@@ -21,16 +20,19 @@ namespace TD_MoCap {
 
 		void checkConnections(const std::vector<Links::Output::ID>&);
 		void requestResync();
+
+		Utils::WorkerThread& getThread();
 	protected:
 		void requestUpdate();
 
 		void receiveAllFrames();
 		void resync();
 
-		bool joining = false;
 		bool needsResync = true;
 
 		Utils::WorkerThread workerThread;
 		std::map<Links::Output::ID, std::unique_ptr<SyncMember>> syncMembers;
+		
+		const bool checkCameraTriggers = false;
 	};
 }

@@ -46,22 +46,24 @@ namespace TD_MoCap {
 
 		//----------
 		void
-			Input::unsubscribe()
+			Input::unsubscribe(bool informOutput)
 		{
 			if (!this->connectedOutput) {
 				return;
 			}
 			else {
-				this->connectedOutput->removeSubscriber(this);
+				if (informOutput) {
+					this->connectedOutput->removeSubscriber(this);
+				}
 				this->connectedOutput = nullptr;
 			}
 		}
 
 		//----------
-		void
-			Input::send(std::shared_ptr<BaseFrame> frame)
+		bool
+			Input::isConnected() const
 		{
-			this->channel.send(frame);
+			return (bool)this->connectedOutput;
 		}
 
 		//----------
@@ -100,6 +102,13 @@ namespace TD_MoCap {
 			else if (useCached) {
 				return lastFrame;
 			}
+		}
+
+		//----------
+		void
+			Input::send(std::shared_ptr<BaseFrame> frame)
+		{
+			this->channel.send(frame);
 		}
 	}
 }

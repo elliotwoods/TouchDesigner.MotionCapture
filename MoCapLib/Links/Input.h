@@ -13,11 +13,10 @@ namespace TD_MoCap {
 			virtual ~Input();
 			void update(const OP_DATInput*);
 
-			void unsubscribe();
+			void unsubscribe(bool informOutput = true);
 			void subscribe(Output::ID);
 			
-			// called from Links::Output
-			void send(std::shared_ptr<BaseFrame>);
+			bool isConnected() const;
 
 			// called from host class
 			std::shared_ptr<BaseFrame> receiveNextFrame(bool waitForFrame);
@@ -25,6 +24,11 @@ namespace TD_MoCap {
 			// called from host class
 			std::shared_ptr<BaseFrame> receiveLatestFrame(bool useCached);
 		protected:
+			friend Output;
+
+			// called from Links::Output
+			void send(std::shared_ptr<BaseFrame>);
+
 			Output* connectedOutput = nullptr;
 			Utils::Channel<std::shared_ptr<BaseFrame>> channel;
 

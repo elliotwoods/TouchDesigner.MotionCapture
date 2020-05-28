@@ -26,11 +26,10 @@ namespace TD_MoCap {
 		//----------
 		Output::~Output()
 		{
-			// we copy the list because calling unsubscribe edits the list
-			auto copyOfSubscribers = this->subscribedInputs;
-			for (const auto input : copyOfSubscribers)
+			std::lock_guard<std::mutex> lockSubscribers(this->lockSubscribers);
+			for (const auto input : this->subscribedInputs)
 			{
-				input->unsubscribe();
+				input->unsubscribe(false);
 			}
 
 			OutputsRegister::X().remove(this);
@@ -69,11 +68,12 @@ namespace TD_MoCap {
 			Output::send(std::shared_ptr<BaseFrame> frame)
 		{
 			{
-				std::lock_guard<std::mutex> mutex(this->lockInfo);
+				std::lock_guard<std::mutex> lockInfo(this->lockInfo);
 				this->incomingInfo.receivedCount++;
 				this->frameRateCounter.tick();
 				this->incomingInfo.fps = this->frameRateCounter.getFPS();
 
+				std::lock_guard<std::mutex> lockSubscribers(this->lockSubscribers);
 				for (auto input : this->subscribedInputs) {
 					input->send(frame);
 				}
