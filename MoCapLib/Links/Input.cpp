@@ -67,6 +67,13 @@ namespace TD_MoCap {
 		}
 
 		//----------
+		void
+			Input::close()
+		{
+			this->channel.close();
+		}
+
+		//----------
 		std::shared_ptr<BaseFrame> 
 			Input::receiveNextFrame(bool waitForFrame)
 		{

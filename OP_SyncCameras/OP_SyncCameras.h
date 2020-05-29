@@ -39,7 +39,6 @@ namespace TD_MoCap {
 
 		virtual void		getErrorString(OP_String* error, void* reserved1);
 	protected:
-		Links::Output output;
 		Synchroniser synchroniser;
 
 		std::mutex errorsLock;

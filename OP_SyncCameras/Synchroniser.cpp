@@ -1,6 +1,7 @@
 #include "pch_OP_SyncCameras.h"
 #include "Synchroniser.h"
 #include "CameraThread.h"
+#include "SynchronisedFrame.h"
 
 namespace TD_MoCap {
 	//----------
@@ -13,6 +14,11 @@ namespace TD_MoCap {
 	Synchroniser::~Synchroniser()
 	{
 		std::cout << "Synchroniser closing" << std::endl;
+		std::lock_guard<std::mutex> lockGuard(this->lockSyncMembers);
+		for (const auto& syncMember : this->syncMembers) {
+			syncMember.second->input.close();
+		}
+
 		this->workerThread.join();
 	}
 
@@ -54,6 +60,12 @@ namespace TD_MoCap {
 		return this->workerThread;
 	}
 
+	Utils::ParameterList&
+		Synchroniser::getParameters()
+	{
+		return this->parameters.list;
+	}
+
 	//----------
 	void
 		Synchroniser::requestUpdate()
@@ -65,6 +77,8 @@ namespace TD_MoCap {
 				if (this->needsResync) {
 					this->resync();
 				}
+
+				this->sendSynchronisedFrames();
 
 				// request next update
 				if (!this->workerThread.isJoining()) {
@@ -91,9 +105,21 @@ namespace TD_MoCap {
 
 		for (const auto& it : this->syncMembers) {
 			auto& syncMember = it.second;
-			auto frame = std::dynamic_pointer_cast<XimeaCameraFrame>(syncMember->input.receiveNextFrame(false));
-			if (frame) {
+
+			// always receive one frame
+			auto frame = std::dynamic_pointer_cast<XimeaCameraFrame>(syncMember->input.receiveNextFrame(true));
+
+			while (frame) {
 				syncMember->indexedFrames.emplace(frame->metaData.frameIndex, frame);
+
+				// receive any other frames that are waiting also
+				frame = std::dynamic_pointer_cast<XimeaCameraFrame>(syncMember->input.receiveNextFrame(false));
+			}
+
+			// cap history size
+			auto maxHistorySize = this->parameters.maxHistory.getValue();
+			while (syncMember->indexedFrames.size() > maxHistorySize) {
+				syncMember->indexedFrames.erase(syncMember->indexedFrames.begin());
 			}
 		}
 	}
@@ -204,5 +230,98 @@ namespace TD_MoCap {
 		}
 
 		this->needsResync = false;
+	}
+
+	//----------
+	void
+		Synchroniser::sendSynchronisedFrames()
+	{
+		if (this->syncMembers.size() < 2) {
+			// not enough cameras to perform a sync
+			return;
+		}
+
+		auto& leader = this->syncMembers.begin()->second;
+		if (leader->indexedFrames.empty()) {
+			// no frames in Leader camera
+			return;
+		}
+
+		// check followers
+		{
+			auto it = this->syncMembers.begin();
+			for (it++; it != this->syncMembers.end(); it++) {
+				if (it->second->indexedFrames.empty()) {
+					// one of the followers has no frames
+					return;
+				}
+			}
+		}
+
+		const auto& strategy = this->parameters.strategy.getValue();
+		if (strategy == "Frameindex") {
+			// remove all frames which are too old
+			// note : this is somewhat optional since we have the max history limit also
+			auto oldestFrameIndex = leader->indexedFrames.begin()->first;
+			auto it = this->syncMembers.begin();
+			for(it++; it != this->syncMembers.end(); it++) {
+				auto& follower = it->second;
+
+				for (auto it = follower->indexedFrames.begin(); it != follower->indexedFrames.end(); ) {
+					auto correctedFrameIndex = it->first - follower->frameNumberStart + leader->frameNumberStart;
+					if (correctedFrameIndex < oldestFrameIndex) {
+						it = follower->indexedFrames.erase(it);
+					}
+					else {
+						it++;
+					}
+				}
+			}
+
+			// search for synched frames
+			for (auto itLeaderFrame = leader->indexedFrames.begin(); itLeaderFrame != leader->indexedFrames.end(); ) {
+				auto frameIndexGlobal = itLeaderFrame->first - leader->frameNumberStart;
+				bool matchFound = true;
+				
+				auto itFollower = this->syncMembers.begin();
+				for (itFollower++; itFollower != this->syncMembers.end(); itFollower++) {
+					auto& follower = itFollower->second;
+					if (follower->indexedFrames.find(frameIndexGlobal + follower->frameNumberStart) == follower->indexedFrames.end()) {
+						matchFound = false;
+						break;
+					}
+				}
+
+				if (matchFound) {
+					std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>> cameraFrames;
+
+					// put leader frame
+					cameraFrames.emplace(this->syncMembers.begin()->first, itLeaderFrame->second);
+
+					// put other frames
+					auto itFollower = this->syncMembers.begin();
+					for (itFollower++; itFollower != this->syncMembers.end(); itFollower++) {
+						auto& follower = itFollower->second;
+
+						auto followerFrameIndex = itLeaderFrame->first - leader->frameNumberStart + follower->frameNumberStart;
+						cameraFrames.emplace(itFollower->first, follower->indexedFrames[followerFrameIndex]);
+
+						// delete frame from follower
+						follower->indexedFrames.erase(follower->indexedFrames.find(followerFrameIndex));
+					}
+
+					auto synchronisedFrame = std::make_shared<SynchronisedFrame>(cameraFrames);
+					this->output.send(synchronisedFrame);
+
+					itLeaderFrame = leader->indexedFrames.erase(itLeaderFrame);
+				}
+				else {
+					itLeaderFrame++;
+				}
+			}
+		}
+		else {
+			throw(Exception("This synchronisation strategy is not implemented"));
+		}
 	}
 }

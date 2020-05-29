@@ -18,6 +18,9 @@ namespace TD_MoCap {
 			
 			bool isConnected() const;
 
+			// close the channel. release any blocking receives
+			void close();
+
 			// called from host class
 			std::shared_ptr<BaseFrame> receiveNextFrame(bool waitForFrame);
 

@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClInclude Include="OP_SyncCameras.h" />
     <ClInclude Include="pch_OP_SyncCameras.h" />
+    <ClInclude Include="SynchronisedFrame.h" />
     <ClInclude Include="Synchroniser.h" />
   </ItemGroup>
   <ItemGroup>
@@ -25,6 +26,7 @@
     <ClCompile Include="pch_OP_SyncCameras.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SynchronisedFrame.cpp" />
     <ClCompile Include="Synchroniser.cpp" />
   </ItemGroup>
   <ItemGroup>

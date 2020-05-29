@@ -28,6 +28,8 @@ namespace TD_MoCap {
 			return;
 		}
 
+		this->synchroniser.getParameters().updateFromInterface(inputs);
+
 		try {
 			// gather new IDs and check our list
 			{
@@ -44,8 +46,8 @@ namespace TD_MoCap {
 			}
 
 			// Update output
-			this->output.update();
-			this->output.populateMainThreadOutput(output);
+			this->synchroniser.output.update();
+			this->synchroniser.output.populateMainThreadOutput(output);
 		}
 		catch (const Exception & e) {
 			std::lock_guard<std::mutex> lock(this->errorsLock);
@@ -92,9 +94,8 @@ namespace TD_MoCap {
 	void
 		OP_SyncCameras::setupParameters(OP_ParameterManager* manager, void* reserved1)
 	{
+		// resync
 		{
-			// re-init pulse
-					// Re-Open
 			OP_NumericParameter param;
 
 			param.name = "Resync";
@@ -103,6 +104,8 @@ namespace TD_MoCap {
 			auto res = manager->appendPulse(param);
 			assert(res == OP_ParAppendResult::Success);
 		}
+
+		this->synchroniser.getParameters().populateInterface(manager);
 	}
 
 	//----------
