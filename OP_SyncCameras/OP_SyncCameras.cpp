@@ -24,10 +24,6 @@ namespace TD_MoCap {
 	void
 		OP_SyncCameras::execute(DAT_Output* output, const OP_Inputs* inputs, void* reserved)
 	{
-		if (!output) {
-			return;
-		}
-
 		this->synchroniser.getParameters().updateFromInterface(inputs);
 
 		try {
@@ -50,7 +46,6 @@ namespace TD_MoCap {
 			this->synchroniser.output.populateMainThreadOutput(output);
 		}
 		catch (const Exception & e) {
-			std::lock_guard<std::mutex> lock(this->errorsLock);
 			this->errors.push_back(e);
 		}
 
@@ -121,8 +116,6 @@ namespace TD_MoCap {
 	void
 		OP_SyncCameras::getErrorString(OP_String* error, void* reserved1)
 	{
-		std::lock_guard<std::mutex> lock(this->errorsLock);
-
 		if (!this->errors.empty()) {
 			std::string errorString;
 			for (const auto& error : this->errors) {

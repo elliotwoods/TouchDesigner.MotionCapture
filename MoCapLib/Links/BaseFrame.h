@@ -22,6 +22,15 @@ namespace TD_MoCap {
 			virtual bool getPreviewDAT(Utils::Table&) const {
 				return false;
 			}
+
+			void startComputeTimer();
+			void endComputeTimer();
+			std::chrono::high_resolution_clock::duration getComputeTime() const;
+			void setComputeTime(const std::chrono::high_resolution_clock::duration&);
+		protected:
+			std::chrono::high_resolution_clock::time_point startCompute;
+			std::chrono::high_resolution_clock::duration computeTime;
+
 		};
 	}
 }

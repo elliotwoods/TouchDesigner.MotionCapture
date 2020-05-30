@@ -21,7 +21,6 @@ namespace TD_MoCap {
 		virtual void		pulsePressed(const char* name, void* reserved1) override;
 	protected:
 		Links::Input input;
-		std::shared_ptr<Links::BaseFrame> lastFrameReceived;
 		
 		TOP_OutputFormat allocatedOutputFormat;
 

@@ -3,9 +3,10 @@
 #include "MoCapLib.h"
 
 #include "CameraThread.h"
-#include "pch_OP_SyncCameras.h"
 
-#ifdef OP_SYNCCAMERAS_EXPORTS
+#include <filesystem>
+
+#ifdef OP_SYNCCAMERAS_EXPORT
 	#define OP_SYNCCAMERAS_API DLLEXPORT
 #else
 	#define OP_SYNCCAMERAS_API

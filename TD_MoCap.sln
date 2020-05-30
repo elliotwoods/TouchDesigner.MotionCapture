@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DAT_XimeaCameras", "DAT_Xim
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DAT_ThreadTo", "DAT_ThreadTo\DAT_ThreadTo.vcxproj", "{F80CE4B6-C986-44D9-8A49-B0AD6C549378}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OP_Recorder", "OP_Recorder\OP_Recorder.vcxproj", "{CD29B359-C77F-4D1E-A668-4AB2FB830316}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -45,6 +47,10 @@ Global
 		{F80CE4B6-C986-44D9-8A49-B0AD6C549378}.Debug|x64.Build.0 = Debug|x64
 		{F80CE4B6-C986-44D9-8A49-B0AD6C549378}.Release|x64.ActiveCfg = Release|x64
 		{F80CE4B6-C986-44D9-8A49-B0AD6C549378}.Release|x64.Build.0 = Release|x64
+		{CD29B359-C77F-4D1E-A668-4AB2FB830316}.Debug|x64.ActiveCfg = Debug|x64
+		{CD29B359-C77F-4D1E-A668-4AB2FB830316}.Debug|x64.Build.0 = Debug|x64
+		{CD29B359-C77F-4D1E-A668-4AB2FB830316}.Release|x64.ActiveCfg = Release|x64
+		{CD29B359-C77F-4D1E-A668-4AB2FB830316}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

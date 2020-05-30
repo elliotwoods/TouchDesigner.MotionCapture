@@ -41,6 +41,7 @@ namespace TD_MoCap {
 					camera->input.subscribe(id);
 					this->syncMembers.emplace(id, std::move(camera));
 				}
+				this->leaderID = newOutputIDs.front();
 				this->needsResync = true;
 			}
 		});
@@ -128,6 +129,7 @@ namespace TD_MoCap {
 	void
 		Synchroniser::resync()
 	{
+		std::lock_guard<std::mutex> lockSyncMembers(this->lockSyncMembers);
 		std::cout << "resync" << std::endl;
 
 		// check that we have at least 2 syncMembers
@@ -173,19 +175,21 @@ namespace TD_MoCap {
 		// check trigger states on all cameras
 		// Note : this often seems to fail when it shouldn't (i.e. camera driver reports incorrect values)
 		if(this->checkCameraTriggers) {
-			auto cameraIt = cameras.begin();
-
 			// check first camera
 			{
-				auto camera = cameraIt->second;
+				auto camera = cameras[this->leaderID];
 				if (camera->GetGPOMode() != XI_GPO_MODE::XI_GPO_EXPOSURE_ACTIVE) {
 					throw(Exception("Leader camera output trigger not active"));
 				}
 			}
 			
 			// check other cameras
-			for (cameraIt++; cameraIt != cameras.end(); cameraIt++) {
-				auto camera = cameraIt->second;
+			for (const auto & cameraIt : cameras) {
+				if (cameraIt.first == this->leaderID) {
+					continue;
+				}
+
+				auto camera = cameraIt.second;
 				auto gpiMode = camera->GetGPIMode();
 				auto triggerSource = camera->GetTriggerSource();
 				if (gpiMode != XI_GPI_MODE::XI_GPI_TRIGGER
@@ -204,16 +208,19 @@ namespace TD_MoCap {
 
 		// enable acquisition on all follower cameras (we presume their buffers are empty)
 		{
-			auto cameraIt = cameras.begin();
-			for (cameraIt++; cameraIt != cameras.end(); cameraIt++) {
-				auto camera = cameraIt->second;
+			for (const auto & cameraIt : cameras) {
+				if (cameraIt.first == this->leaderID) {
+					continue;
+				}
+
+				auto camera = cameraIt.second;
 				camera->StartAcquisition();
 			}
 		}
 
 		// enable acquisiton on the first camera
 		{
-			cameras.begin()->second->StartAcquisition();
+			cameras[this->leaderID]->StartAcquisition();
 		}
 
 		// capture a frame and log the timestamp data for each camera
@@ -236,12 +243,14 @@ namespace TD_MoCap {
 	void
 		Synchroniser::sendSynchronisedFrames()
 	{
+		std::lock_guard<std::mutex> lockSyncMembers(this->lockSyncMembers);
+
 		if (this->syncMembers.size() < 2) {
 			// not enough cameras to perform a sync
 			return;
 		}
 
-		auto& leader = this->syncMembers.begin()->second;
+		auto& leader = this->syncMembers[this->leaderID];
 		if (leader->indexedFrames.empty()) {
 			// no frames in Leader camera
 			return;
@@ -249,9 +258,12 @@ namespace TD_MoCap {
 
 		// check followers
 		{
-			auto it = this->syncMembers.begin();
-			for (it++; it != this->syncMembers.end(); it++) {
-				if (it->second->indexedFrames.empty()) {
+			for (const auto & it : this->syncMembers) {
+				if (it.first == this->leaderID) {
+					continue;
+				}
+
+				if (it.second->indexedFrames.empty()) {
 					// one of the followers has no frames
 					return;
 				}
@@ -262,30 +274,49 @@ namespace TD_MoCap {
 		if (strategy == "Frameindex") {
 			// remove all frames which are too old
 			// note : this is somewhat optional since we have the max history limit also
-			auto oldestFrameIndex = leader->indexedFrames.begin()->first;
-			auto it = this->syncMembers.begin();
-			for(it++; it != this->syncMembers.end(); it++) {
-				auto& follower = it->second;
+			auto oldestFrameIndex = 0;
+			{
 
-				for (auto it = follower->indexedFrames.begin(); it != follower->indexedFrames.end(); ) {
-					auto correctedFrameIndex = it->first - follower->frameNumberStart + leader->frameNumberStart;
-					if (correctedFrameIndex < oldestFrameIndex) {
-						it = follower->indexedFrames.erase(it);
+				// find the common oldestFrameIndex
+				for (const auto& syncMemberIt : this->syncMembers) {
+					auto& frames = syncMemberIt.second->indexedFrames;
+					if (frames.empty()) {
+						continue;
 					}
-					else {
-						it++;
+					auto oldestFrameIndexForThisMember = frames.begin()->first - syncMemberIt.second->frameNumberStart;
+					if (oldestFrameIndexForThisMember > oldestFrameIndex) {
+						oldestFrameIndex = oldestFrameIndexForThisMember;
+					}
+				}
+
+				// delete all the frames which will never be matched
+				for (const auto& syncMemberIt : this->syncMembers) {
+					auto& frames = syncMemberIt.second->indexedFrames;
+					for (auto it = frames.begin(); it != frames.end(); ) {
+						auto correctedFrameIndex = it->first - syncMemberIt.second->frameNumberStart;
+						if (correctedFrameIndex < oldestFrameIndex) {
+							it = frames.erase(it);
+						}
+						else {
+							it++;
+						}
 					}
 				}
 			}
 
 			// search for synched frames
 			for (auto itLeaderFrame = leader->indexedFrames.begin(); itLeaderFrame != leader->indexedFrames.end(); ) {
+				auto startCompute = std::chrono::high_resolution_clock::now();
+
 				auto frameIndexGlobal = itLeaderFrame->first - leader->frameNumberStart;
 				bool matchFound = true;
 				
-				auto itFollower = this->syncMembers.begin();
-				for (itFollower++; itFollower != this->syncMembers.end(); itFollower++) {
-					auto& follower = itFollower->second;
+				for(const auto & itFollower : this->syncMembers) {
+					if (itFollower.first == this->leaderID) {
+						continue;
+					}
+
+					auto& follower = itFollower.second;
 					if (follower->indexedFrames.find(frameIndexGlobal + follower->frameNumberStart) == follower->indexedFrames.end()) {
 						matchFound = false;
 						break;
@@ -296,23 +327,31 @@ namespace TD_MoCap {
 					std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>> cameraFrames;
 
 					// put leader frame
-					cameraFrames.emplace(this->syncMembers.begin()->first, itLeaderFrame->second);
+					cameraFrames.emplace(this->leaderID, itLeaderFrame->second);
 
 					// put other frames
-					auto itFollower = this->syncMembers.begin();
-					for (itFollower++; itFollower != this->syncMembers.end(); itFollower++) {
-						auto& follower = itFollower->second;
+					for (const auto& itFollower : this->syncMembers) {
+						if (itFollower.first == this->leaderID) {
+							continue;
+						}
+						auto& follower = itFollower.second;
 
 						auto followerFrameIndex = itLeaderFrame->first - leader->frameNumberStart + follower->frameNumberStart;
-						cameraFrames.emplace(itFollower->first, follower->indexedFrames[followerFrameIndex]);
+						cameraFrames.emplace(itFollower.first, follower->indexedFrames[followerFrameIndex]);
 
 						// delete frame from follower
 						follower->indexedFrames.erase(follower->indexedFrames.find(followerFrameIndex));
 					}
 
-					auto synchronisedFrame = std::make_shared<SynchronisedFrame>(cameraFrames);
+					auto synchronisedFrame = std::make_shared<SynchronisedFrame>(
+						cameraFrames
+						, this->leaderID
+					);
+
+					synchronisedFrame->setComputeTime(std::chrono::high_resolution_clock::now() - startCompute);
 					this->output.send(synchronisedFrame);
 
+					// delete this frame from the leader
 					itLeaderFrame = leader->indexedFrames.erase(itLeaderFrame);
 				}
 				else {

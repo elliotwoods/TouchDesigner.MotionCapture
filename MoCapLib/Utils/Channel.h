@@ -21,6 +21,13 @@ namespace TD_MoCap {
 			Channel()
 				:closed(false) {}
 
+			void clear() {
+				std::unique_lock<std::mutex> mutex(mutex);
+				
+				auto emptyQueue = std::queue<T>();
+				std::swap(this->queue, emptyQueue);
+			}
+
 			/// \brief Block the receiving thread until a new sent value is available.
 			///
 			/// The receiving thread will block until a new sent value is available. In
@@ -261,6 +268,10 @@ namespace TD_MoCap {
 			/// a message right afterwards
 			bool empty() const {
 				return queue.empty();
+			}
+
+			size_t size() const {
+				return queue.size();
 			}
 
 		private:

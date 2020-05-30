@@ -12,6 +12,7 @@
 #include "Utils/FrameRateCounter.h"
 #include "Utils/Table.h"
 #include "Utils/WorkerThread.h"
+#include "Utils/WorkerGroup.h"
 #include "Utils/Parameter.h"
 
 #include "Exception.h"

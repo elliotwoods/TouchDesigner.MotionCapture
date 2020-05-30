@@ -26,6 +26,9 @@ namespace TD_MoCap {
 
 			// called from host class
 			std::shared_ptr<BaseFrame> receiveLatestFrame(bool useCached);
+
+			// called from host class
+			std::shared_ptr<BaseFrame> getLastFrame();
 		protected:
 			friend Output;
 

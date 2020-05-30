@@ -8,7 +8,8 @@ namespace TD_MoCap {
 	class Synchroniser
 	{
 	public:
-		struct SyncMember {
+		struct SyncMember
+		{
 			Links::Input input;
 			std::map<uint64_t, std::shared_ptr<XimeaCameraFrame>> indexedFrames;
 
@@ -38,24 +39,29 @@ namespace TD_MoCap {
 
 		std::mutex lockSyncMembers;
 		std::map<Links::Output::ID, std::unique_ptr<SyncMember>> syncMembers;
-		
+		Links::Output::ID leaderID;
+
 		const bool checkCameraTriggers = false;
 
-		struct {
-			Utils::NumberParameter<int> maxHistory{
+		struct
+		{
+			Utils::NumberParameter<int> maxHistory
+			{
 				"History size", "frames"
 				, 10, 10
 				, 1, 10000
 				, 1, 20
 			};
 
-			Utils::SelectorParameter strategy{
+			Utils::SelectorParameter strategy
+			{
 				"Strategy"
 				, {"Frameindex", "Timestamp"}
 				, "Frameindex"
 			};
 
-			Utils::NumberParameter<float> timestampWindow{
+			Utils::NumberParameter<float> timestampWindow
+			{
 				"Timestamp window", "ms"
 				, 1000.0f / 120.0f, 1000.0f / 120.0f
 				, 0, 1000.0f

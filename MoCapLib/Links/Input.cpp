@@ -55,6 +55,7 @@ namespace TD_MoCap {
 				if (informOutput) {
 					this->connectedOutput->removeSubscriber(this);
 				}
+				this->channel.clear();
 				this->connectedOutput = nullptr;
 			}
 		}
@@ -109,6 +110,16 @@ namespace TD_MoCap {
 			else if (useCached) {
 				return lastFrame;
 			}
+			else {
+				return nullptr;
+			}
+		}
+
+		//----------
+		std::shared_ptr<BaseFrame>
+			Input::getLastFrame()
+		{
+			return this->lastFrame;
 		}
 
 		//----------

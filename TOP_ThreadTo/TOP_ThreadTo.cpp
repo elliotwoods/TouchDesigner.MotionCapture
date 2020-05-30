@@ -25,9 +25,19 @@ namespace TD_MoCap {
 	bool
 		TOP_ThreadTo::getOutputFormat(TOP_OutputFormat* format, const OP_Inputs* inputs, void* reserved1)
 	{
-		if (this->lastFrameReceived) {
+		auto frame = this->input.receiveLatestFrame(false);
+		if (frame) {
+			// new frame received
+			this->previewDirty = true;
+		}
+		else {
+			// no new frame
+			frame = this->input.getLastFrame();
+		}
+
+		if (frame) {
 			cv::Mat image;
-			if (this->lastFrameReceived->getPreviewImage(image)) {
+			if (frame->getPreviewImage(image)) {
 				setTOP_OutputFormat(format, image);
 
 				// make a copy for comparison later
@@ -47,19 +57,15 @@ namespace TD_MoCap {
 			TOP_Context* context,
 			void* reserved1)
 	{
+		// update input stats
 		this->input.update(inputs->getParDAT("Source"));
 
-		{
-			auto newFrame = this->input.receiveLatestFrame(false);
-			if (newFrame) {
-				this->previewDirty = true;
-				this->lastFrameReceived = newFrame;
-			}
-		}
+		if (this->previewDirty) {
+			// We do not receive any new frames here, as we need to ensure that the frame is the same as the one seen at teh time of getOutputFormat
+			auto frame = this->input.getLastFrame();
 
-		if (this->previewDirty && this->lastFrameReceived) {
 			cv::Mat image;
-			if (!this->lastFrameReceived->getPreviewImage(image)) {
+			if (!frame->getPreviewImage(image)) {
 				// this frame doesn't support image output
 				return;
 			}

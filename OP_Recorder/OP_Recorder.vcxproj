@@ -11,45 +11,34 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Exception.cpp" />
-    <ClCompile Include="ImageFormat.cpp" />
-    <ClCompile Include="Links\BaseFrame.cpp" />
-    <ClCompile Include="Links\Input.cpp" />
-    <ClCompile Include="Links\Output.cpp" />
-    <ClCompile Include="Links\OutputsRegister.cpp" />
-    <ClCompile Include="pch_MoCapLib.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Utils\FrameRateCounter.cpp" />
-    <ClCompile Include="Utils\Parameter.cpp" />
-    <ClCompile Include="Utils\Table.cpp" />
-    <ClCompile Include="Utils\WorkerGroup.cpp" />
-    <ClCompile Include="Utils\WorkerThread.cpp" />
+    <ClInclude Include="OP_Recorder.h" />
+    <ClInclude Include="pch_OP_Recorder.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Exception.h" />
-    <ClInclude Include="ImageFormat.h" />
-    <ClInclude Include="Links\BaseFrame.h" />
-    <ClInclude Include="Links\Input.h" />
-    <ClInclude Include="Links\Output.h" />
-    <ClInclude Include="Links\OutputsRegister.h" />
-    <ClInclude Include="pch_MoCapLib.h" />
-    <ClInclude Include="MoCapLib.h" />
-    <ClInclude Include="Utils\Channel.h" />
-    <ClInclude Include="Utils\Event.h" />
-    <ClInclude Include="Utils\FrameRateCounter.h" />
-    <ClInclude Include="Utils\Parameter.h" />
-    <ClInclude Include="Utils\Table.h" />
-    <ClInclude Include="Utils\WorkerGroup.h" />
-    <ClInclude Include="Utils\WorkerThread.h" />
+    <ClCompile Include="plugin.cpp" />
+    <ClCompile Include="OP_Recorder.cpp" />
+    <ClCompile Include="pch_OP_Recorder.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MoCapLib\MoCapLib.vcxproj">
+      <Project>{503e8306-8576-4e6c-a1db-109f90ec6127}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\OP_SyncCameras\OP_SyncCameras.vcxproj">
+      <Project>{6492f259-d30c-4690-973f-056bf1665fce}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\OP_XimeaCamera\OP_XimeaCamera.vcxproj">
+      <Project>{92884d68-147a-4270-b517-f57727c76ca5}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{503e8306-8576-4e6c-a1db-109f90ec6127}</ProjectGuid>
-    <RootNamespace>TDMoCap</RootNamespace>
+    <RootNamespace>TD_MoCap</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>OP_Recorder</ProjectName>
+    <ProjectGuid>{CD29B359-C77F-4D1E-A668-4AB2FB830316}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -73,10 +62,12 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\TD_MoCap_Common.props" />
+    <Import Project="..\XimeaSDK.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\TD_MoCap_Common.props" />
+    <Import Project="..\XimeaSDK.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -89,18 +80,15 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;TDMOCAP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;OP_RECORDER_EXPORT;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../OP_XimeaCamera;../OP_SyncCameras;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
-    <PostBuildEvent>
-      <Command>robocopy "../thirdparty/opencv/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
-if errorlevel 1 exit 0 else exit %errorlevel%</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -108,8 +96,9 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;TDMOCAP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;OP_RECORDER_EXPORT;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../OP_XimeaCamera;../OP_SyncCameras;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -118,10 +107,6 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
-    <PostBuildEvent>
-      <Command>robocopy "../thirdparty/opencv/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
-if errorlevel 1 exit 0 else exit %errorlevel%</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

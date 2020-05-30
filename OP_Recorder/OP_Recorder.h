@@ -4,18 +4,17 @@
 #include "DAT_CPlusPlusBase.h"
 
 #include "MoCapLib.h"
-#include "Synchroniser.h"
 
 #include <memory>
 #include <vector>
 #include <set>
 
 namespace TD_MoCap {
-	class OP_SyncCameras : public DAT_CPlusPlusBase
+	class OP_Recorder : public DAT_CPlusPlusBase
 	{
 	public:
-		OP_SyncCameras(const OP_NodeInfo* info);
-		virtual ~OP_SyncCameras();
+		OP_Recorder(const OP_NodeInfo* info);
+		virtual ~OP_Recorder();
 
 		virtual void		getGeneralInfo(DAT_GeneralInfo*, const OP_Inputs*, void* reserved1) override;
 
@@ -39,8 +38,30 @@ namespace TD_MoCap {
 
 		virtual void		getErrorString(OP_String* error, void* reserved1);
 	protected:
-		Synchroniser synchroniser;
-
+		Links::Input input;
 		std::vector<Exception> errors;
+
+		struct {
+			Utils::NumberParameter<int> maxQueueLength{
+				"Max queue length", "frames"
+				, 100, 100
+				, 1, 10000
+				, 1, 1000
+			};
+
+			Utils::ValueParameter<bool> record{
+				"Record"
+				, false, false
+			};
+
+			Utils::ValueParameter<bool> play{
+				"Play"
+				, false, false
+			};
+
+			Utils::ParameterList list{ &maxQueueLength, &record, &play };
+		} parameters;
+
+		Utils::WorkerGroup workGroup;
 	};
 }

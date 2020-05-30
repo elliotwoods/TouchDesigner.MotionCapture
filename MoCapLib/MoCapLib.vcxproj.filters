@@ -28,6 +28,9 @@
       <Filter>Links</Filter>
     </ClCompile>
     <ClCompile Include="ImageFormat.cpp" />
+    <ClCompile Include="Utils\WorkerGroup.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch_MoCapLib.h" />
@@ -64,6 +67,9 @@
       <Filter>Links</Filter>
     </ClInclude>
     <ClInclude Include="ImageFormat.h" />
+    <ClInclude Include="Utils\WorkerGroup.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Links">

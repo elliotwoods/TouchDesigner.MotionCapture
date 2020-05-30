@@ -219,6 +219,8 @@ namespace TD_MoCap {
 				if (res == XI_OK) {
 					// Copy pixels into CV format
 					auto frame = std::make_shared<XimeaCameraFrame>();
+					frame->startComputeTimer();
+
 					frame->image = cv::Mat(cv::Size(image->GetWidth(), image->GetHeight())
 						, CV_8U
 						, image->GetPixels());
@@ -244,6 +246,7 @@ namespace TD_MoCap {
 					frame->cameraThread = this->shared_from_this();
 
 					// Send the frame
+					frame->endComputeTimer();
 					this->output.send(frame);
 				}
 				else if (res == XI_TIMEOUT) {

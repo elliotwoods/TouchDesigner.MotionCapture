@@ -50,6 +50,7 @@ namespace TD_MoCap {
 				std::lock_guard<std::mutex> mutex(this->lockInfo);
 				this->info.countThisFrame = this->incomingInfo.receivedCount;
 				this->info.frameRate = this->incomingInfo.fps;
+				this->info.computeTimeMs = this->incomingInfo.computeTimeMs;
 
 				// reset the frame info
 				this->incomingInfo.receivedCount = 0;
@@ -67,11 +68,12 @@ namespace TD_MoCap {
 		void
 			Output::send(std::shared_ptr<BaseFrame> frame)
 		{
-			{
+			if(frame) {
 				std::lock_guard<std::mutex> lockInfo(this->lockInfo);
 				this->incomingInfo.receivedCount++;
 				this->frameRateCounter.tick();
 				this->incomingInfo.fps = this->frameRateCounter.getFPS();
+				this->incomingInfo.computeTimeMs = (float) std::chrono::duration_cast<std::chrono::microseconds>(frame->getComputeTime()).count() / 1000.0f;
 
 				std::lock_guard<std::mutex> lockSubscribers(this->lockSubscribers);
 				for (auto input : this->subscribedInputs) {
@@ -90,6 +92,7 @@ namespace TD_MoCap {
 			table.newRow() << "framesSentThisMainloopFrame" << this->info.countThisFrame;
 			table.newRow() << "totalFrameCount" << this->info.totalCount;
 			table.newRow() << "outputFrameRate" << this->info.frameRate;
+			table.newRow() << "computeTimeMs" << this->info.computeTimeMs;
 			table.newRow() << "subscriberCount" << this->info.subscriberCount;
 
 			table.populateOutput(output);
