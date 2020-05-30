@@ -22,4 +22,14 @@ namespace TD_MoCap {
 		return true;
 	}
 
+	//----------
+	bool
+		XimeaCameraFrame::getPreviewDAT(Utils::Table& table) const {
+		table.newRow() << "frameIndex" << this->metaData.frameIndex;
+		table.newRow() << "timestamp" << this->metaData.timestamp.count();
+		table.newRow() << "width" << this->image.cols;
+		table.newRow() << "height" << this->image.rows;
+		table.newRow() << "channels" << this->image.channels();
+		return true;
+	}
 }

@@ -14,6 +14,7 @@ namespace TD_MoCap {
 		std::string getTypeName() const override;
 
 		bool getPreviewImage(cv::Mat&) const override;
+		bool getPreviewDAT(Utils::Table&) const override;
 
 		std::weak_ptr<CameraThread> cameraThread;
 
