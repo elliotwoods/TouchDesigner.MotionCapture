@@ -134,16 +134,14 @@ namespace TD_MoCap {
 			auto shortName = this->getTDShortName();
 			param.name = shortName.c_str();
 
+			std::string label = this->getName();
 			{
 				auto units = this->getUnits();
 				if (!units.empty()) {
-					auto label = (this->getName() + " [" + units + "]");
-					param.label = label.c_str();
-				}
-				else {
-					param.label = this->getName().c_str();
+					label += " [" + units + "]";
 				}
 			}
+			param.label = label.c_str();
 
 			param.defaultValues[0] = this->getDefaultValue();
 			param.minSliders[0] = this->getSliderMin();
@@ -169,14 +167,11 @@ namespace TD_MoCap {
 			auto shortName = this->getTDShortName();
 			param.name = shortName.c_str();
 
-			std::string label;
+			std::string label = this->getName();
 			{
 				auto units = this->getUnits();
 				if (!units.empty()) {
-					label = (this->getName() + " [" + units + "]");
-				}
-				else {
-					label = this->getName().c_str();
+					label += " [" + units + "]";
 				}
 			}
 			param.label = label.c_str();
