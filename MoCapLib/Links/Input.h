@@ -22,13 +22,16 @@ namespace TD_MoCap {
 			void close();
 
 			// called from host class
-			std::shared_ptr<BaseFrame> receiveNextFrame(bool waitForFrame);
+			std::shared_ptr<BaseFrame> receiveNextFrameWait(const std::chrono::system_clock::duration& timeout);
+			std::shared_ptr<BaseFrame> receiveNextFrameDontWait();
 
 			// called from host class
 			std::shared_ptr<BaseFrame> receiveLatestFrame(bool useCached);
 
 			// called from host class
 			std::shared_ptr<BaseFrame> getLastFrame();
+
+			Utils::Channel<std::shared_ptr<BaseFrame>> & getChannel();
 		protected:
 			friend Output;
 

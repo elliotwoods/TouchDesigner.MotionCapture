@@ -4,6 +4,7 @@
 #include <functional>
 #include "Channel.h"
 #include "Exception.h"
+#include "Wakeable.h"
 
 namespace TD_MoCap {
 	namespace Utils {
@@ -26,10 +27,18 @@ namespace TD_MoCap {
 
 			WorkerThread();
 			~WorkerThread();
+
 			void join();
 			void perform(const Action&);
 			void performBlocking(const Action&);
 			bool isJoining() const;
+
+			void clearWorkItems();
+			size_t sizeWorkItems() const;
+
+			// Be sure to remove all invalid members before disposing this class
+			// e.g. make sure to manually call `join()`
+			std::set<Wakeable *> wakeOnPerformBlocking;
 
 			// Acquire a unique privilege to perform actions in this thread for the lifetime of the returned PerformLock
 			std::shared_ptr<PerformLock> acquirePerformLock();

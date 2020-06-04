@@ -17,3 +17,5 @@
 
 #include "Exception.h"
 #include "ImageFormat.h"
+#include "Ptr.h"
+#include "Library.h"

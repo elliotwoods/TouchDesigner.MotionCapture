@@ -28,7 +28,7 @@ namespace TD_MoCap {
 
 		uint64_t getFrameIndex() const;
 
-		void save(const std::filesystem::path&);
+		//void save(const std::filesystem::path&);
 
 		std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>> cameraFrames;
 		Links::Output::ID leaderID;

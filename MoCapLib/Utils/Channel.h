@@ -4,13 +4,15 @@
 #include <queue>
 #include <condition_variable>
 
+#include "Wakeable.h"
+
 // Chopped out ofThreadChannel.h
 
 namespace TD_MoCap {
 	namespace Utils {
 
 		template<typename T>
-		class Channel {
+		class Channel : public Wakeable {
 		public:
 			/// \brief Create a default ofThreadChannel.
 			///
@@ -149,13 +151,17 @@ namespace TD_MoCap {
 			/// \param sentValue A reference to a sent value.
 			/// \param timeoutMs The number of milliseconds to wait for new data before continuing.
 			/// \returns True if a new value was received or false if the ofThreadChannel was closed.
-			bool tryReceive(T& sentValue, int64_t timeoutMs) {
+			bool tryReceive(T& sentValue, const std::chrono::system_clock::duration & timeout) {
 				std::unique_lock<std::mutex> mutex(mutex);
 				if (closed) {
 					return false;
 				}
 				if (queue.empty()) {
-					condition.wait_for(mutex, std::chrono::milliseconds(timeoutMs));
+					condition.wait_for(mutex
+						, timeout
+						, [this] {
+						return true;
+					});
 					if (queue.empty()) {
 						return false;
 					}
@@ -272,6 +278,11 @@ namespace TD_MoCap {
 
 			size_t size() const {
 				return queue.size();
+			}
+
+			/// \brief Wakes any thread waiting on this channel
+			void wake() override {
+				condition.notify_all();
 			}
 
 		private:

@@ -31,6 +31,7 @@
     <ClCompile Include="Utils\WorkerGroup.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Library.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch_MoCapLib.h" />
@@ -70,6 +71,11 @@
     <ClInclude Include="Utils\WorkerGroup.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="Utils\Wakeable.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Ptr.h" />
+    <ClInclude Include="Library.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Links">

@@ -53,6 +53,7 @@ namespace TD_MoCap {
 		return this->cameraFrames.at(this->leaderID)->metaData.frameIndex;
 	}
 
+	/*
 	//----------
 	void
 		SynchronisedFrame::save(const std::filesystem::path& folderPath)
@@ -98,16 +99,18 @@ namespace TD_MoCap {
 				// file path
 				auto filePath = folderPath;
 				char fileName[100];
-				sprintf_s(fileName, "frame_%010lu-%03d.png", (unsigned long) frameIndex, (int) cameraFrame.first);
+				sprintf_s(fileName, "frame_%010lu-%03d.jpg", (unsigned long) frameIndex, (int) cameraFrame.first);
 				filePath.append(fileName);
 
 				cv::imwrite(filePath.string()
 					, cameraFrame.second->image
-					, {
-						cv::IMWRITE_PNG_COMPRESSION
-						, 3
-					});
+					//, {
+					//	cv::IMWRITE_PNG_COMPRESSION
+					//	, 3
+					//}
+				);
 			}
 		}
 	}
+	*/
 }

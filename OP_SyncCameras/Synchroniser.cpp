@@ -19,6 +19,7 @@ namespace TD_MoCap {
 			syncMember.second->input.close();
 		}
 
+		// Manually join the thread
 		this->workerThread.join();
 	}
 
@@ -36,9 +37,11 @@ namespace TD_MoCap {
 			if (newOutputIDs != currentOutputIDs) {
 				// rebuild syncMembers
 				this->syncMembers.clear();
+				this->workerThread.wakeOnPerformBlocking.clear();
 				for (const auto id : newOutputIDs) {
 					auto camera = std::make_unique<SyncMember>();
 					camera->input.subscribe(id);
+					this->workerThread.wakeOnPerformBlocking.insert(&camera->input.getChannel());
 					this->syncMembers.emplace(id, std::move(camera));
 				}
 				this->leaderID = newOutputIDs.front();
@@ -73,7 +76,9 @@ namespace TD_MoCap {
 	{
 		this->workerThread.perform([this] {
 			try {
-				this->receiveAllFrames();
+				if (!this->receiveAllFrames()) {
+
+				}
 
 				if (this->needsResync) {
 					this->resync();
@@ -98,23 +103,28 @@ namespace TD_MoCap {
 	}
 
 	//----------
-	void
+	bool
 		Synchroniser::receiveAllFrames()
 	{
 		// Move frames from inputs into indexedFrames
 		// Note : This does not involve talking to the camera/cameraThread
+		std::lock_guard<std::mutex> lockSyncMembers(this->lockSyncMembers);
+		if (this->syncMembers.size() < 2) {
+			return false;
+		}
 
+		auto timeout = std::chrono::milliseconds(10);
 		for (const auto& it : this->syncMembers) {
 			auto& syncMember = it.second;
 
 			// always receive one frame
-			auto frame = std::dynamic_pointer_cast<XimeaCameraFrame>(syncMember->input.receiveNextFrame(true));
+			auto frame = std::dynamic_pointer_cast<XimeaCameraFrame>(syncMember->input.receiveNextFrameWait(timeout));
 
 			while (frame) {
 				syncMember->indexedFrames.emplace(frame->metaData.frameIndex, frame);
 
 				// receive any other frames that are waiting also
-				frame = std::dynamic_pointer_cast<XimeaCameraFrame>(syncMember->input.receiveNextFrame(false));
+				frame = std::dynamic_pointer_cast<XimeaCameraFrame>(syncMember->input.receiveNextFrameWait(timeout));
 			}
 
 			// cap history size
@@ -123,6 +133,8 @@ namespace TD_MoCap {
 				syncMember->indexedFrames.erase(syncMember->indexedFrames.begin());
 			}
 		}
+
+		return true;
 	}
 
 	//----------

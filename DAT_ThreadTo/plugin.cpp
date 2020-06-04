@@ -1,6 +1,19 @@
 #include "pch_DAT_Threadto.h"
 #include "DAT_ThreadTo.h"
 
+class LoadDetector {
+public:
+	LoadDetector() {
+		std::cout << "Load" << std::endl;
+	}
+
+	~LoadDetector() {
+		std::cout << "Unload" << std::endl;
+	}
+};
+
+LoadDetector loadDetector;
+
 extern "C"
 {
 	DLLEXPORT

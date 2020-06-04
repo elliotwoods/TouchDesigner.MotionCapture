@@ -6,6 +6,7 @@
 
 namespace TD_MoCap {
 	namespace Utils {
+#pragma mark PerformLock
 		//----------
 		WorkerThread::PerformLock::~PerformLock()
 		{
@@ -25,13 +26,14 @@ namespace TD_MoCap {
 			this->actionQueue = actionQueue;
 		}
 
+#pragma mark WorkerThread
 		//----------
 		WorkerThread::WorkerThread()
 		{
 			this->thread = std::thread([this] {
 				while (this->running) {
 					Action action;
-					if (workQueue.tryReceive(action, 1000)) {
+					if (workQueue.receive(action)) {
 						action();
 					}
 				}
@@ -53,6 +55,9 @@ namespace TD_MoCap {
 		{
 			this->running = false;
 			this->workQueue.close();
+			for (auto wakeable : this->wakeOnPerformBlocking) {
+				wakeable->wake();
+			}
 			this->thread.join();
 		}
 
@@ -105,6 +110,10 @@ namespace TD_MoCap {
 				workComplete = true;
 				cv.notify_one();
 			});
+
+			for (auto wakeable : this->wakeOnPerformBlocking) {
+				wakeable->wake();
+			}
 
 			std::unique_lock<std::mutex> lock(mutex);
 			cv.wait(lock,
@@ -169,6 +178,20 @@ namespace TD_MoCap {
 			WorkerThread::isJoining() const
 		{
 			return !this->running;
+		}
+
+		//----------
+		void
+			WorkerThread::clearWorkItems()
+		{
+			this->workQueue.clear();
+		}
+
+		//----------
+		size_t
+			WorkerThread::sizeWorkItems() const
+		{
+			return this->workQueue.size();
 		}
 	}
 }

@@ -30,7 +30,7 @@ namespace TD_MoCap {
 	protected:
 		void requestUpdate();
 
-		void receiveAllFrames();
+		bool receiveAllFrames();
 		void resync();
 
 		bool needsResync = true;

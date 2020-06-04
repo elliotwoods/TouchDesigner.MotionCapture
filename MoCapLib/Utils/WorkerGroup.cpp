@@ -17,7 +17,7 @@ namespace TD_MoCap {
 								});
 							}
 							catch (Exception e) {
-								this->errorsInThreads.send(e);
+								this->exceptionsInThread.send(e);
 							}
 						}
 					}

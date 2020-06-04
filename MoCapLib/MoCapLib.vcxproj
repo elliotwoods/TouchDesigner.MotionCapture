@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="ImageFormat.cpp" />
+    <ClCompile Include="Library.cpp" />
     <ClCompile Include="Links\BaseFrame.cpp" />
     <ClCompile Include="Links\Input.cpp" />
     <ClCompile Include="Links\Output.cpp" />
@@ -30,17 +31,20 @@
   <ItemGroup>
     <ClInclude Include="Exception.h" />
     <ClInclude Include="ImageFormat.h" />
+    <ClInclude Include="Library.h" />
     <ClInclude Include="Links\BaseFrame.h" />
     <ClInclude Include="Links\Input.h" />
     <ClInclude Include="Links\Output.h" />
     <ClInclude Include="Links\OutputsRegister.h" />
     <ClInclude Include="pch_MoCapLib.h" />
     <ClInclude Include="MoCapLib.h" />
+    <ClInclude Include="Ptr.h" />
     <ClInclude Include="Utils\Channel.h" />
     <ClInclude Include="Utils\Event.h" />
     <ClInclude Include="Utils\FrameRateCounter.h" />
     <ClInclude Include="Utils\Parameter.h" />
     <ClInclude Include="Utils\Table.h" />
+    <ClInclude Include="Utils\Wakeable.h" />
     <ClInclude Include="Utils\WorkerGroup.h" />
     <ClInclude Include="Utils\WorkerThread.h" />
   </ItemGroup>

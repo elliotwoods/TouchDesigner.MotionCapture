@@ -19,7 +19,7 @@ namespace TD_MoCap {
 			
 			void close();
 
-			Channel<Exception> errorsInThreads;
+			Channel<Exception> exceptionsInThread;
 		protected:
 			std::vector<std::unique_ptr<std::thread>> threads;
 			Channel<std::shared_ptr<WorkerThread::Action>> actionChannel;

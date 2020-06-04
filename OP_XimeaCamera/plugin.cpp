@@ -1,5 +1,16 @@
 #include "pch_OP_XimeaCamera.h"
 #include "OP_XimeaCamera.h"
+#include "XimeaCameraFrame.h"
+
+namespace TD_MoCap {
+	auto library = Library::make<XimeaCameraFrame>();
+	auto ptr = make_ptr<XimeaCameraFrame>();
+	auto lockedPtr = ptr.lock();
+}
+
+THIS IS A DEAD END! 
+because a class might be defined in OP_Synchroniser but instantiated/owned by a Recorder!
+we need to move all frame types to the shared library instead!
 
 extern "C"
 {

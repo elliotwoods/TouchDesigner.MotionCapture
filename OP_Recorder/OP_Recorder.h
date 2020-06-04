@@ -63,5 +63,9 @@ namespace TD_MoCap {
 		} parameters;
 
 		Utils::WorkerGroup workGroup;
+		Utils::WorkerThread workerThread;
+		std::unique_ptr<cv::VideoWriter> videoWriter;
+
+		const bool useVideo = true;
 	};
 }

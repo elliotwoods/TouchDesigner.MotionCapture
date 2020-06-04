@@ -76,16 +76,26 @@ namespace TD_MoCap {
 
 		//----------
 		std::shared_ptr<BaseFrame> 
-			Input::receiveNextFrame(bool waitForFrame)
+			Input::receiveNextFrameWait(const std::chrono::system_clock::duration& timeout)
 		{
 			std::shared_ptr<BaseFrame> frame;
 
-			if (waitForFrame) {
-				this->channel.receive(frame);
+			this->channel.tryReceive(frame, timeout);
+
+			if (frame) {
+				this->lastFrame = frame;
 			}
-			else {
-				this->channel.tryReceive(frame);
-			}
+
+			return frame;
+		}
+
+		//----------
+		std::shared_ptr<BaseFrame>
+			Input::receiveNextFrameDontWait()
+		{
+			std::shared_ptr<BaseFrame> frame;
+
+			this->channel.tryReceive(frame);
 
 			if (frame) {
 				this->lastFrame = frame;
@@ -120,6 +130,13 @@ namespace TD_MoCap {
 			Input::getLastFrame()
 		{
 			return this->lastFrame;
+		}
+
+		//----------
+		Utils::Channel<std::shared_ptr<BaseFrame>>&
+			Input::getChannel()
+		{
+			return this->channel;
 		}
 
 		//----------
