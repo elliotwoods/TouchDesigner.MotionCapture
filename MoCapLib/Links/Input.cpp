@@ -75,10 +75,10 @@ namespace TD_MoCap {
 		}
 
 		//----------
-		std::shared_ptr<BaseFrame> 
+		std::shared_ptr<Frames::BaseFrame>
 			Input::receiveNextFrameWait(const std::chrono::system_clock::duration& timeout)
 		{
-			std::shared_ptr<BaseFrame> frame;
+			std::shared_ptr<Frames::BaseFrame> frame;
 
 			this->channel.tryReceive(frame, timeout);
 
@@ -90,10 +90,10 @@ namespace TD_MoCap {
 		}
 
 		//----------
-		std::shared_ptr<BaseFrame>
+		std::shared_ptr<Frames::BaseFrame>
 			Input::receiveNextFrameDontWait()
 		{
-			std::shared_ptr<BaseFrame> frame;
+			std::shared_ptr<Frames::BaseFrame> frame;
 
 			this->channel.tryReceive(frame);
 
@@ -105,10 +105,10 @@ namespace TD_MoCap {
 		}
 
 		//----------
-		std::shared_ptr<BaseFrame>
+		std::shared_ptr<Frames::BaseFrame>
 			Input::receiveLatestFrame(bool useCached)
 		{
-			std::shared_ptr<BaseFrame> frame;
+			std::shared_ptr<Frames::BaseFrame> frame;
 			while (this->channel.tryReceive(frame)) {
 				// flush until latest	
 			}
@@ -126,14 +126,14 @@ namespace TD_MoCap {
 		}
 
 		//----------
-		std::shared_ptr<BaseFrame>
+		std::shared_ptr<Frames::BaseFrame>
 			Input::getLastFrame()
 		{
 			return this->lastFrame;
 		}
 
 		//----------
-		Utils::Channel<std::shared_ptr<BaseFrame>>&
+		Utils::Channel<std::shared_ptr<Frames::BaseFrame>>&
 			Input::getChannel()
 		{
 			return this->channel;
@@ -141,7 +141,7 @@ namespace TD_MoCap {
 
 		//----------
 		void
-			Input::send(std::shared_ptr<BaseFrame> frame)
+			Input::send(std::shared_ptr<Frames::BaseFrame> frame)
 		{
 			this->channel.send(frame);
 		}

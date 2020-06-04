@@ -66,7 +66,7 @@ namespace TD_MoCap {
 
 		//----------
 		void
-			Output::send(std::shared_ptr<BaseFrame> frame)
+			Output::send(std::shared_ptr<Frames::BaseFrame> frame)
 		{
 			if(frame) {
 				std::lock_guard<std::mutex> lockInfo(this->lockInfo);

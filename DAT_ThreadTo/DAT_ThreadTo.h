@@ -16,7 +16,7 @@ namespace TD_MoCap {
 
 	protected:
 		Links::Input input;
-		std::shared_ptr<Links::BaseFrame> lastFrameReceived;
+		std::shared_ptr<Frames::BaseFrame> lastFrameReceived;
 		
 		bool previewDirty = false;
 	};

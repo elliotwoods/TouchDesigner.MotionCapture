@@ -12,9 +12,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Exception.cpp" />
+    <ClCompile Include="Frames\BaseFrame.cpp" />
+    <ClCompile Include="Frames\SynchronisedFrame.cpp" />
+    <ClCompile Include="Frames\XimeaCameraFrame.cpp" />
     <ClCompile Include="ImageFormat.cpp" />
     <ClCompile Include="Library.cpp" />
-    <ClCompile Include="Links\BaseFrame.cpp" />
     <ClCompile Include="Links\Input.cpp" />
     <ClCompile Include="Links\Output.cpp" />
     <ClCompile Include="Links\OutputsRegister.cpp" />
@@ -30,9 +32,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exception.h" />
+    <ClInclude Include="Frames\BaseFrame.h" />
+    <ClInclude Include="Frames\SynchronisedFrame.h" />
+    <ClInclude Include="Frames\XimeaCameraFrame.h" />
     <ClInclude Include="ImageFormat.h" />
     <ClInclude Include="Library.h" />
-    <ClInclude Include="Links\BaseFrame.h" />
     <ClInclude Include="Links\Input.h" />
     <ClInclude Include="Links\Output.h" />
     <ClInclude Include="Links\OutputsRegister.h" />

@@ -1,7 +1,7 @@
 #include "pch_OP_XimeaCamera.h"
 #include "CameraThread.h"
 #include "Exception.h"
-#include "XimeaCameraFrame.h"
+#include "Frames/XimeaCameraFrame.h"
 
 namespace TD_MoCap {
 	//----------
@@ -218,7 +218,7 @@ namespace TD_MoCap {
 				
 				if (res == XI_OK) {
 					// Copy pixels into CV format
-					auto frame = std::make_shared<XimeaCameraFrame>();
+					auto frame = std::make_shared<Frames::XimeaCameraFrame>();
 					frame->startComputeTimer();
 
 					frame->image = cv::Mat(cv::Size(image->GetWidth(), image->GetHeight())

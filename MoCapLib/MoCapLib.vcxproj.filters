@@ -8,9 +8,6 @@
     <ClCompile Include="Links\Input.cpp">
       <Filter>Links</Filter>
     </ClCompile>
-    <ClCompile Include="Links\BaseFrame.cpp">
-      <Filter>Links</Filter>
-    </ClCompile>
     <ClCompile Include="Utils\Table.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
@@ -32,6 +29,15 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Library.cpp" />
+    <ClCompile Include="Frames\BaseFrame.cpp">
+      <Filter>Frames</Filter>
+    </ClCompile>
+    <ClCompile Include="Frames\SynchronisedFrame.cpp">
+      <Filter>Frames</Filter>
+    </ClCompile>
+    <ClCompile Include="Frames\XimeaCameraFrame.cpp">
+      <Filter>Frames</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch_MoCapLib.h" />
@@ -39,9 +45,6 @@
       <Filter>Links</Filter>
     </ClInclude>
     <ClInclude Include="Links\Input.h">
-      <Filter>Links</Filter>
-    </ClInclude>
-    <ClInclude Include="Links\BaseFrame.h">
       <Filter>Links</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Table.h">
@@ -76,6 +79,15 @@
     </ClInclude>
     <ClInclude Include="Ptr.h" />
     <ClInclude Include="Library.h" />
+    <ClInclude Include="Frames\BaseFrame.h">
+      <Filter>Frames</Filter>
+    </ClInclude>
+    <ClInclude Include="Frames\SynchronisedFrame.h">
+      <Filter>Frames</Filter>
+    </ClInclude>
+    <ClInclude Include="Frames\XimeaCameraFrame.h">
+      <Filter>Frames</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Links">
@@ -83,6 +95,9 @@
     </Filter>
     <Filter Include="Utils">
       <UniqueIdentifier>{58ecc804-7e9d-44f3-bf4a-03ee127db501}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frames">
+      <UniqueIdentifier>{dd6c1a64-8e0f-4802-bdbf-4984cdd645bf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -22,26 +22,26 @@ namespace TD_MoCap {
 			void close();
 
 			// called from host class
-			std::shared_ptr<BaseFrame> receiveNextFrameWait(const std::chrono::system_clock::duration& timeout);
-			std::shared_ptr<BaseFrame> receiveNextFrameDontWait();
+			std::shared_ptr<Frames::BaseFrame> receiveNextFrameWait(const std::chrono::system_clock::duration& timeout);
+			std::shared_ptr<Frames::BaseFrame> receiveNextFrameDontWait();
 
 			// called from host class
-			std::shared_ptr<BaseFrame> receiveLatestFrame(bool useCached);
+			std::shared_ptr<Frames::BaseFrame> receiveLatestFrame(bool useCached);
 
 			// called from host class
-			std::shared_ptr<BaseFrame> getLastFrame();
+			std::shared_ptr<Frames::BaseFrame> getLastFrame();
 
-			Utils::Channel<std::shared_ptr<BaseFrame>> & getChannel();
+			Utils::Channel<std::shared_ptr<Frames::BaseFrame>> & getChannel();
 		protected:
 			friend Output;
 
 			// called from Links::Output
-			void send(std::shared_ptr<BaseFrame>);
+			void send(std::shared_ptr<Frames::BaseFrame>);
 
 			Output* connectedOutput = nullptr;
-			Utils::Channel<std::shared_ptr<BaseFrame>> channel;
+			Utils::Channel<std::shared_ptr<Frames::BaseFrame>> channel;
 
-			std::shared_ptr<BaseFrame> lastFrame;
+			std::shared_ptr<Frames::BaseFrame> lastFrame;
 		};
 	}
 }

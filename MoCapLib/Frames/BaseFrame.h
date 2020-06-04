@@ -4,7 +4,7 @@
 #include "Utils/Table.h"
 
 namespace TD_MoCap {
-	namespace Links {
+	namespace Frames {
 
 		class TDMOCAP_API BaseFrame
 		{

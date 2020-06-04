@@ -2,16 +2,19 @@
 #include <map>
 #include "MoCapLib.h"
 
-#include "XimeaCameraFrame.h"
+#include "Frames/XimeaCameraFrame.h"
 
 namespace TD_MoCap {
+	/// <summary>
+	/// Synchronise incoming frames. Note this class does not use locks, we only use perform/Blocking
+	/// </summary>
 	class Synchroniser
 	{
 	public:
 		struct SyncMember
 		{
 			Links::Input input;
-			std::map<uint64_t, std::shared_ptr<XimeaCameraFrame>> indexedFrames;
+			std::map<uint64_t, std::shared_ptr<Frames::XimeaCameraFrame>> indexedFrames;
 
 			uint64_t frameNumberStart = 0;
 			std::chrono::microseconds timestampStart;
@@ -30,14 +33,13 @@ namespace TD_MoCap {
 	protected:
 		void requestUpdate();
 
-		bool receiveAllFrames();
+		void receiveAllFrames();
 		void resync();
 
 		bool needsResync = true;
 
 		Utils::WorkerThread workerThread;
 
-		std::mutex lockSyncMembers;
 		std::map<Links::Output::ID, std::unique_ptr<SyncMember>> syncMembers;
 		Links::Output::ID leaderID;
 

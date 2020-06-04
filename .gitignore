@@ -1,3 +1,7 @@
+*.avi
+*.mp4
+*.mov
+
 docs/
 **/.vs/
 

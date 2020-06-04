@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BaseFrame.h"
+#include "Frames/BaseFrame.h"
 #include "Utils/FrameRateCounter.h"
 
 #include <memory>
@@ -21,7 +21,7 @@ namespace TD_MoCap {
 			ID getID() const;
 
 			void update();
-			void send(std::shared_ptr<BaseFrame>);
+			void send(std::shared_ptr<Frames::BaseFrame>);
 			void populateMainThreadOutput(DAT_Output*);
 
 			static bool getIDFromDAT(const OP_DATInput*, Output::ID& result);

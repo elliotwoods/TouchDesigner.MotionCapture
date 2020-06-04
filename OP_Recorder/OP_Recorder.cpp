@@ -1,6 +1,5 @@
 #include "pch_OP_Recorder.h"
 #include "OP_Recorder.h"
-#include "SynchronisedFrame.h"
 
 namespace TD_MoCap {
 	//----------
@@ -39,7 +38,7 @@ namespace TD_MoCap {
 		auto frame = this->input.receiveNextFrameDontWait();
 		auto recordFolder = std::string(inputs->getParFilePath("Folder"));
 		while (frame) {
-			auto typedFrame = std::dynamic_pointer_cast<SynchronisedFrame>(frame);
+			auto typedFrame = std::dynamic_pointer_cast<Frames::SynchronisedFrame>(frame);
 
 			// if it's a valid frame and we are set to record
 			if (typedFrame && this->parameters.record.getValue()) {

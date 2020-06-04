@@ -1,7 +1,7 @@
 #include "pch_OP_SyncCameras.h"
 #include "Synchroniser.h"
 #include "CameraThread.h"
-#include "SynchronisedFrame.h"
+#include "Frames/SynchronisedFrame.h"
 
 namespace TD_MoCap {
 	//----------
@@ -13,13 +13,7 @@ namespace TD_MoCap {
 	//----------
 	Synchroniser::~Synchroniser()
 	{
-		std::cout << "Synchroniser closing" << std::endl;
-		std::lock_guard<std::mutex> lockGuard(this->lockSyncMembers);
-		for (const auto& syncMember : this->syncMembers) {
-			syncMember.second->input.close();
-		}
-
-		// Manually join the thread
+		// Manually join the thread. This will automatically call channels to close
 		this->workerThread.join();
 	}
 
@@ -27,7 +21,7 @@ namespace TD_MoCap {
 	void 
 		Synchroniser::checkConnections(const std::vector<Links::Output::ID>& newOutputIDs)
 	{
-		this->workerThread.performBlocking([&] {
+		this->workerThread.perform([newOutputIDs, this] {
 			// gather current IDs
 			std::vector<Links::Output::ID> currentOutputIDs;
 			for (const auto& camera : this->syncMembers) {
@@ -76,9 +70,7 @@ namespace TD_MoCap {
 	{
 		this->workerThread.perform([this] {
 			try {
-				if (!this->receiveAllFrames()) {
-
-				}
+				this->receiveAllFrames();
 
 				if (this->needsResync) {
 					this->resync();
@@ -103,14 +95,15 @@ namespace TD_MoCap {
 	}
 
 	//----------
-	bool
+	void
 		Synchroniser::receiveAllFrames()
 	{
 		// Move frames from inputs into indexedFrames
 		// Note : This does not involve talking to the camera/cameraThread
-		std::lock_guard<std::mutex> lockSyncMembers(this->lockSyncMembers);
+
+		// Don't waste time if we don't have 2 cameras attached yet
 		if (this->syncMembers.size() < 2) {
-			return false;
+			return;
 		}
 
 		auto timeout = std::chrono::milliseconds(10);
@@ -118,13 +111,13 @@ namespace TD_MoCap {
 			auto& syncMember = it.second;
 
 			// always receive one frame
-			auto frame = std::dynamic_pointer_cast<XimeaCameraFrame>(syncMember->input.receiveNextFrameWait(timeout));
+			auto frame = std::dynamic_pointer_cast<Frames::XimeaCameraFrame>(syncMember->input.receiveNextFrameWait(timeout));
 
 			while (frame) {
 				syncMember->indexedFrames.emplace(frame->metaData.frameIndex, frame);
 
 				// receive any other frames that are waiting also
-				frame = std::dynamic_pointer_cast<XimeaCameraFrame>(syncMember->input.receiveNextFrameWait(timeout));
+				frame = std::dynamic_pointer_cast<Frames::XimeaCameraFrame>(syncMember->input.receiveNextFrameWait(timeout));
 			}
 
 			// cap history size
@@ -133,17 +126,12 @@ namespace TD_MoCap {
 				syncMember->indexedFrames.erase(syncMember->indexedFrames.begin());
 			}
 		}
-
-		return true;
 	}
 
 	//----------
 	void
 		Synchroniser::resync()
 	{
-		std::lock_guard<std::mutex> lockSyncMembers(this->lockSyncMembers);
-		std::cout << "resync" << std::endl;
-
 		// check that we have at least 2 syncMembers
 		if (this->syncMembers.size() < 2) {
 			throw(Exception("Insufficient cameras to perform a sync"));
@@ -152,7 +140,7 @@ namespace TD_MoCap {
 		// check that we have a cameraThread for all syncMembers
 		std::map<Links::Output::ID, std::shared_ptr<CameraThread>> cameraThreads;
 		for (const auto& it: this->syncMembers) {
-			auto latestFrame = std::dynamic_pointer_cast<XimeaCameraFrame>(it.second->input.receiveLatestFrame(true));
+			auto latestFrame = std::dynamic_pointer_cast<Frames::XimeaCameraFrame>(it.second->input.receiveLatestFrame(true));
 			if (!latestFrame) {
 				throw(Exception("Camera input does not yet have a frame"));
 			}
@@ -255,8 +243,6 @@ namespace TD_MoCap {
 	void
 		Synchroniser::sendSynchronisedFrames()
 	{
-		std::lock_guard<std::mutex> lockSyncMembers(this->lockSyncMembers);
-
 		if (this->syncMembers.size() < 2) {
 			// not enough cameras to perform a sync
 			return;
@@ -286,7 +272,7 @@ namespace TD_MoCap {
 		if (strategy == "Frameindex") {
 			// remove all frames which are too old
 			// note : this is somewhat optional since we have the max history limit also
-			auto oldestFrameIndex = 0;
+			uint64_t oldestFrameIndex = 0;
 			{
 
 				// find the common oldestFrameIndex
@@ -336,7 +322,7 @@ namespace TD_MoCap {
 				}
 
 				if (matchFound) {
-					std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>> cameraFrames;
+					std::map<Links::Output::ID, std::shared_ptr<Frames::XimeaCameraFrame>> cameraFrames;
 
 					// put leader frame
 					cameraFrames.emplace(this->leaderID, itLeaderFrame->second);
@@ -355,7 +341,7 @@ namespace TD_MoCap {
 						follower->indexedFrames.erase(follower->indexedFrames.find(followerFrameIndex));
 					}
 
-					auto synchronisedFrame = std::make_shared<SynchronisedFrame>(
+					auto synchronisedFrame = std::make_shared<Frames::SynchronisedFrame>(
 						cameraFrames
 						, this->leaderID
 					);

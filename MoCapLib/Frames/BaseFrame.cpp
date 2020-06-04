@@ -2,7 +2,7 @@
 #include "BaseFrame.h"
 
 namespace TD_MoCap {
-	namespace Links {
+	namespace Frames {
 		//-----------
 		void
 			BaseFrame::startComputeTimer()
