@@ -28,7 +28,6 @@
     <ClCompile Include="Utils\WorkerGroup.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="Library.cpp" />
     <ClCompile Include="Frames\BaseFrame.cpp">
       <Filter>Frames</Filter>
     </ClCompile>
@@ -77,8 +76,6 @@
     <ClInclude Include="Utils\Wakeable.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="Ptr.h" />
-    <ClInclude Include="Library.h" />
     <ClInclude Include="Frames\BaseFrame.h">
       <Filter>Frames</Filter>
     </ClInclude>

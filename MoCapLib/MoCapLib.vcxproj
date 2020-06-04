@@ -16,7 +16,6 @@
     <ClCompile Include="Frames\SynchronisedFrame.cpp" />
     <ClCompile Include="Frames\XimeaCameraFrame.cpp" />
     <ClCompile Include="ImageFormat.cpp" />
-    <ClCompile Include="Library.cpp" />
     <ClCompile Include="Links\Input.cpp" />
     <ClCompile Include="Links\Output.cpp" />
     <ClCompile Include="Links\OutputsRegister.cpp" />
@@ -36,13 +35,11 @@
     <ClInclude Include="Frames\SynchronisedFrame.h" />
     <ClInclude Include="Frames\XimeaCameraFrame.h" />
     <ClInclude Include="ImageFormat.h" />
-    <ClInclude Include="Library.h" />
     <ClInclude Include="Links\Input.h" />
     <ClInclude Include="Links\Output.h" />
     <ClInclude Include="Links\OutputsRegister.h" />
     <ClInclude Include="pch_MoCapLib.h" />
     <ClInclude Include="MoCapLib.h" />
-    <ClInclude Include="Ptr.h" />
     <ClInclude Include="Utils\Channel.h" />
     <ClInclude Include="Utils\Event.h" />
     <ClInclude Include="Utils\FrameRateCounter.h" />
