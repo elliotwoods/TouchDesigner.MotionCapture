@@ -223,7 +223,7 @@ namespace TD_MoCap {
 
 					frame->image = cv::Mat(cv::Size(image->GetWidth(), image->GetHeight())
 						, CV_8U
-						, image->GetPixels());
+						, image->GetPixels()).clone(); // we need to take a deep copy of the data
 
 					if (this->showPreviewWindow) {
 						cv::Mat preview;
