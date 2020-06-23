@@ -57,6 +57,8 @@ namespace TD_MoCap {
 			auto imageCopy = std::make_shared<cv::Mat>(this->image.clone());
 			auto filePath = args.folderOut / (std::to_string(args.frameIndex) + "." + args.imageFormat);
 
+			json["filePath"] = filePath.string();
+
 			// Stereo recording test times
 			// PNG : 15 fps (858kB)
 			// TIF : 20-30 fps (782kB)
