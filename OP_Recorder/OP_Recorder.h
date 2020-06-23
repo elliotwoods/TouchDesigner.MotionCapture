@@ -61,6 +61,11 @@ namespace TD_MoCap {
 				, "Bmp"
 			};
 
+			Utils::ValueParameter<bool> timestampFolder{
+				"Timestamp folder"
+				, true, true
+			};
+
 			Utils::ValueParameter<bool> record{
 				"Record"
 				, false, false
@@ -74,6 +79,7 @@ namespace TD_MoCap {
 			Utils::ParameterList list{
 				&maxQueueLength
 				, &format
+				, &timestampFolder
 				, &record
 				, &play };
 

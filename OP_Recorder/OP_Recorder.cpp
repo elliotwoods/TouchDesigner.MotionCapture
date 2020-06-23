@@ -40,6 +40,19 @@ namespace TD_MoCap {
 		if (this->isRecording != this->parameters.record.getValue()) {
 			if (this->parameters.record.getValue()) {
 				this->outputPath.assign(recordFolder);
+
+				//append timestamp
+				if (this->parameters.timestampFolder.getValue()) {
+					time_t rawTime;
+					char buffer[80];
+					time(&rawTime);
+					struct tm timeInfo;
+					localtime_s(&timeInfo, &rawTime);
+
+					strftime(buffer, sizeof(buffer), "%F %H.%M.%S", &timeInfo);
+					this->outputPath /= std::string(buffer);
+				}
+
 				this->startRecording();
 			}
 			else {
@@ -163,9 +176,12 @@ namespace TD_MoCap {
 			this->recordFrameRateCounter.tick();
 		};
 
-		this->recordingJson["frames"] = nlohmann::json::array();
-		this->recordingJson["timestamp"] = std::chrono::system_clock::now().time_since_epoch().count();
+		std::filesystem::create_directories(this->saveArgs.folderOut);
 
+		// initialise the array where frames will be stored
+		this->recordingJson["frames"] = nlohmann::json::array();
+
+		// take the name of this computer
 		{
 			TCHAR buffer[256];
 			DWORD dwSize = sizeof(buffer);
@@ -174,6 +190,8 @@ namespace TD_MoCap {
 				this->recordingJson["computer"] = std::string(wideString.begin(), wideString.end());
 			}
 		}
+
+		// add a timestamp in human readable format
 		{
 			time_t rawTime;
 			char buffer[80];
@@ -184,6 +202,9 @@ namespace TD_MoCap {
 			strftime(buffer, sizeof(buffer), "%F %T (%Z)", &timeInfo);
 			this->recordingJson["dateString"] = std::string(buffer);
 		}
+
+		// computer readable timestamp
+		this->recordingJson["dateTimestamp"] = std::chrono::system_clock::now().time_since_epoch().count();
 	}
 
 	//----------
@@ -194,7 +215,7 @@ namespace TD_MoCap {
 			return;
 		}
 
-		auto jsonFilePath = outputPath / "recording.json";
+		auto jsonFilePath = this->outputPath / "recording.json";
 		std::ofstream file(jsonFilePath.string());
 		file << this->recordingJson;
 		file.close();

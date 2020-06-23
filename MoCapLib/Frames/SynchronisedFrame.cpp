@@ -56,12 +56,12 @@ namespace TD_MoCap {
 		}
 
 		//----------
-		void 
+		void
 			SynchronisedFrame::serialise(nlohmann::json& json, const Utils::Serialisable::Args& args) const
 		{
 			auto& cameraFrames = json["cameraFrames"];
 			auto isComplete = std::make_shared<std::map<Links::Output::ID, bool>>();
-			
+
 			for (const auto& cameraFrame : this->cameraFrames) {
 				isComplete->emplace(cameraFrame.first, false);
 			}
@@ -79,7 +79,7 @@ namespace TD_MoCap {
 					isComplete->at(cameraFrameIndex) = true;
 
 					// check if any are still waiting
-					for (const auto& it : * isComplete) {
+					for (const auto& it : *isComplete) {
 						if (!it.second) {
 							return;
 						}
@@ -102,65 +102,5 @@ namespace TD_MoCap {
 
 		}
 
-		/*
-		//----------
-		void
-			SynchronisedFrame::save(const std::filesystem::path& folderPath)
-		{
-			if (this->cameraFrames.size() >= FileHeader::MaxCameraCount) {
-				throw(Exception("Too many cameras to save"));
-			}
-
-			auto frameIndex = this->getFrameIndex();
-
-			// write data to info file
-			{
-				// file header
-				FileHeader fileHeader;
-				{
-					fileHeader.cameraCount = this->cameraFrames.size();
-
-					auto metaDataOut = fileHeader.metaData;
-					auto cameraIDOut = fileHeader.cameraIDs;
-					for (const auto& cameraFrame : this->cameraFrames) {
-						*metaDataOut++ = cameraFrame.second->metaData;
-						*cameraIDOut++ = cameraFrame.first;
-					}
-				}
-
-				// file path
-				auto filePath = folderPath;
-				char fileName[100];
-				sprintf_s(fileName, "frame_%010lu", (unsigned long) frameIndex);
-				filePath.append(fileName);
-
-				// save the file
-				FILE* file;
-				auto result = fopen_s(&file, filePath.string().c_str(), "w");
-				fwrite(&fileHeader, sizeof(FileHeader), 1, file);
-				fclose(file);
-			}
-
-			// save each image
-			{
-				for (const auto& cameraFrame : this->cameraFrames)
-				{
-					// file path
-					auto filePath = folderPath;
-					char fileName[100];
-					sprintf_s(fileName, "frame_%010lu-%03d.jpg", (unsigned long) frameIndex, (int) cameraFrame.first);
-					filePath.append(fileName);
-
-					cv::imwrite(filePath.string()
-						, cameraFrame.second->image
-						//, {
-						//	cv::IMWRITE_PNG_COMPRESSION
-						//	, 3
-						//}
-					);
-				}
-			}
-		}
-		*/
 	}
 }
