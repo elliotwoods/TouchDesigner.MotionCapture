@@ -211,6 +211,8 @@ namespace TD_MoCap {
 			}
 
 			auto res = manager->appendMenu(param, options.size(), optionsC.data(), optionsC.data());
+
+			// note that all options must be valid TD names for now
 			assert(res == OP_ParAppendResult::Success);
 		}
 

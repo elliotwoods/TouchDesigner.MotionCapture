@@ -85,6 +85,9 @@
     <ClInclude Include="Frames\XimeaCameraFrame.h">
       <Filter>Frames</Filter>
     </ClInclude>
+    <ClInclude Include="Utils\Serialisable.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Links">

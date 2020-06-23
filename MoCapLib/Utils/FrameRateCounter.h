@@ -11,6 +11,7 @@ namespace TD_MoCap {
 			FrameRateCounter(uint16_t windowSize = 10);
 			~FrameRateCounter();
 
+			void clear();
 			void tick();
 			float getFPS() const;
 		protected:

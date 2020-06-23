@@ -5,7 +5,7 @@
   <PropertyGroup>
     <OutDir>$(SolutionDir)\bin\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -15,11 +15,14 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PrecompiledHeaderFile>pch_$(ProjectName).h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../thirdparty/TouchDesigner/include;../thirdparty/opencv/include;../MoCapLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../thirdparty/;../thirdparty/nlohmann;../thirdparty/TouchDesigner/include;../thirdparty/opencv/include;../MoCapLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>..\thirdparty\opencv\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <Link>
@@ -30,9 +33,6 @@
     <Link>
       <AdditionalDependencies>opencv_world430d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <ClCompile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

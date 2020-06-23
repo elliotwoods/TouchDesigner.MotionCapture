@@ -1,19 +1,19 @@
 #include "pch_OP_Recorder.h"
 #include "OP_Recorder.h"
 
+#include <time.h>
+#include <codecvt>
+
 namespace TD_MoCap {
 	//----------
 	OP_Recorder::OP_Recorder(const OP_NodeInfo* info)
 	{
+
 	}
 
 	//----------
 	OP_Recorder::~OP_Recorder()
 	{
-		this->workGroup.close();
-		if (this->videoWriter) {
-			this->videoWriter->release();
-		}
 	}
 
 	//----------
@@ -27,92 +27,38 @@ namespace TD_MoCap {
 	void
 		OP_Recorder::execute(DAT_Output* output, const OP_Inputs* inputs, void* reserved)
 	{
+		auto recordFolder = std::string(inputs->getParFilePath("Folder"));
+
 		if (inputs->getNumInputs() < 1) {
 			return;
 		}
 
 		this->input.update(inputs->getInputDAT(0));
 		this->parameters.list.updateFromInterface(inputs);
-		
-		// iterate through all incoming frames in the main loop
-		auto frame = this->input.receiveNextFrameDontWait();
-		auto recordFolder = std::string(inputs->getParFilePath("Folder"));
-		while (frame) {
-			auto typedFrame = std::dynamic_pointer_cast<Frames::SynchronisedFrame>(frame);
 
-			// if it's a valid frame and we are set to record
-			if (typedFrame && this->parameters.record.getValue()) {
-
-				if (this->useVideo) {
-					this->workerThread.perform([this, typedFrame] {
-						cv::Mat imageStacked;
-						typedFrame->getPreviewImage(imageStacked);
-
-						if (!this->videoWriter) {
-							this->videoWriter = std::unique_ptr<cv::VideoWriter>(new cv::VideoWriter(
-								"C:\\Temp\\out.mp4"
-								, cv::CAP_MSMF
-								, cv::VideoWriter::fourcc('H', 'E', 'V', 'C')
-								, 30
-								, cv::Size(imageStacked.cols, imageStacked.rows)
-								, true
-							));
-						}
-
-						cv::Mat rgb;
-						cv::cvtColor(imageStacked, rgb, cv::COLOR_GRAY2RGB);
-						this->videoWriter->write(rgb);
-
-						//this->videoWriter->write(imageStacked);
-					});
-				
-
-				}
-				else {
-					// if we we have a frame, dispatch recording it to worker thread group
-					std::string filePath(inputs->getParFilePath("Folder"));
-					if (!filePath.empty()) {
-						this->workGroup.perform([typedFrame, filePath] {
-							cv::Mat combinedFrame;
-							typedFrame->getPreviewImage(combinedFrame);
-							char filename[100];
-							static size_t i = 0;
-							sprintf_s(filename, "C:\\Temp\\%09d.jpg", i++);
-							cv::imwrite(
-								std::string(filename)
-								, combinedFrame
-								, {
-									cv::IMWRITE_PNG_COMPRESSION
-									, 3
-								}
-							);
-							//typedFrame->save(std::filesystem::path(filePath));
-						});
-					}
-				}
+		// start / stop recording
+		if (this->isRecording != this->parameters.record.getValue()) {
+			if (this->parameters.record.getValue()) {
+				this->outputPath.assign(recordFolder);
+				this->startRecording();
 			}
-			frame = this->input.receiveNextFrameDontWait();
+			else {
+				this->stopRecording();
+			}
 		}
 
-		if (this->useVideo && this->workerThread.sizeWorkItems() == 0 && this->videoWriter) {
-			this->videoWriter->release();
-			this->videoWriter.reset();
+		// update recording
+		if (this->isRecording) {
+			this->updateRecording();
+		}
+		else {
+			// always clear out input if we're not processing - else memory use will explode
+			this->input.getChannel().clear();
 		}
 
-		// get errors from threads
+		// update enabled parameters
 		{
-			Exception e;
-			while (this->workGroup.exceptionsInThread.tryReceive(e)) {
-				this->errors.push_back(e);
-			}
-			while (this->workerThread.exceptionsInThread.tryReceive(e)) {
-				this->errors.push_back(e);
-			}
-		}
-
-		// upadte parameters
-		{
-			inputs->enablePar(this->parameters.record.getTDShortName().c_str(), !recordFolder.empty());
+			inputs->enablePar(this->parameters.record.getTDShortName().c_str(), !recordFolder.empty() || this->isRecording);
 			inputs->enablePar(this->parameters.play.getTDShortName().c_str(), !this->parameters.record.getValue());
 		}
 	}
@@ -121,7 +67,7 @@ namespace TD_MoCap {
 	int32_t
 		OP_Recorder::getNumInfoCHOPChans(void* reserved1)
 	{
-		return 1;
+		return 2;
 	}
 
 	//----------
@@ -132,13 +78,15 @@ namespace TD_MoCap {
 		case 0:
 		{
 			chan->name->setString("Workqueuelength");
-			if (this->useVideo) {
-				chan->value = (float)this->workerThread.sizeWorkItems();
-			}
-			else {
-				chan->value = (float)this->workGroup.sizeWorkItems();
-			}
+			chan->value = (float)Utils::WorkerGroup::X().sizeWorkItems();
 		}
+		break;
+		case 1:
+		{
+			chan->name->setString("Recordframerate");
+			chan->value = this->recordFrameRateCounter.getFPS();
+		}
+		break;
 		default:
 			break;
 		}
@@ -173,17 +121,6 @@ namespace TD_MoCap {
 			assert(res == OP_ParAppendResult::Success);
 		}
 
-		// clear
-		{
-			OP_NumericParameter param;
-
-			param.name = "Clearqueue";
-			param.label = "Clear queue";
-
-			auto res = manager->appendPulse(param);
-			assert(res == OP_ParAppendResult::Success);
-		}
-
 		this->parameters.list.populateInterface(manager);
 	}
 
@@ -191,9 +128,7 @@ namespace TD_MoCap {
 	void
 		OP_Recorder::pulsePressed(const char* name, void* reserved1)
 	{
-		if (strcmp(name, "Clearqueue") == 0) {
-			this->workGroup.clearWorkItems();
-		}
+
 	}
 
 	//----------
@@ -209,5 +144,87 @@ namespace TD_MoCap {
 		}
 
 		this->errors.clear();
+	}
+
+	//----------
+	void
+		OP_Recorder::startRecording()
+	{
+		this->stopRecording();
+
+		this->recordingJson.clear();
+		this->isRecording = true;
+		this->recordFrameRateCounter.clear();
+
+		this->saveArgs.frameIndex = 0;
+		this->saveArgs.folderOut = this->outputPath;
+		this->saveArgs.imageFormat = this->parameters.format.getValue();
+		this->saveArgs.onComplete = [this] {
+			this->recordFrameRateCounter.tick();
+		};
+
+		this->recordingJson["frames"] = nlohmann::json::array();
+		this->recordingJson["timestamp"] = std::chrono::system_clock::now().time_since_epoch().count();
+
+		{
+			TCHAR buffer[256];
+			DWORD dwSize = sizeof(buffer);
+			if (GetComputerNameEx(COMPUTER_NAME_FORMAT::ComputerNameNetBIOS, buffer, &dwSize)) {
+				std::wstring wideString(buffer);
+				this->recordingJson["computer"] = std::string(wideString.begin(), wideString.end());
+			}
+		}
+		{
+			time_t rawTime;
+			char buffer[80];
+			time(&rawTime);
+			struct tm timeInfo;
+			localtime_s(&timeInfo, &rawTime);
+
+			strftime(buffer, sizeof(buffer), "%F %T (%Z)", &timeInfo);
+			this->recordingJson["dateString"] = std::string(buffer);
+		}
+	}
+
+	//----------
+	void
+		OP_Recorder::stopRecording()
+	{
+		if (!this->isRecording) {
+			return;
+		}
+
+		auto jsonFilePath = outputPath / "recording.json";
+		std::ofstream file(jsonFilePath.string());
+		file << this->recordingJson;
+		file.close();
+		this->isRecording = false;
+
+		this->recordingJson.clear();
+	}
+
+	//----------
+	void
+		OP_Recorder::updateRecording()
+	{
+		auto frame = this->input.receiveNextFrameDontWait();
+		while (frame) {
+			// check if we're out of space
+			if (Utils::WorkerGroup::X().sizeWorkItems() > this->parameters.maxQueueLength.getValue()) {
+				this->errors.push_back(Exception("Work queue length exceeded"));
+				this->input.getChannel().clear();
+				return;
+			}
+
+			// perform the save
+			{
+				nlohmann::json jsonFrame;
+				frame->serialise(jsonFrame, this->saveArgs);
+				frame = this->input.receiveNextFrameDontWait();
+				this->recordingJson["frames"].push_back(jsonFrame);
+
+				this->saveArgs.frameIndex++;
+			}
+		}
 	}
 }

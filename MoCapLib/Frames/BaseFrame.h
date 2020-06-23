@@ -2,11 +2,12 @@
 
 #include <string>
 #include "Utils/Table.h"
+#include "Utils/Serialisable.h"
 
 namespace TD_MoCap {
 	namespace Frames {
 
-		class TDMOCAP_API BaseFrame
+		class TDMOCAP_API BaseFrame : public Utils::Serialisable
 		{
 		public:
 			virtual ~BaseFrame() {
@@ -27,10 +28,11 @@ namespace TD_MoCap {
 			void endComputeTimer();
 			std::chrono::high_resolution_clock::duration getComputeTime() const;
 			void setComputeTime(const std::chrono::high_resolution_clock::duration&);
+
+			virtual uint64_t getFrameIndex() const = 0;
 		protected:
 			std::chrono::high_resolution_clock::time_point startCompute;
 			std::chrono::high_resolution_clock::duration computeTime;
-
 		};
 	}
 }

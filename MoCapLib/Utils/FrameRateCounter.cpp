@@ -18,6 +18,14 @@ namespace TD_MoCap {
 
 		//----------
 		void
+			FrameRateCounter::clear()
+		{
+			this->position = 0;
+			this->firstRun = 0;
+		}
+
+		//----------
+		void
 			FrameRateCounter::tick()
 		{
 			this->position++;

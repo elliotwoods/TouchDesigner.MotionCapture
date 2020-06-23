@@ -18,6 +18,5 @@
 #include "Frames/XimeaCameraFrame.h"
 #include "Frames/SynchronisedFrame.h"
 
-
 #include "Exception.h"
 #include "ImageFormat.h"

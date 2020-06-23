@@ -8,6 +8,8 @@
 #include <memory>
 #include <vector>
 #include <set>
+#include <nlohmann/json.hpp>
+
 
 namespace TD_MoCap {
 	class OP_Recorder : public DAT_CPlusPlusBase
@@ -38,15 +40,25 @@ namespace TD_MoCap {
 
 		virtual void		getErrorString(OP_String* error, void* reserved1);
 	protected:
+		void startRecording();
+		void stopRecording();
+		void updateRecording();
+
 		Links::Input input;
 		std::vector<Exception> errors;
 
 		struct {
 			Utils::NumberParameter<int> maxQueueLength{
 				"Max queue length", "frames"
-				, 100, 100
+				, 1000, 1000
 				, 1, 10000
-				, 1, 1000
+				, 1, 10000
+			};
+
+			Utils::SelectorParameter format{
+				"Image format"
+				, {"Bmp", "Png", "Tif", "Jpeg", "Pbm"}
+				, "Bmp"
 			};
 
 			Utils::ValueParameter<bool> record{
@@ -59,13 +71,18 @@ namespace TD_MoCap {
 				, false, false
 			};
 
-			Utils::ParameterList list{ &maxQueueLength, &record, &play };
+			Utils::ParameterList list{
+				&maxQueueLength
+				, &format
+				, &record
+				, &play };
+
 		} parameters;
 
-		Utils::WorkerGroup workGroup;
-		Utils::WorkerThread workerThread;
-		std::unique_ptr<cv::VideoWriter> videoWriter;
-
-		const bool useVideo = true;
+		Utils::FrameRateCounter recordFrameRateCounter;
+		bool isRecording = false;
+		nlohmann::json recordingJson;
+		std::filesystem::path outputPath;
+		Utils::Serialisable::Args saveArgs;
 	};
 }

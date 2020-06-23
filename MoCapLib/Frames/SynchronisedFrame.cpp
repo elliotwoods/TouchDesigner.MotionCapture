@@ -49,9 +49,57 @@ namespace TD_MoCap {
 		}
 
 		//----------
-		uint64_t SynchronisedFrame::getFrameIndex() const
+		uint64_t
+			SynchronisedFrame::getFrameIndex() const
 		{
 			return this->cameraFrames.at(this->leaderID)->metaData.frameIndex;
+		}
+
+		//----------
+		void 
+			SynchronisedFrame::serialise(nlohmann::json& json, const Utils::Serialisable::Args& args) const
+		{
+			auto& cameraFrames = json["cameraFrames"];
+			auto isComplete = std::make_shared<std::map<Links::Output::ID, bool>>();
+			
+			for (const auto& cameraFrame : this->cameraFrames) {
+				isComplete->emplace(cameraFrame.first, false);
+			}
+
+			for (const auto& cameraFrame : this->cameraFrames) {
+				nlohmann::json cameraFrameJson;
+				cameraFrameJson["id"] = cameraFrame.first;
+
+				// append a subfolder
+				auto cameraFrameArgs = args;
+				cameraFrameArgs.folderOut /= std::to_string(cameraFrame.first);
+				auto cameraFrameIndex = cameraFrame.first;
+				auto completeAction = args.onComplete;
+				cameraFrameArgs.onComplete = [cameraFrameIndex, isComplete, completeAction] {
+					isComplete->at(cameraFrameIndex) = true;
+
+					// check if any are still waiting
+					for (const auto& it : * isComplete) {
+						if (!it.second) {
+							return;
+						}
+					}
+
+					// if not, announce to parent
+					completeAction();
+				};
+
+				cameraFrame.second->serialise(cameraFrameJson["content"], cameraFrameArgs);
+
+				cameraFrames.push_back(cameraFrameJson);
+			}
+		}
+
+		//----------
+		void
+			SynchronisedFrame::deserialise(const nlohmann::json& json, const Utils::Serialisable::Args& args)
+		{
+
 		}
 
 		/*

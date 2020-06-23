@@ -44,6 +44,7 @@
     <ClInclude Include="Utils\Event.h" />
     <ClInclude Include="Utils\FrameRateCounter.h" />
     <ClInclude Include="Utils\Parameter.h" />
+    <ClInclude Include="Utils\Serialisable.h" />
     <ClInclude Include="Utils\Table.h" />
     <ClInclude Include="Utils\Wakeable.h" />
     <ClInclude Include="Utils\WorkerGroup.h" />
