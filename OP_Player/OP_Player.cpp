@@ -65,6 +65,7 @@ namespace TD_MoCap {
 
 		// update enabled parameters
 		{
+			inputs->enablePar("Folder", !this->player);
 			inputs->enablePar(this->parameters.play.getTDShortName().c_str(), !folder.empty() || this->player);
 			inputs->enablePar(this->parameters.threads.getTDShortName().c_str(), !this->player);
 			inputs->enablePar(this->parameters.buffer.getTDShortName().c_str(), !this->player);

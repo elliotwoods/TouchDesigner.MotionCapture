@@ -78,7 +78,7 @@ namespace TD_MoCap {
 		{
 			this->metaData.frameIndex = json["frameIndex"];
 			this->metaData.timestamp = std::chrono::microseconds((uint64_t) json["timestamp"]);
-			this->image = cv::imread(json["filePath"]);
+			this->image = cv::imread(json["filePath"], cv::IMREAD_UNCHANGED);
 		}
 	}
 }

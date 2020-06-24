@@ -25,26 +25,32 @@ namespace TD_MoCap {
 	bool
 		TOP_ThreadTo::getOutputFormat(TOP_OutputFormat* format, const OP_Inputs* inputs, void* reserved1)
 	{
-		auto frame = this->input.receiveLatestFrame(false);
-		if (frame) {
-			// new frame received
-			this->previewDirty = true;
-		}
-		else {
-			// no new frame
-			frame = this->input.getLastFrame();
-		}
+		try {
+			auto frame = this->input.receiveLatestFrame(false);
+			if (frame) {
+				// new frame received
+				this->previewDirty = true;
+			}
+			else {
+				// no new frame
+				frame = this->input.getLastFrame();
+			}
 
-		if (frame) {
-			cv::Mat image;
-			if (frame->getPreviewImage(image)) {
-				setTOP_OutputFormat(format, image);
+			if (frame) {
+				cv::Mat image;
+				if (frame->getPreviewImage(image)) {
+					setTOP_OutputFormat(format, image);
 
-				// make a copy for comparison later
-				this->allocatedOutputFormat = *format;
-				return true;
+					// make a copy for comparison later
+					this->allocatedOutputFormat = *format;
+					return true;
+				}
 			}
 		}
+		catch (Exception e) {
+			this->errors.push_back(e);
+		}
+		
 
 		// in all other cases
 		return false;
@@ -110,5 +116,20 @@ namespace TD_MoCap {
 	void
 		TOP_ThreadTo::pulsePressed(const char* name, void* reserved1)
 	{
+	}
+
+	//---------
+	void
+		TOP_ThreadTo::getErrorString(OP_String* error, void*)
+	{
+		if (!this->errors.empty()) {
+			std::string errorString;
+			for (const auto& error : this->errors) {
+				errorString += error.what() + "\n";
+			}
+			error->setString(errorString.c_str());
+		}
+
+		this->errors.clear();
 	}
 }

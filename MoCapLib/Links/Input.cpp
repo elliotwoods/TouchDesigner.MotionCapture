@@ -2,7 +2,6 @@
 #include "Input.h"
 #include "OutputsRegister.h"
 
-
 namespace TD_MoCap {
 	namespace Links {
 		//----------
@@ -140,10 +139,22 @@ namespace TD_MoCap {
 		}
 
 		//----------
+		size_t
+			Input::getDroppedFrameCount() const
+		{
+			return this->droppedFrameCount;
+		}
+
+		//----------
 		void
 			Input::send(std::shared_ptr<Frames::BaseFrame> frame)
 		{
-			this->channel.send(frame);
+			if (this->channel.size() > this->maxSize) {
+				this->droppedFrameCount++;
+			}
+			else {
+				this->channel.send(frame);
+			}
 		}
 	}
 }

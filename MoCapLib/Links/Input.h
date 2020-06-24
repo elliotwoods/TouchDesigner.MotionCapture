@@ -32,6 +32,8 @@ namespace TD_MoCap {
 			std::shared_ptr<Frames::BaseFrame> getLastFrame();
 
 			Utils::Channel<std::shared_ptr<Frames::BaseFrame>> & getChannel();
+
+			size_t getDroppedFrameCount() const;
 		protected:
 			friend Output;
 
@@ -42,6 +44,9 @@ namespace TD_MoCap {
 			Utils::Channel<std::shared_ptr<Frames::BaseFrame>> channel;
 
 			std::shared_ptr<Frames::BaseFrame> lastFrame;
+
+			size_t maxSize = 20;
+			size_t droppedFrameCount = 0;
 		};
 	}
 }
