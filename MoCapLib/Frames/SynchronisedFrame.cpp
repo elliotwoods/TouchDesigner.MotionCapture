@@ -6,6 +6,13 @@
 namespace TD_MoCap {
 	namespace Frames {
 		//----------
+		SynchronisedFrame::SynchronisedFrame()
+		{
+			// used for deserialised frames
+			this->leaderID = 0;
+		}
+
+		//----------
 		SynchronisedFrame::SynchronisedFrame(const std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>>& cameraFrames, Links::Output::ID leaderID)
 			: cameraFrames(cameraFrames)
 			, leaderID(leaderID)
@@ -59,7 +66,7 @@ namespace TD_MoCap {
 		void
 			SynchronisedFrame::serialise(nlohmann::json& json, const Utils::Serialisable::Args& args) const
 		{
-			auto& cameraFrames = json["cameraFrames"];
+			auto& cameraFramesJson = json["cameraFrames"];
 			auto isComplete = std::make_shared<std::map<Links::Output::ID, bool>>();
 
 			for (const auto& cameraFrame : this->cameraFrames) {
@@ -91,15 +98,34 @@ namespace TD_MoCap {
 
 				cameraFrame.second->serialise(cameraFrameJson["content"], cameraFrameArgs);
 
-				cameraFrames.push_back(cameraFrameJson);
+				cameraFramesJson.push_back(cameraFrameJson);
 			}
+			json["leaderID"] = this->leaderID;
 		}
 
 		//----------
 		void
-			SynchronisedFrame::deserialise(const nlohmann::json& json, const Utils::Serialisable::Args& args)
+			SynchronisedFrame::deserialise(const nlohmann::json& json)
 		{
+			this->cameraFrames.clear();
 
+			std::vector<std::unique_ptr<std::thread>> threads;
+
+			const auto& cameraFramesJson = json["cameraFrames"];
+			for (const auto& cameraFrameJson : cameraFramesJson) {
+				auto id = (Links::Output::ID) cameraFrameJson["id"];
+				auto cameraFrame = std::make_shared<XimeaCameraFrame>();
+				threads.push_back(std::make_unique<std::thread>([cameraFrame, cameraFrameJson] {
+					cameraFrame->deserialise(cameraFrameJson["content"]);
+				}));
+				this->cameraFrames.emplace(id, cameraFrame);
+			}
+
+			for (auto & thread : threads) {
+				thread->join();
+			}
+
+			this->leaderID = json["leaderID"];
 		}
 
 	}

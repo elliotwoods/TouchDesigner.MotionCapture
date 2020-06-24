@@ -118,8 +118,6 @@ namespace TD_MoCap {
 
 		protected:
 			std::string units;
-			T value;
-			T defaultValue;
 			T min;
 			T max;
 			T sliderMin;

@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DAT_ThreadTo", "DAT_ThreadT
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OP_Recorder", "OP_Recorder\OP_Recorder.vcxproj", "{CD29B359-C77F-4D1E-A668-4AB2FB830316}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OP_Player", "OP_Player\OP_Player.vcxproj", "{7013E675-8915-4CA1-A52E-872F24D7C560}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,10 @@ Global
 		{CD29B359-C77F-4D1E-A668-4AB2FB830316}.Debug|x64.Build.0 = Debug|x64
 		{CD29B359-C77F-4D1E-A668-4AB2FB830316}.Release|x64.ActiveCfg = Release|x64
 		{CD29B359-C77F-4D1E-A668-4AB2FB830316}.Release|x64.Build.0 = Release|x64
+		{7013E675-8915-4CA1-A52E-872F24D7C560}.Debug|x64.ActiveCfg = Debug|x64
+		{7013E675-8915-4CA1-A52E-872F24D7C560}.Debug|x64.Build.0 = Debug|x64
+		{7013E675-8915-4CA1-A52E-872F24D7C560}.Release|x64.ActiveCfg = Release|x64
+		{7013E675-8915-4CA1-A52E-872F24D7C560}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

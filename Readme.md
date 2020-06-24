@@ -6,4 +6,4 @@ These operators triangulate bright features in corresponding camera images (e.g.
 
 # Warnings
 
-* Do not unload DLL's from the chain unless all downstream OP's have been unloaded first. This is because any OP may contain a `shraed_ptr` to instances created by a previous OP. Unloading the DLL will cause any objects pointed to become invalid.
+* You may experience crashes on unload during development, i.e. when loading operators as seperate DLL's (e.g. during development/debugging), note that `shared_ptr` objects are passed between the DLL's and may be invalidated during unload.

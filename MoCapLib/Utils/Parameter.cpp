@@ -1,6 +1,13 @@
 #include "pch_MoCapLib.h"
 #include "Parameter.h"
 
+#include <cctype>
+
+//issue with name clash
+bool is_space(char ch) {
+	return isspace(ch) ? true : false;
+}
+
 namespace TD_MoCap {
 	namespace Utils {
 #pragma mark AbstractParameter
@@ -20,7 +27,7 @@ namespace TD_MoCap {
 				return shortName;
 			}
 
-			std::remove_if(shortName.begin(), shortName.end(), std::isspace);
+			shortName.erase(std::remove_if(shortName.begin(), shortName.end(), is_space), shortName.end());
 			std::transform(shortName.begin(), shortName.end(), shortName.begin(),
 				[](char c) {
 				return std::tolower(c);

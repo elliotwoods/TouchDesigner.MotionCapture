@@ -15,6 +15,10 @@
 #include <string>
 #include <functional>
 #include <fstream>
+#include <filesystem>
+#include <vector>
+#include <set>
+
 
 
 #ifdef TDMOCAP_EXPORTS

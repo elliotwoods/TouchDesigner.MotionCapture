@@ -10,6 +10,7 @@ namespace TD_MoCap {
 		class TDMOCAP_API SynchronisedFrame : public BaseFrame
 		{
 		public:
+			SynchronisedFrame();
 			SynchronisedFrame(const std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>>&
 				, Links::Output::ID leaderID);
 
@@ -21,7 +22,7 @@ namespace TD_MoCap {
 			uint64_t getFrameIndex() const;
 
 			void serialise(nlohmann::json& json, const Utils::Serialisable::Args&) const override;
-			void deserialise(const nlohmann::json& json, const Utils::Serialisable::Args&) override;
+			void deserialise(const nlohmann::json& json) override;
 
 			std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>> cameraFrames;
 			Links::Output::ID leaderID;

@@ -26,9 +26,12 @@ namespace TD_MoCap {
 			Table();
 			RowBuilder newRow();
 			void addRow(const std::vector<std::string>&);
+			void clear();
 
 			void populateOutput(DAT_Output*);
 
+			void getInfoSize(OP_InfoDATSize* infoSize);
+			void populateInfoEntries(OP_InfoDATEntries* entries, int32_t index);
 		protected:
 			std::vector<std::vector<std::string>> cells;
 		};

@@ -31,7 +31,7 @@ namespace TD_MoCap {
 			uint64_t getFrameIndex() const override;
 
 			void serialise(nlohmann::json& json, const Utils::Serialisable::Args&) const override;
-			void deserialise(const nlohmann::json& json, const Utils::Serialisable::Args&) override;
+			void deserialise(const nlohmann::json& json) override;
 
 			std::weak_ptr<CameraThread> cameraThread;
 

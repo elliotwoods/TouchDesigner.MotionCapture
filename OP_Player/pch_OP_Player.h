@@ -5,8 +5,8 @@
 #include "pch_MoCapLib.h"
 #include "pch_OP_SyncCameras.h"
 
-#ifdef OP_RECORDER_EXPORTS
-	#define OP_RECORDER_API DLLEXPORT
+#ifdef OP_PLAYER_EXPORTS
+	#define OP_PLAYER_API DLLEXPORT
 #else
-	#define OP_RECORDER_API
+	#define OP_PLAYER_API
 #endif

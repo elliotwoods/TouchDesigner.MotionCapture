@@ -72,7 +72,6 @@ namespace TD_MoCap {
 		// update enabled parameters
 		{
 			inputs->enablePar(this->parameters.record.getTDShortName().c_str(), !recordFolder.empty() || this->isRecording);
-			inputs->enablePar(this->parameters.play.getTDShortName().c_str(), !this->parameters.record.getValue());
 		}
 	}
 
@@ -103,20 +102,6 @@ namespace TD_MoCap {
 		default:
 			break;
 		}
-	}
-
-	//----------
-	bool
-		OP_Recorder::getInfoDATSize(OP_InfoDATSize* infoSize, void* reserved1)
-	{
-		return 1;
-	}
-
-	//----------
-	void
-		OP_Recorder::getInfoDATEntries(int32_t index, int32_t nEntries, OP_InfoDATEntries* entries, void* reserved1)
-	{
-
 	}
 
 	//----------
