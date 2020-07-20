@@ -46,11 +46,13 @@ namespace TD_MoCap {
 		bool
 			CentroidsFrame::getPreviewDAT(Utils::Table& table) const
 		{
-			auto& contours = table.newRow() << "Contours";
-			
+			auto contours = std::move(table.newRow() << "Contours");
+			auto centroids= std::move(table.newRow() << "Centroids");
+
 			for (const auto& cameraIt : this->cameras) {
 				auto& camera = cameraIt.second;
 				contours << camera->contours.size();
+				centroids << camera->centroids.size();
 			}
 
 			return true;
