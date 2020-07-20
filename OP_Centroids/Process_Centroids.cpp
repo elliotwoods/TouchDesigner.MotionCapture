@@ -84,7 +84,7 @@ namespace TD_MoCap {
 					auto rect = cv::boundingRect(contour);
 
 					//check area
-					if (rect.area() <= areaThreshold) {
+					if (areaThreshold > 0 && rect.area() <= areaThreshold) {
 						continue;
 					}
 
