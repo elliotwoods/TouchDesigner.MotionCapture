@@ -9,6 +9,7 @@ namespace TD_MoCap {
 			{
 			public:
 				RowBuilder(Table&);
+				RowBuilder(RowBuilder&&);
 				~RowBuilder();
 
 				template<typename T>
@@ -21,6 +22,7 @@ namespace TD_MoCap {
 			private:
 				Table& table;
 				std::vector<std::string> cells;
+				bool isSuppressed = false;
 			};
 
 			Table();

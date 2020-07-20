@@ -10,9 +10,20 @@ namespace TD_MoCap {
 		}
 
 		//----------
+		Table::RowBuilder::RowBuilder(RowBuilder&& other)
+			: table(other.table)
+		{
+			other.isSuppressed = true;
+
+			this->cells = std::move(other.cells);
+		}
+
+		//----------
 		Table::RowBuilder::~RowBuilder()
 		{
-			table.addRow(this->cells);
+			if (!this->isSuppressed) {
+				table.addRow(this->cells);
+			}
 		}
 
 		//----------
