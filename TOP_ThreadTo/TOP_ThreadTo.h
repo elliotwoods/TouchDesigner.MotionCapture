@@ -24,7 +24,10 @@ namespace TD_MoCap {
 	protected:
 		Links::Input input;
 		
+		OP_CPUMemPixelType memPixelType = OP_CPUMemPixelType::R8Fixed;
+		OP_CPUMemPixelType allocatedMemPixelType = OP_CPUMemPixelType::R8Fixed;
 		TOP_OutputFormat allocatedOutputFormat;
+
 
 		bool previewDirty = false;
 

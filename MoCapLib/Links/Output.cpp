@@ -100,6 +100,10 @@ namespace TD_MoCap {
 		//----------
 		bool
 			Output::getIDFromDAT(const OP_DATInput* dat, Output::ID & result) {
+			if (!dat) {
+				return false;
+			}
+			
 			if (dat->numCols < 2 || dat->numRows < 1) {
 				return false;
 			}

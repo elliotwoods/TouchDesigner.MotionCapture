@@ -18,7 +18,8 @@ namespace TD_MoCap {
 	{
 		ginfo->cookEveryFrame = true;
 		ginfo->memFirstPixel = TOP_FirstPixel::TopLeft;
-		ginfo->memPixelType = OP_CPUMemPixelType::R8Fixed;
+		ginfo->memPixelType = this->memPixelType;
+		this->allocatedMemPixelType = this->memPixelType;
 	}
 
 	//----------
@@ -38,12 +39,18 @@ namespace TD_MoCap {
 
 			if (frame) {
 				cv::Mat image;
-				if (frame->getPreviewImage(image)) {
-					setTOP_OutputFormat(format, image);
+				try {
+					if (frame->getPreviewImage(image)) {
+						setTOP_OutputFormat(format, image, this->memPixelType);
 
-					// make a copy for comparison later
-					this->allocatedOutputFormat = *format;
-					return true;
+						// make a copy for comparison later
+						this->allocatedOutputFormat = *format;
+						return true;
+					}
+				}
+				catch (Exception e) {
+					this->errors.push_back(e);
+					return false;
 				}
 			}
 		}
@@ -67,33 +74,41 @@ namespace TD_MoCap {
 		this->input.update(inputs->getParDAT("Source"));
 
 		if (this->previewDirty) {
-			// We do not receive any new frames here, as we need to ensure that the frame is the same as the one seen at teh time of getOutputFormat
-			auto frame = this->input.getLastFrame();
+			try {
+				// We do not receive any new frames here, as we need to ensure that the frame is the same as the one seen at teh time of getOutputFormat
+				auto frame = this->input.getLastFrame();
 
-			cv::Mat image;
-			if (!frame->getPreviewImage(image)) {
-				// this frame doesn't support image output
-				return;
+				cv::Mat image;
+				if (!frame->getPreviewImage(image)) {
+					// this frame doesn't support image output
+					return;
+				}
+
+				if (image.empty()) {
+					return;
+				}
+
+				TOP_OutputFormat requiredOutputFormat = this->allocatedOutputFormat; // initialise all elements the same that we don't care about
+				setTOP_OutputFormat(&requiredOutputFormat, image, this->memPixelType);
+				if (memcmp(&requiredOutputFormat, &this->allocatedOutputFormat, sizeof(requiredOutputFormat))
+					|| this->allocatedMemPixelType != this->memPixelType) {
+					// wait until next frame
+					return;
+				}
+
+				// copy it into the gpu memory
+				output->newCPUPixelDataLocation = 0;
+
+				auto elemSize = image.elemSize();
+				memcpy(output->cpuPixelData[0]
+					, image.data
+					, image.total() * elemSize);
+
+				this->previewDirty = false;
 			}
-
-			if (image.empty()) {
-				return;
+			catch (Exception e) {
+				this->errors.push_back(e);
 			}
-
-			TOP_OutputFormat requiredOutputFormat = this->allocatedOutputFormat; // initialise all elements the same that we don't care about
-			setTOP_OutputFormat(&requiredOutputFormat, image);
-			if (memcmp(&requiredOutputFormat, &this->allocatedOutputFormat, sizeof(requiredOutputFormat))) {
-				// wait until next frame
-				return;
-			}
-
-			// copy it into the gpu memory
-			output->newCPUPixelDataLocation = 0;
-			memcpy(output->cpuPixelData[0]
-				, image.data
-				, image.total() * image.elemSize());
-
-			this->previewDirty = false;
 		}
 	}
 
