@@ -18,7 +18,6 @@ namespace TD_MoCap {
 			public:
 				virtual ~PerformLock();
 				void perform(const Action&);
-				void performBlocking(const Action&);
 			protected:
 				friend WorkerThread;
 				PerformLock(std::shared_ptr<ActionQueue>);
@@ -36,8 +35,10 @@ namespace TD_MoCap {
 			void clearWorkItems();
 			size_t sizeWorkItems() const;
 
+			// A set of objects (e.g. Channel's) to wake up whenever a performBlocking call occurs
+			//
 			// Be sure to remove all invalid members before disposing this class
-			// e.g. make sure to manually call `join()`
+			// e.g. make sure to manually call `join()` on this class when using this feature
 			std::set<Wakeable *> wakeOnPerformBlocking;
 
 			// Acquire a unique privilege to perform actions in this thread for the lifetime of the returned PerformLock

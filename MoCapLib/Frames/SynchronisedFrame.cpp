@@ -105,7 +105,7 @@ namespace TD_MoCap {
 
 		//----------
 		void
-			SynchronisedFrame::deserialise(const nlohmann::json& json)
+			SynchronisedFrame::deserialise(const nlohmann::json& json, const std::filesystem::path& workingFolder)
 		{
 			this->cameraFrames.clear();
 
@@ -115,8 +115,8 @@ namespace TD_MoCap {
 			for (const auto& cameraFrameJson : cameraFramesJson) {
 				auto id = (Links::Output::ID) cameraFrameJson["id"];
 				auto cameraFrame = std::make_shared<XimeaCameraFrame>();
-				threads.push_back(std::make_unique<std::thread>([cameraFrame, cameraFrameJson] {
-					cameraFrame->deserialise(cameraFrameJson["content"]);
+				threads.push_back(std::make_unique<std::thread>([cameraFrame, cameraFrameJson, workingFolder] {
+					cameraFrame->deserialise(cameraFrameJson["content"], workingFolder);
 				}));
 				this->cameraFrames.emplace(id, cameraFrame);
 			}

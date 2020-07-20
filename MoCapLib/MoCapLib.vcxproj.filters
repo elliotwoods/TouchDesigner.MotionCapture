@@ -1,34 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="pch_MoCapLib.cpp" />
-    <ClCompile Include="Links\Output.cpp">
-      <Filter>Links</Filter>
-    </ClCompile>
-    <ClCompile Include="Links\Input.cpp">
-      <Filter>Links</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils\Table.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils\WorkerThread.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
     <ClCompile Include="Exception.cpp" />
-    <ClCompile Include="Utils\Parameter.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils\FrameRateCounter.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="Links\OutputsRegister.cpp">
-      <Filter>Links</Filter>
-    </ClCompile>
-    <ClCompile Include="ImageFormat.cpp" />
-    <ClCompile Include="Utils\WorkerGroup.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
     <ClCompile Include="Frames\BaseFrame.cpp">
+      <Filter>Frames</Filter>
+    </ClCompile>
+    <ClCompile Include="Frames\CentroidsFrame.cpp">
       <Filter>Frames</Filter>
     </ClCompile>
     <ClCompile Include="Frames\SynchronisedFrame.cpp">
@@ -37,46 +14,39 @@
     <ClCompile Include="Frames\XimeaCameraFrame.cpp">
       <Filter>Frames</Filter>
     </ClCompile>
+    <ClCompile Include="ImageFormat.cpp" />
+    <ClCompile Include="Links\Input.cpp">
+      <Filter>Links</Filter>
+    </ClCompile>
+    <ClCompile Include="Links\Output.cpp">
+      <Filter>Links</Filter>
+    </ClCompile>
+    <ClCompile Include="Links\OutputsRegister.cpp">
+      <Filter>Links</Filter>
+    </ClCompile>
+    <ClCompile Include="pch_MoCapLib.cpp" />
+    <ClCompile Include="Utils\FrameRateCounter.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\Parameter.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\Table.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\WorkerGroup.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\WorkerThread.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch_MoCapLib.h" />
-    <ClInclude Include="Links\Output.h">
-      <Filter>Links</Filter>
-    </ClInclude>
-    <ClInclude Include="Links\Input.h">
-      <Filter>Links</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\Table.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\Channel.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\WorkerThread.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
     <ClInclude Include="Exception.h" />
-    <ClInclude Include="Utils\Parameter.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\Event.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\FrameRateCounter.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="MoCapLib.h" />
-    <ClInclude Include="Links\OutputsRegister.h">
-      <Filter>Links</Filter>
-    </ClInclude>
-    <ClInclude Include="ImageFormat.h" />
-    <ClInclude Include="Utils\WorkerGroup.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\Wakeable.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
     <ClInclude Include="Frames\BaseFrame.h">
+      <Filter>Frames</Filter>
+    </ClInclude>
+    <ClInclude Include="Frames\CentroidsFrame.h">
       <Filter>Frames</Filter>
     </ClInclude>
     <ClInclude Include="Frames\SynchronisedFrame.h">
@@ -85,19 +55,57 @@
     <ClInclude Include="Frames\XimeaCameraFrame.h">
       <Filter>Frames</Filter>
     </ClInclude>
+    <ClInclude Include="ImageFormat.h" />
+    <ClInclude Include="Links\Input.h">
+      <Filter>Links</Filter>
+    </ClInclude>
+    <ClInclude Include="Links\Output.h">
+      <Filter>Links</Filter>
+    </ClInclude>
+    <ClInclude Include="Links\OutputsRegister.h">
+      <Filter>Links</Filter>
+    </ClInclude>
+    <ClInclude Include="MoCapLib.h" />
+    <ClInclude Include="pch_MoCapLib.h" />
+    <ClInclude Include="Threaded_OP.h" />
+    <ClInclude Include="Threaded_OP.ipp" />
+    <ClInclude Include="Utils\Channel.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Event.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\FrameRateCounter.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Parameter.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
     <ClInclude Include="Utils\Serialisable.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Table.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Wakeable.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\WorkerGroup.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\WorkerThread.h">
       <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <Filter Include="Frames">
+      <UniqueIdentifier>{dd6c1a64-8e0f-4802-bdbf-4984cdd645bf}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Links">
       <UniqueIdentifier>{9fafc1fd-a587-4eea-8ffb-da4d6d6738f2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Utils">
       <UniqueIdentifier>{58ecc804-7e9d-44f3-bf4a-03ee127db501}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Frames">
-      <UniqueIdentifier>{dd6c1a64-8e0f-4802-bdbf-4984cdd645bf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

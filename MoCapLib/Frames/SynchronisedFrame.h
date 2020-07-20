@@ -14,15 +14,15 @@ namespace TD_MoCap {
 			SynchronisedFrame(const std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>>&
 				, Links::Output::ID leaderID);
 
-			virtual std::string getTypeName() const override;
+			std::string getTypeName() const override;
 
-			virtual bool getPreviewImage(cv::Mat&) const override;
-			virtual bool getPreviewDAT(Utils::Table&) const override;
+			bool getPreviewImage(cv::Mat&) const override;
+			bool getPreviewDAT(Utils::Table&) const override;
 
-			uint64_t getFrameIndex() const;
+			uint64_t getFrameIndex() const override;
 
 			void serialise(nlohmann::json& json, const Utils::Serialisable::Args&) const override;
-			void deserialise(const nlohmann::json& json) override;
+			void deserialise(const nlohmann::json& json, const std::filesystem::path& workingFolder) override;
 
 			std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>> cameraFrames;
 			Links::Output::ID leaderID;

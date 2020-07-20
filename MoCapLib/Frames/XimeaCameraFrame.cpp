@@ -74,11 +74,13 @@ namespace TD_MoCap {
 
 		//----------
 		void
-			XimeaCameraFrame::deserialise(const nlohmann::json& json)
+			XimeaCameraFrame::deserialise(const nlohmann::json& json, const std::filesystem::path& workingFolder)
 		{
 			this->metaData.frameIndex = json["frameIndex"];
 			this->metaData.timestamp = std::chrono::microseconds((uint64_t) json["timestamp"]);
-			this->image = cv::imread(json["filePath"], cv::IMREAD_UNCHANGED);
+
+			auto filename = workingFolder / (std::string) json["filePath"];
+			this->image = cv::imread(filename.string(), cv::IMREAD_UNCHANGED);
 		}
 	}
 }

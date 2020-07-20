@@ -17,6 +17,8 @@
 #include "Frames/BaseFrame.h"
 #include "Frames/XimeaCameraFrame.h"
 #include "Frames/SynchronisedFrame.h"
+#include "Frames/CentroidsFrame.h"
 
 #include "Exception.h"
 #include "ImageFormat.h"
+#include "Threaded_OP.h"

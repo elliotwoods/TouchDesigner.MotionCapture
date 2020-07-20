@@ -15,7 +15,7 @@ namespace TD_MoCap {
 			};
 
 			virtual void serialise(nlohmann::json& json, const Args&) const {};
-			virtual void deserialise(const nlohmann::json& json) {};
+			virtual void deserialise(const nlohmann::json& json, const std::filesystem::path& workingFolder) {};
 		};
 	}
 }
