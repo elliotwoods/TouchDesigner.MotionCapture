@@ -1,6 +1,8 @@
 #include "pch_MoCapLib.h"
 #include "WorkerGroup.h"
 
+#include <future>
+
 namespace TD_MoCap {
 	namespace Utils {
 		//---------
@@ -47,6 +49,42 @@ namespace TD_MoCap {
 			this->actionChannel.send(sharedAction);
 
 			return sharedAction;
+		}
+
+		//---------
+		void
+			WorkerGroup::parallelFor(const std::vector<WorkerThread::Action>& actions)
+		{
+			std::vector<std::shared_ptr<std::promise<void>>> promises;
+			std::vector<std::future<void>> futures;
+
+			std::vector<Exception> exceptions;
+
+			//load actions into queue
+			for (const auto& action : actions) {
+				promises.emplace_back(new std::promise<void>());
+				auto promise = promises.back();
+				futures.emplace_back(promise->get_future());
+
+				this->perform([action, promise, &exceptions] {
+					try {
+						rethrowFormattedExceptions(action);
+					}
+					catch (Exception e) {
+						exceptions.push_back(e);
+					}
+					promise->set_value();
+				});
+			}
+
+			//wait for actions to complete
+			for (auto& future : futures) {
+				future.get();
+			}
+
+			if (!exceptions.empty()) {
+				throw(exceptions.front());
+			}
 		}
 
 		//---------

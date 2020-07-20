@@ -14,6 +14,8 @@ namespace TD_MoCap {
 			static WorkerGroup& X();
 			std::weak_ptr<WorkerThread::Action> perform(const WorkerThread::Action&);
 
+			void parallelFor(const std::vector<WorkerThread::Action> &);
+
 			void clearWorkItems();
 			size_t sizeWorkItems() const;
 			

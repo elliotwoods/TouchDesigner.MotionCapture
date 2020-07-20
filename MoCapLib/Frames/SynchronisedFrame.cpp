@@ -4,7 +4,6 @@
 #include "Utils/WorkerGroup.h"
 
 #include <filesystem>
-#include <future>
 
 namespace TD_MoCap {
 	namespace Frames {
@@ -113,17 +112,13 @@ namespace TD_MoCap {
 			this->cameraFrames.clear();
 
 			std::mutex lockOutput;
-			std::vector<std::shared_ptr<std::promise<void>>> promises;
-			std::vector<std::future<void>> futures;
-
+			
 			const auto& cameraFramesJson = json["cameraFrames"];
-			for (const auto& cameraFrameJson : cameraFramesJson) {
-				promises.emplace_back(new std::promise<void>());
-				auto promise = promises.back();
-				
-				futures.emplace_back(promise->get_future());
 
-				Utils::WorkerGroup::X().perform([this, cameraFrameJson, workingFolder, &lockOutput, promise] {
+			std::vector<Utils::WorkerThread::Action> actions;
+
+			for (const auto& cameraFrameJson : cameraFramesJson) {
+				actions.push_back([this, cameraFrameJson, workingFolder, &lockOutput] {
 					auto id = (Links::Output::ID) cameraFrameJson["id"];
 					auto cameraFrame = std::make_shared<XimeaCameraFrame>();
 					cameraFrame->deserialise(cameraFrameJson["content"], workingFolder);
@@ -132,14 +127,10 @@ namespace TD_MoCap {
 						std::unique_lock<std::mutex> lock(lockOutput);
 						this->cameraFrames.emplace(id, cameraFrame);
 					}
-
-					promise->set_value();
 				});
 			}
 
-			for (auto & future : futures) {
-				future.get();
-			}
+			Utils::WorkerGroup::X().parallelFor(actions);
 
 			this->leaderID = json["leaderID"];
 		}
