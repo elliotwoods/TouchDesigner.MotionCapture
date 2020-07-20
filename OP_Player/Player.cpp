@@ -6,14 +6,18 @@ namespace TD_MoCap {
 	Player::Player(const std::string& path, Links::Output& output, size_t threads, size_t buffer)
 		: output(output)
 	{
-		this->path = std::filesystem::path(path);
+		if (path.empty()) {
+			throw(Exception("Folder not specified"));
+		}
+
+		this->playerState.path = std::filesystem::path(path);
 		
-		if (!std::filesystem::exists(this->path)) {
+		if (!std::filesystem::exists(this->playerState.path)) {
 			throw(Exception("Folder does not exist"));
 		}
 
 		{
-			auto jsonPath = this->path / "recording.json";
+			auto jsonPath = this->playerState.path / "recording.json";
 			if (!std::filesystem::exists(jsonPath)) {
 				throw(Exception("recording.json not found in folder"));
 			}
@@ -50,10 +54,12 @@ namespace TD_MoCap {
 	void
 		Player::setFramerate(float framerate)
 	{
-		std::unique_lock<std::mutex> lock(this->lockPlayerState);
 		if (framerate != this->playerState.framerate) {
-			this->playerState.framerate = framerate;
-			this->playerState.lastFrameStart = std::chrono::high_resolution_clock::now();
+			std::unique_lock<std::mutex> lock(this->lockPlayerState);
+			if (framerate != this->playerState.framerate) {
+				this->playerState.framerate = framerate;
+				this->playerState.lastFrameStart = std::chrono::high_resolution_clock::now();
+			}
 		}
 	}
 
@@ -89,36 +95,41 @@ namespace TD_MoCap {
 		}
 
 		this->thread.perform([this] {
-			this->lockPlayerState.lock();
-			auto frameInterval = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::nanoseconds(1000000000) / this->playerState.framerate);
-			auto lastFrameStart = this->playerState.lastFrameStart;
-			this->lockPlayerState.unlock();
-
-			std::this_thread::sleep_until(lastFrameStart + frameInterval);
 			{
+				// load information out of playerState
+				this->lockPlayerState.lock();
+				auto frameInterval = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::nanoseconds(1000000000) / this->playerState.framerate);
+				auto playerStateCopy = this->playerState;
+				this->lockPlayerState.unlock();
+
+				// sleep until next frame should be presented
+				std::this_thread::sleep_until(playerStateCopy.lastFrameStart + frameInterval);
+
 				// make a blank frame and start timer
 				auto frame = std::make_shared<Frames::SynchronisedFrame>();
 				frame->startComputeTimer();
 
 				// record the time for next frame
-				this->playerState.lastFrameStart = lastFrameStart + frameInterval; // use the ideal time so we dont drop fps
+				auto newLastFrameStart = playerStateCopy.lastFrameStart + frameInterval; // use the ideal time so we dont drop fps
 
 				// get the local player state
-				std::unique_lock<std::mutex> lock(this->lockPlayerState);
-				auto frameJson = this->playerState.recordingJson["frames"][this->playerState.frameIndex];
+				auto frameJson = this->playerState.recordingJson["frames"][playerStateCopy.frameIndex];
 
 				// here we always make SynchronisedFrame - this could be extended to factory any frame type
-				frame->deserialise(frameJson);
+				frame->deserialise(frameJson, playerState.path);
 
 				// send the frame
 				frame->endComputeTimer();
 				this->output.send(frame);
 
+				std::unique_lock<std::mutex> lock(this->lockPlayerState);
 				// advance to next frame
 				this->playerState.frameIndex++;
 
 				// loop
 				this->playerState.frameIndex %= this->playerState.frameCount;
+
+				this->playerState.lastFrameStart = newLastFrameStart;
 			}
 
 			this->requestPlayFrame();

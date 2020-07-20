@@ -27,7 +27,6 @@ namespace TD_MoCap {
 	protected:
 		void requestPlayFrame();
 
-		std::filesystem::path path;
 		Links::Output & output;
 
 		Utils::WorkerThread thread;
@@ -35,6 +34,7 @@ namespace TD_MoCap {
 		
 		std::mutex lockPlayerState;
 		struct {
+			std::filesystem::path path;
 			nlohmann::json recordingJson;
 			float framerate = 50.0f; // needs a default for first frame
 			uint64_t frameIndex;

@@ -27,9 +27,8 @@ namespace TD_MoCap {
 	void
 		OP_Player::execute(DAT_Output* output, const OP_Inputs* inputs, void* reserved)
 	{
-		auto folder = std::string(inputs->getParFilePath("Folder"));
 		this->parameters.list.updateFromInterface(inputs);
-		
+
 		if (this->player) {
 			if (!this->parameters.play.getValue()) {
 				this->player.reset();
@@ -42,6 +41,8 @@ namespace TD_MoCap {
 		else {
 			if (this->parameters.play.getValue()) {
 				try {
+					auto folder = std::string(inputs->getParFilePath("Folder"));
+
 					rethrowFormattedExceptions([&] {
 						this->player = std::make_unique<Player>(folder
 							, this->output
@@ -66,7 +67,6 @@ namespace TD_MoCap {
 		// update enabled parameters
 		{
 			inputs->enablePar("Folder", !this->player);
-			inputs->enablePar(this->parameters.play.getTDShortName().c_str(), !folder.empty() || this->player);
 			inputs->enablePar(this->parameters.threads.getTDShortName().c_str(), !this->player);
 			inputs->enablePar(this->parameters.buffer.getTDShortName().c_str(), !this->player);
 		}
