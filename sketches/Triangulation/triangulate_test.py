@@ -9,7 +9,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 # os.chdir('sketches/Triangulation/Calibration_data_200713/')
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
-os.chdir('Calibration_data_200713/')
+os.chdir('../Calibration_data_200713/')
 
 size = (1936,1216)
 
