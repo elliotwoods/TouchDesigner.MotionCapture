@@ -4,7 +4,7 @@
 
 namespace TD_MoCap
 {
-	struct CentroidsParameters {
+	struct CentroidsParameters : Utils::Parameters {
 		Utils::NumberParameter<int> blurRadius{
 			"Threshold blur radius", "px"
 			, 100, 100

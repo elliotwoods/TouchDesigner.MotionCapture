@@ -80,7 +80,7 @@ namespace TD_MoCap {
 
 		//----------
 		template<>
-		void
+		bool
 			ValueParameter<std::string>::updateFromInterface(const OP_Inputs* inputs)
 		{
 			auto shortName = this->getTDShortName();
@@ -88,12 +88,16 @@ namespace TD_MoCap {
 			auto valueHere = this->getValue();
 			if (valueInTD != valueHere) {
 				this->setValue(valueInTD);
+				return true;
+			}
+			else {
+				return false;
 			}
 		}
 
 		//----------
 		template<>
-		void
+		bool
 			ValueParameter<bool>::updateFromInterface(const OP_Inputs* inputs)
 		{
 			auto shortName = this->getTDShortName();
@@ -101,12 +105,16 @@ namespace TD_MoCap {
 			auto valueHere = this->getValue() ? 1 : 0;
 			if (valueInTD != valueHere) {
 				this->setValue(valueInTD);
+				return true;
+			}
+			else {
+				return false;
 			}
 		}
 
 		//----------
 		template<>
-		void
+		bool
 			ValueParameter<float>::updateFromInterface(const OP_Inputs* inputs)
 		{
 			auto shortName = this->getTDShortName();
@@ -114,12 +122,16 @@ namespace TD_MoCap {
 			auto valueHere = this->getValue();
 			if (valueInTD != valueHere) {
 				this->setValue(valueInTD);
+				return true;
+			}
+			else {
+				return false;
 			}
 		}
 
 		//----------
 		template<>
-		void
+		bool
 			ValueParameter<int>::updateFromInterface(const OP_Inputs* inputs)
 		{
 			auto shortName = this->getTDShortName();
@@ -127,6 +139,10 @@ namespace TD_MoCap {
 			auto valueHere = this->getValue();
 			if (valueInTD != valueHere) {
 				this->setValue(valueInTD);
+				return true;
+			}
+			else {
+				return false;
 			}
 		}
 
@@ -240,6 +256,41 @@ namespace TD_MoCap {
 			return this->options;
 		}
 
+#pragma mark PathParameter
+		//----------
+		PathParameter::PathParameter(const std::string& name, PathParameter::Type type)
+			: ValueParameter<std::string>(name, "", "")
+		{
+			this->type = type;
+		}
+
+		//----------
+		void
+			PathParameter::populateInterface(OP_ParameterManager* manager) const
+		{
+			OP_StringParameter param;
+			auto shortName = this->getTDShortName();
+			param.name = shortName.c_str();
+			param.label = this->getName().c_str();
+
+			switch (this->type) {
+			case Type::File:
+				manager->appendFile(param);
+				break;
+			case Type::Folder:
+				manager->appendFolder(param);
+				break;
+			}
+		}
+
+		//----------
+		std::filesystem::path
+			PathParameter::getPath() const
+		{
+			return std::filesystem::path(this->getValue());
+		}
+
+
 #pragma mark ParameterList
 		//----------
 		ParameterList::ParameterList(std::initializer_list<AbstractParameter*> parameters)
@@ -259,12 +310,14 @@ namespace TD_MoCap {
 		}
 
 		//----------
-		void
+		bool
 			ParameterList::updateFromInterface(const OP_Inputs * inputs)
 		{
+			auto anyChanged = false;
 			for (auto parameter : *this) {
-				parameter->updateFromInterface(inputs);
+				anyChanged |= parameter->updateFromInterface(inputs);
 			}
+			return anyChanged;
 		}
 	}
 }

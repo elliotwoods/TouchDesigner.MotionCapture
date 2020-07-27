@@ -13,11 +13,13 @@
 #include "Utils/WorkerThread.h"
 #include "Utils/WorkerGroup.h"
 #include "Utils/Parameter.h"
+#include "Utils/Parameters.h"
 
 #include "Frames/BaseFrame.h"
 #include "Frames/XimeaCameraFrame.h"
 #include "Frames/SynchronisedFrame.h"
 #include "Frames/CentroidsFrame.h"
+#include "Frames/TriangulateFrame.h"
 
 #include "Exception.h"
 #include "ImageFormat.h"

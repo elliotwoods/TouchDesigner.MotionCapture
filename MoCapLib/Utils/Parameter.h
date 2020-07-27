@@ -16,7 +16,7 @@ namespace TD_MoCap {
 			std::string getTDShortName() const;
 
 			virtual void populateInterface(OP_ParameterManager*) const = 0;
-			virtual void updateFromInterface(const OP_Inputs* inputs) = 0;
+			virtual bool updateFromInterface(const OP_Inputs* inputs) = 0;
 
 			Event<void> onChange;
 
@@ -54,7 +54,7 @@ namespace TD_MoCap {
 
 			}
 
-			virtual void updateFromInterface(const OP_Inputs* inputs) override;
+			virtual bool updateFromInterface(const OP_Inputs* inputs) override;
 
 		protected:
 			T value;
@@ -64,8 +64,8 @@ namespace TD_MoCap {
 		// template overrides for specific populateInterface functions
 		template<> void TDMOCAP_API ValueParameter<bool>::populateInterface(OP_ParameterManager*) const;
 		template<> void TDMOCAP_API ValueParameter<std::string>::populateInterface(OP_ParameterManager*) const;
-		template<> void TDMOCAP_API ValueParameter<bool>::updateFromInterface(const OP_Inputs*);
-		template<> void TDMOCAP_API ValueParameter<std::string>::updateFromInterface(const OP_Inputs*);
+		template<> bool TDMOCAP_API ValueParameter<bool>::updateFromInterface(const OP_Inputs*);
+		template<> bool TDMOCAP_API ValueParameter<std::string>::updateFromInterface(const OP_Inputs*);
 
 		template<typename T>
 		class TDMOCAP_API NumberParameter : public ValueParameter<T>
@@ -142,6 +142,23 @@ namespace TD_MoCap {
 			std::vector<std::string> options;
 		};
 
+		class TDMOCAP_API PathParameter : public ValueParameter<std::string>
+		{
+		public:
+			enum Type {
+				Folder
+				, File
+			};
+
+			PathParameter(const std::string& name, Type);
+
+			void populateInterface(OP_ParameterManager*) const override;
+
+			std::filesystem::path getPath() const;
+		protected:
+			Type type;
+		};
+
 		class TDMOCAP_API ParameterList : public std::vector<AbstractParameter*>
 		{
 		public:
@@ -159,7 +176,7 @@ namespace TD_MoCap {
 			}
 
 			virtual void populateInterface(OP_ParameterManager*) const;
-			virtual void updateFromInterface(const OP_Inputs*);
+			virtual bool updateFromInterface(const OP_Inputs*);
 		};
 	}
 }

@@ -38,6 +38,7 @@ namespace TD_MoCap {
 		{
 			std::unique_lock<std::mutex> lockParameters(this->lockParameters);
 			this->parameters.list.updateFromInterface(inputs);
+			this->parameters.update();
 		}
 
 		this->output.update();

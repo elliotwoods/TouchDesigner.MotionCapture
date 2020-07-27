@@ -21,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OP_Player", "OP_Player\OP_P
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OP_Centroids", "OP_Centroids\OP_Centroids.vcxproj", "{444166D2-E674-4E01-88F7-BD8728D8FF54}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OP_Triangulate", "OP_Triangulate\OP_Triangulate.vcxproj", "{F4602932-B83D-45FA-AD98-A7995D9CBAD9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -63,6 +65,10 @@ Global
 		{444166D2-E674-4E01-88F7-BD8728D8FF54}.Debug|x64.Build.0 = Debug|x64
 		{444166D2-E674-4E01-88F7-BD8728D8FF54}.Release|x64.ActiveCfg = Release|x64
 		{444166D2-E674-4E01-88F7-BD8728D8FF54}.Release|x64.Build.0 = Release|x64
+		{F4602932-B83D-45FA-AD98-A7995D9CBAD9}.Debug|x64.ActiveCfg = Debug|x64
+		{F4602932-B83D-45FA-AD98-A7995D9CBAD9}.Debug|x64.Build.0 = Debug|x64
+		{F4602932-B83D-45FA-AD98-A7995D9CBAD9}.Release|x64.ActiveCfg = Release|x64
+		{F4602932-B83D-45FA-AD98-A7995D9CBAD9}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

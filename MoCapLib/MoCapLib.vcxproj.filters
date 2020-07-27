@@ -11,6 +11,9 @@
     <ClCompile Include="Frames\SynchronisedFrame.cpp">
       <Filter>Frames</Filter>
     </ClCompile>
+    <ClCompile Include="Frames\TriangulateFrame.cpp">
+      <Filter>Frames</Filter>
+    </ClCompile>
     <ClCompile Include="Frames\XimeaCameraFrame.cpp">
       <Filter>Frames</Filter>
     </ClCompile>
@@ -29,6 +32,9 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Utils\Parameter.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\Parameters.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Utils\Table.cpp">
@@ -50,6 +56,9 @@
       <Filter>Frames</Filter>
     </ClInclude>
     <ClInclude Include="Frames\SynchronisedFrame.h">
+      <Filter>Frames</Filter>
+    </ClInclude>
+    <ClInclude Include="Frames\TriangulateFrame.h">
       <Filter>Frames</Filter>
     </ClInclude>
     <ClInclude Include="Frames\XimeaCameraFrame.h">
@@ -79,6 +88,9 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Parameter.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Parameters.h">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Serialisable.h">

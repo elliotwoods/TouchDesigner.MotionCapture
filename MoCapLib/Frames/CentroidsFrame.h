@@ -31,9 +31,8 @@ namespace TD_MoCap {
 
 			uint64_t getFrameIndex() const override;
 
-			std::shared_ptr<SynchronisedFrame> inputFrame;
-			
 			std::map<Links::Output::ID, std::shared_ptr<Camera>> cameras;
+			std::shared_ptr<SynchronisedFrame> inputFrame;
 		};
 	}
 }
