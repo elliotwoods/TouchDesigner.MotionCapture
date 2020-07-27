@@ -38,18 +38,6 @@ namespace TD_MoCap
 			, &pointsRight
 		};
 
-		struct CameraCalibration {
-			cv::Mat cameraMatrix;
-			cv::Mat distortionCoefficients;
-			cv::Size size;
-
-			void load(const std::string& path);
-		};
-		
-		struct StereoCalibration {
-			cv::Mat rotationMatrix, translation;
-		};
-
 		struct {
 			std::vector<cv::Point2f> pointsLeft;
 			std::vector<cv::Point2f> pointsRight;
@@ -57,7 +45,7 @@ namespace TD_MoCap
 
 		void update() override;
 
-		CameraCalibration cameraLeft, cameraRight;
+		Math::Camera cameraLeft, cameraRight;
 	};
 
 	class Process_Triangulate

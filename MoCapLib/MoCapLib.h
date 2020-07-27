@@ -15,6 +15,10 @@
 #include "Utils/Parameter.h"
 #include "Utils/Parameters.h"
 
+#include "Math/Camera.h"
+#include "Math/Ray.h"
+#include "Math/Conversions.h"
+
 #include "Frames/BaseFrame.h"
 #include "Frames/XimeaCameraFrame.h"
 #include "Frames/SynchronisedFrame.h"

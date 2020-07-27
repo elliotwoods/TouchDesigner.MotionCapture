@@ -67,7 +67,7 @@ for i in range(1, file_load_count + 1):
 	content_left = load_yaml('Points/left_points_{}.yaml'.format(i))
 	points_left.append(extract_points(content_left))
 
-	content_right = load_yaml('Points/left_points_{}.yaml'.format(i))
+	content_right = load_yaml('Points/right_points{}.yaml'.format(i))
 	points_right.append(extract_points(content_right))
 
 #%% Undistort Points

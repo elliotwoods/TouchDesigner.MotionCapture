@@ -27,6 +27,15 @@
     <ClCompile Include="Links\OutputsRegister.cpp">
       <Filter>Links</Filter>
     </ClCompile>
+    <ClCompile Include="Math\Camera.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Conversions.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Ray.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
     <ClCompile Include="pch_MoCapLib.cpp" />
     <ClCompile Include="Utils\FrameRateCounter.cpp">
       <Filter>Utils</Filter>
@@ -74,6 +83,15 @@
     <ClInclude Include="Links\OutputsRegister.h">
       <Filter>Links</Filter>
     </ClInclude>
+    <ClInclude Include="Math\Camera.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Conversions.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Ray.h">
+      <Filter>Math</Filter>
+    </ClInclude>
     <ClInclude Include="MoCapLib.h" />
     <ClInclude Include="pch_MoCapLib.h" />
     <ClInclude Include="Threaded_OP.h" />
@@ -115,6 +133,9 @@
     </Filter>
     <Filter Include="Links">
       <UniqueIdentifier>{9fafc1fd-a587-4eea-8ffb-da4d6d6738f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{f124a524-0ed7-40f4-af6b-f2bfd79c2f9e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Utils">
       <UniqueIdentifier>{58ecc804-7e9d-44f3-bf4a-03ee127db501}</UniqueIdentifier>
