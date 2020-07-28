@@ -25,7 +25,7 @@ namespace TD_MoCap {
 
 		void requestManualTrigger();
 
-		Utils::Channel<Exception>& getThreadExceptionQueue();
+		Utils::ThreadChannel<Exception>& getThreadExceptionQueue();
 
 		xiAPIplus_Camera& getCamera();
 		Utils::WorkerThread& getThread();

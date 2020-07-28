@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utils/Channel.h"
+#include "Utils/ThreadChannel.h"
 #include "Links/Output.h"
 
 namespace TD_MoCap {
@@ -31,7 +31,7 @@ namespace TD_MoCap {
 			// called from host class
 			std::shared_ptr<Frames::BaseFrame> getLastFrame();
 
-			Utils::Channel<std::shared_ptr<Frames::BaseFrame>> & getChannel();
+			Utils::ThreadChannel<std::shared_ptr<Frames::BaseFrame>> & getChannel();
 
 			size_t getDroppedFrameCount() const;
 		protected:
@@ -41,7 +41,7 @@ namespace TD_MoCap {
 			void send(std::shared_ptr<Frames::BaseFrame>);
 
 			Output* connectedOutput = nullptr;
-			Utils::Channel<std::shared_ptr<Frames::BaseFrame>> channel;
+			Utils::ThreadChannel<std::shared_ptr<Frames::BaseFrame>> channel;
 
 			std::shared_ptr<Frames::BaseFrame> lastFrame;
 

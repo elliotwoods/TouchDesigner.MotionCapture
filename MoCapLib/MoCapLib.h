@@ -6,7 +6,8 @@
 #include "Links/Output.h"
 #include "Links/OutputsRegister.h"
 
-#include "Utils/Channel.h"
+#include "Utils/ThreadChannel.h"
+#include "Utils/ChannelSet.h"
 #include "Utils/Event.h"
 #include "Utils/FrameRateCounter.h"
 #include "Utils/Table.h"

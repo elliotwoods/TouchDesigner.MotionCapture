@@ -3,6 +3,7 @@
 #include <string>
 #include "Utils/Table.h"
 #include "Utils/Serialisable.h"
+#include "Utils/ChannelSet.h"
 
 namespace TD_MoCap {
 	namespace Frames {
@@ -21,6 +22,10 @@ namespace TD_MoCap {
 			}
 
 			virtual bool getPreviewDAT(Utils::Table&) const {
+				return false;
+			}
+
+			virtual bool getPreviewCHOP(Utils::ChannelSet&) const {
 				return false;
 			}
 

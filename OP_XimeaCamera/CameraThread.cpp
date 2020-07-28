@@ -198,7 +198,7 @@ namespace TD_MoCap {
 	}
 
 	//----------
-	Utils::Channel<Exception>&
+	Utils::ThreadChannel<Exception>&
 		CameraThread::getThreadExceptionQueue()
 	{
 		return this->workerThread.exceptionsInThread;

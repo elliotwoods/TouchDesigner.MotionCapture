@@ -8,6 +8,7 @@ namespace TD_MoCap {
 	namespace Math {
 		class TDMOCAP_API Camera {
 		public:
+			Camera();
 			void load(const std::filesystem::path&);
 
 			void setIntrinsics(const cv::Mat& cameraMatrix, const cv::Mat& distortionCoefficients, const cv::Size& size);

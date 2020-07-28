@@ -12,7 +12,7 @@ namespace TD_MoCap {
 	namespace Utils {
 
 		template<typename T>
-		class Channel : public Wakeable {
+		class ThreadChannel : public Wakeable {
 		public:
 			/// \brief Create a default ofThreadChannel.
 			///
@@ -20,7 +20,7 @@ namespace TD_MoCap {
 			/// ~~~~{.cpp}
 			/// 	ofThreadChannel<ofPixels> myThreadChannel;
 			/// ~~~~
-			Channel()
+			ThreadChannel()
 				:closed(false) {}
 
 			void clear() {

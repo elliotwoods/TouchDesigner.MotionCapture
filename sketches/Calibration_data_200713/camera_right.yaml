@@ -14,8 +14,5 @@ dist_coeff: !!opencv-matrix
        6.1919437025953396e-04, -1.9410257274990606e-03,
        -3.0433769178645244e-03 ]
 reprojection_error: 1.6736212836200044e-02
-size: !!opencv-matrix
-   rows: 2
-   cols: 1
-   dt: d
-   data: [ 1936., 1216. ]
+image_width: 1936
+image_height: 1216

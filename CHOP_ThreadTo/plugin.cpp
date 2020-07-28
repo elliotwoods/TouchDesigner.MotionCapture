@@ -1,14 +1,14 @@
-#include "pch_DAT_Threadto.h"
-#include "DAT_ThreadTo.h"
+#include "pch_CHOP_Threadto.h"
+#include "CHOP_ThreadTo.h"
 
 extern "C"
 {
 	DLLEXPORT
 		void
-		FillDATPluginInfo(DAT_PluginInfo* info)
+		FillCHOPPluginInfo(CHOP_PluginInfo* info)
 	{
 		// This must always be set to this constant
-		info->apiVersion = DATCPlusPlusAPIVersion;
+		info->apiVersion = CHOPCPlusPlusAPIVersion;
 
 		// The opType is the unique name for this TOP. It must start with a 
 		// capital A-Z character, and all the following characters must lower case
@@ -25,27 +25,27 @@ extern "C"
 		info->customOPInfo.authorName->setString("Elliot Woods");
 		info->customOPInfo.authorEmail->setString("elliot@kimchiandchips.com");
 
-		info->customOPInfo.minInputs = 1;
-		info->customOPInfo.maxInputs = 1;
+		info->customOPInfo.minInputs = 0;
+		info->customOPInfo.maxInputs = 0;
 	}
 
 	DLLEXPORT
-		DAT_CPlusPlusBase*
-		CreateDATInstance(const OP_NodeInfo* info)
+		CHOP_CPlusPlusBase*
+		CreateCHOPInstance(const OP_NodeInfo* info)
 	{
 		// Return a new instance of your class every time this is called.
 		// It will be called once per TOP that is using the .dll
-		return new TD_MoCap::DAT_ThreadTo(info);
+		return new TD_MoCap::CHOP_ThreadTo(info);
 	}
 
 	DLLEXPORT
 		void
-		DestroyDATInstance(DAT_CPlusPlusBase* instance)
+		DestroyCHOPInstance(CHOP_CPlusPlusBase* instance)
 	{
 		// Delete the instance here, this will be called when
 		// Touch is shutting down, when the DAT using that instance is deleted, or
 		// if the DAT loads a different DLL
-		delete (TD_MoCap::DAT_ThreadTo*)instance;
+		delete (TD_MoCap::CHOP_ThreadTo*)instance;
 	}
 
 };

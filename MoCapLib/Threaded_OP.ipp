@@ -33,16 +33,23 @@ namespace TD_MoCap {
 	void
 		ThreadedOP<ProcessorType>::execute(DAT_Output* output, const OP_Inputs* inputs, void* reserved)
 	{
-		this->input.update(inputs->getInputDAT(0));
+		try {
 
-		{
-			std::unique_lock<std::mutex> lockParameters(this->lockParameters);
-			this->parameters.list.updateFromInterface(inputs);
-			this->parameters.update();
+			this->input.update(inputs->getInputDAT(0));
+
+			{
+				std::unique_lock<std::mutex> lockParameters(this->lockParameters);
+				this->parameters.list.updateFromInterface(inputs);
+				this->parameters.update();
+			}
+
+			this->output.update();
+			this->output.populateMainThreadOutput(output);
 		}
-
-		this->output.update();
-		this->output.populateMainThreadOutput(output);
+		catch (Exception e)
+		{
+			this->errors.push_back(e);
+		}
 	}
 
 	//----------
@@ -88,6 +95,10 @@ namespace TD_MoCap {
 		while (this->thread.exceptionsInThread.tryReceive(exception)) {
 			errorString += exception.what() + "\n";
 		}
+		for (const auto& error : this->errors) {
+			errorString += error.what() + "\n";
+		}
+		this->errors.clear();
 
 		error->setString(errorString.c_str());
 	}

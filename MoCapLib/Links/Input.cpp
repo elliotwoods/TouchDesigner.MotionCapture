@@ -132,7 +132,7 @@ namespace TD_MoCap {
 		}
 
 		//----------
-		Utils::Channel<std::shared_ptr<Frames::BaseFrame>>&
+		Utils::ThreadChannel<std::shared_ptr<Frames::BaseFrame>>&
 			Input::getChannel()
 		{
 			return this->channel;

@@ -134,7 +134,7 @@ namespace TD_MoCap {
 			auto performLock = std::shared_ptr<PerformLock>(new PerformLock(actionQueue));
 			auto weakPerformLock = std::weak_ptr<PerformLock>(performLock);
 
-			Channel<bool> enterPerformLockRegion;
+			ThreadChannel<bool> enterPerformLockRegion;
 
 			// Note
 			// There are 2 mechanisms for retaining the perform lock:

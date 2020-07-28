@@ -40,6 +40,8 @@ namespace TD_MoCap {
 	protected:
 		void process();
 		Utils::WorkerThread thread;
+		std::vector<Exception> errors;
+
 		Links::Input input;
 		Links::Output output;
 		ProcessorType processor;

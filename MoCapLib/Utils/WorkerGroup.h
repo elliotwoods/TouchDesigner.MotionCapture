@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Channel.h"
+#include "ThreadChannel.h"
 #include "WorkerThread.h"
 
 namespace TD_MoCap {
@@ -21,10 +21,10 @@ namespace TD_MoCap {
 			
 			void close();
 
-			Channel<Exception> exceptionsInThread;
+			ThreadChannel<Exception> exceptionsInThread;
 		protected:
 			std::vector<std::unique_ptr<std::thread>> threads;
-			Channel<std::shared_ptr<WorkerThread::Action>> actionChannel;
+			ThreadChannel<std::shared_ptr<WorkerThread::Action>> actionChannel;
 			bool running = true;
 		};
 	}

@@ -16,11 +16,17 @@ namespace TD_MoCap {
 		{
 			if (!path.empty()) {
 				cv::FileStorage fs(path.string(), cv::FileStorage::READ);
-				fs["camera_matrix"] >> this->cameraMatrix;
-				fs["dist_coeff"] >> this->distortionCoefficients;
-				fs["size"] >> this->size;
+				cv::Mat cameraMatrix, distortionCoefficients;
+				fs["camera_matrix"] >> cameraMatrix;
+				fs["dist_coeff"] >> distortionCoefficients;
 
-				this->updateProjectionMatrix();
+				cv::Size size;
+				{
+					fs["image_width"] >> size.width;
+					fs["image_height"] >> size.height;
+				}
+
+				this->setIntrinsics(cameraMatrix, distortionCoefficients, size);
 			}
 		}
 
@@ -131,8 +137,8 @@ namespace TD_MoCap {
 
 				const auto& f_x = this->cameraMatrix.at<float>(0, 0);
 				const auto& f_y = this->cameraMatrix.at<float>(1, 1);
-				const auto& c_x = this->cameraMatrix.at<float>(0, 0);
-				const auto& c_y = this->cameraMatrix.at<float>(1, 1);
+				const auto& c_x = this->cameraMatrix.at<float>(0, 2);
+				const auto& c_y = this->cameraMatrix.at<float>(1, 2);
 
 				for (const auto& imagePointIdeal : imagePointsIdeal) {
 					imagePointsUndistorted.emplace_back(

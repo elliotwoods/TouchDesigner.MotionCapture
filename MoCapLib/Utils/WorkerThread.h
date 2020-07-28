@@ -2,7 +2,7 @@
 
 #include <thread>
 #include <functional>
-#include "Channel.h"
+#include "ThreadChannel.h"
 #include "Exception.h"
 #include "Wakeable.h"
 
@@ -12,7 +12,7 @@ namespace TD_MoCap {
 		{
 		public:
 			typedef std::function<void()> Action;
-			typedef Channel<Action> ActionQueue;
+			typedef ThreadChannel<Action> ActionQueue;
 
 			class PerformLock {
 			public:
@@ -44,10 +44,10 @@ namespace TD_MoCap {
 			// Acquire a unique privilege to perform actions in this thread for the lifetime of the returned PerformLock
 			std::shared_ptr<PerformLock> acquirePerformLock();
 
-			Channel<Exception> exceptionsInThread;
+			ThreadChannel<Exception> exceptionsInThread;
 		protected:
 			std::thread thread;
-			Utils::Channel<std::function<void()>> workQueue;
+			ThreadChannel<std::function<void()>> workQueue;
 			bool running = true;
 		};
 	}

@@ -44,13 +44,15 @@ points_right = load_yaml('Points/right_points1.yaml')
 fs_write = cv2.FileStorage('camera_left.yaml', cv2.FILE_STORAGE_WRITE)
 for key in camera_left:
 	fs_write.write(key, camera_left[key])
-fs_write.write('size', size)
+fs_write.write('image_width', size[0])
+fs_write.write('image_height', size[1])
 fs_write.release()
 
 fs_write = cv2.FileStorage('camera_right.yaml', cv2.FILE_STORAGE_WRITE)
 for key in camera_right:
 	fs_write.write(key, camera_right[key])
-fs_write.write('size', size)
+fs_write.write('image_width', size[0])
+fs_write.write('image_height', size[1])
 fs_write.release()
 
 fs_write = cv2.FileStorage('calibration_stereo.yaml', cv2.FILE_STORAGE_WRITE)
@@ -60,10 +62,16 @@ fs_write.release()
 
 fs_write = cv2.FileStorage('points_left.yaml', cv2.FILE_STORAGE_WRITE)
 for key in points_left:
+	shape = points_left[key].shape
+	if len(shape) == 3:
+		points_left[key] = np.reshape(points_left[key], (shape[0], shape[2]))
 	fs_write.write(key, points_left[key])
 fs_write.release()
 
 fs_write = cv2.FileStorage('points_right.yaml', cv2.FILE_STORAGE_WRITE)
 for key in points_right:
+	shape = points_left[key].shape
+	if len(shape) == 3:
+		points_left[key] = np.reshape(points_left[key], (shape[0], shape[2]))
 	fs_write.write(key, points_right[key])
 fs_write.release()
