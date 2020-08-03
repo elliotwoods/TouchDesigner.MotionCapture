@@ -218,7 +218,7 @@ namespace TD_MoCap {
 				
 				if (res == XI_OK) {
 					// Copy pixels into CV format
-					auto frame = std::make_shared<Frames::XimeaCameraFrame>();
+					auto frame = Frames::XimeaCameraFrame::make();
 					frame->startComputeTimer();
 
 					frame->image = cv::Mat(cv::Size(image->GetWidth(), image->GetHeight())

@@ -26,6 +26,13 @@ namespace TD_MoCap
 			, 1, 16
 		};
 
+		Utils::NumberParameter<int> dilationSize{
+			"Dilation size", "px"
+			, 3, 3
+			, 0, 100
+			, 0, 32
+		};
+
 		Utils::NumberParameter<int> minimumArea{
 			"Minimum area", "px (length)"
 			, 3, 3
@@ -33,19 +40,12 @@ namespace TD_MoCap
 			, 0, 100
 		};
 
-		Utils::NumberParameter<int> dilationSize{
-			"Dilate bounding rects", "px"
-			, 2, 2
-			, 0, 256
-			, 0, 16
-		};
-
 		Utils::ParameterList list{
 			&blurRadius
 			, &threshold
 			, &differenceAmplify
-			, &minimumArea
 			, &dilationSize
+			, &minimumArea
 		};
 	};
 

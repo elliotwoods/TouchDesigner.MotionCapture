@@ -341,7 +341,7 @@ namespace TD_MoCap {
 						follower->indexedFrames.erase(follower->indexedFrames.find(followerFrameIndex));
 					}
 
-					auto synchronisedFrame = std::make_shared<Frames::SynchronisedFrame>(
+					auto synchronisedFrame = Frames::SynchronisedFrame::make(
 						cameraFrames
 						, this->leaderID
 					);

@@ -4,6 +4,19 @@
 namespace TD_MoCap {
 	namespace Frames {
 		//----------
+		TriangulateFrame::TriangulateFrame()
+		{
+
+		}
+
+		//----------
+		std::shared_ptr<TriangulateFrame>
+			TriangulateFrame::make()
+		{
+			return std::shared_ptr<TriangulateFrame>(new TriangulateFrame);
+		}
+
+		//----------
 		std::string
 			TriangulateFrame::getTypeName() const
 		{

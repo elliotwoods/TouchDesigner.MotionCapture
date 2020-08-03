@@ -5,6 +5,13 @@
 namespace TD_MoCap {
 	namespace Frames {
 		//----------
+		std::shared_ptr<XimeaCameraFrame>
+			XimeaCameraFrame::make()
+		{
+			return std::shared_ptr<XimeaCameraFrame>(new XimeaCameraFrame);
+		}
+
+		//----------
 		XimeaCameraFrame::XimeaCameraFrame()
 		{
 

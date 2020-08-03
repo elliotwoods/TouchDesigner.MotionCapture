@@ -4,6 +4,33 @@
 namespace TD_MoCap {
 	namespace Frames {
 		//----------
+		std::shared_ptr<CentroidsFrame::Camera>
+			CentroidsFrame::Camera::make()
+		{
+			return std::shared_ptr<CentroidsFrame::Camera>(new CentroidsFrame::Camera);
+		}
+
+
+		//----------
+		std::shared_ptr<CentroidsFrame>
+			CentroidsFrame::make()
+		{
+			return std::shared_ptr<CentroidsFrame>(new CentroidsFrame);
+		}
+
+		//----------
+		CentroidsFrame::CentroidsFrame()
+		{
+
+		}
+
+		//----------
+		CentroidsFrame::Camera::Camera()
+		{
+
+		}
+
+		//----------
 		std::string
 			CentroidsFrame::getTypeName() const
 		{

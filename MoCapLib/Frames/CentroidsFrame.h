@@ -11,7 +11,12 @@ namespace TD_MoCap {
 		class TDMOCAP_API CentroidsFrame : public BaseFrame
 		{
 		public:
-			struct Camera {
+			static std::shared_ptr<CentroidsFrame> make();
+		private:
+			CentroidsFrame();
+		public:
+			struct TDMOCAP_API Camera {
+				static std::shared_ptr<Camera> make();
 				cv::Mat greyscale;
 				cv::Mat blurred;
 				cv::Mat difference;
@@ -19,9 +24,11 @@ namespace TD_MoCap {
 
 				std::vector<std::vector<cv::Point2i>> contours;
 				std::vector<cv::Rect> boundingRects;
-				const int dilationSize = 2; // used for calculating moments
 				std::vector<cv::Moments> moments;
 				std::vector<cv::Point2f> centroids;
+
+			private:
+				Camera();
 			};
 
 			std::string getTypeName() const override;

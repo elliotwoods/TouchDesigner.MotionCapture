@@ -126,7 +126,7 @@ namespace TD_MoCap {
 					}
 				}
 				
-				auto outputFrame = std::make_shared<ProcessorType::OutputFrame_t>();
+				auto outputFrame = ProcessorType::OutputFrame_t::make();
 				outputFrame->startComputeTimer();
 				this->processor.process(typedFrame, outputFrame, parametersCopy);
 				outputFrame->endComputeTimer();

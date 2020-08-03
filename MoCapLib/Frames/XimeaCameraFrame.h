@@ -22,7 +22,7 @@ namespace TD_MoCap {
 					- sizeof(std::chrono::microseconds)];
 			};
 
-			XimeaCameraFrame();
+			static std::shared_ptr<XimeaCameraFrame> make();
 			std::string getTypeName() const override;
 
 			bool getPreviewImage(cv::Mat&) const override;
@@ -38,6 +38,8 @@ namespace TD_MoCap {
 			cv::Mat image;
 
 			MetaData metaData;
+		private:
+			XimeaCameraFrame();
 		};
 	}
 }

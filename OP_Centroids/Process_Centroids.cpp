@@ -12,7 +12,7 @@ namespace TD_MoCap {
 
 		for (auto camera : inputFrame->cameraFrames) {
 			auto input = camera.second;
-			auto output = std::make_shared<Frames::CentroidsFrame::Camera>();
+			auto output = Frames::CentroidsFrame::Camera::make();
 			outputFrame->cameras[camera.first] = output;
 
 			actions.push_back([this, input, output, &parameters] {

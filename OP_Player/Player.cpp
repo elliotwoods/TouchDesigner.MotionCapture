@@ -106,7 +106,7 @@ namespace TD_MoCap {
 				std::this_thread::sleep_until(playerStateCopy.lastFrameStart + frameInterval);
 
 				// make a blank frame and start timer
-				auto frame = std::make_shared<Frames::SynchronisedFrame>();
+				auto frame = Frames::SynchronisedFrame::make();
 				frame->startComputeTimer();
 
 				// record the time for next frame

@@ -10,10 +10,10 @@ namespace TD_MoCap {
 		class TDMOCAP_API SynchronisedFrame : public BaseFrame
 		{
 		public:
-			SynchronisedFrame();
-			SynchronisedFrame(const std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>>&
+			static std::shared_ptr<SynchronisedFrame> make(const std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>>&
 				, Links::Output::ID leaderID);
 
+			static std::shared_ptr<SynchronisedFrame> make();
 			std::string getTypeName() const override;
 
 			bool getPreviewImage(cv::Mat&) const override;
@@ -26,6 +26,10 @@ namespace TD_MoCap {
 
 			std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>> cameraFrames;
 			Links::Output::ID leaderID;
+		private:
+			SynchronisedFrame();
+			SynchronisedFrame(const std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>>&
+				, Links::Output::ID leaderID);
 		};
 	}
 }
