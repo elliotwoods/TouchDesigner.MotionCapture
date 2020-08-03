@@ -9,7 +9,7 @@ namespace TD_MoCap {
 		public:
 			struct Args {
 				std::filesystem::path folderOut;
-				uint64_t frameIndex;
+				uint64_t frameIndex = 0;
 				std::string imageFormat;
 				std::function<void()> onComplete;
 			};

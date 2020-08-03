@@ -62,17 +62,18 @@ namespace TD_MoCap {
 			json["channels"] = this->image.channels();
 
 			auto imageCopy = std::make_shared<cv::Mat>(this->image.clone());
-			auto filePath = args.folderOut / (std::to_string(args.frameIndex) + "." + args.imageFormat);
+			auto relativeFilePathString = std::to_string(args.frameIndex) + "." + args.imageFormat;
+			auto absoluteFilePath = args.folderOut / relativeFilePathString;
 
-			json["filePath"] = filePath.string();
+			json["filePath"] = relativeFilePathString;
 
 			// Stereo recording test times
 			// PNG : 15 fps (858kB)
 			// TIF : 20-30 fps (782kB)
 			// BMP : 80-116 fps (2.24MB)
-			Utils::WorkerGroup::X().perform([imageCopy, args, filePath] {
-				std::filesystem::create_directories(filePath.parent_path());
-				cv::imwrite(filePath.string(), *imageCopy);
+			Utils::WorkerGroup::X().perform([imageCopy, args, absoluteFilePath] {
+				std::filesystem::create_directories(absoluteFilePath.parent_path());
+				cv::imwrite(absoluteFilePath.string(), *imageCopy);
 				if (args.onComplete) {
 					args.onComplete();
 				}
