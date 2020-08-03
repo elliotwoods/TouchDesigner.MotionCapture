@@ -39,8 +39,7 @@ namespace TD_MoCap {
 
 			{
 				std::unique_lock<std::mutex> lockParameters(this->lockParameters);
-				this->parameters.list.updateFromInterface(inputs);
-				this->parameters.update();
+				this->parameters.needsUpdate |= this->parameters.list.updateFromInterface(inputs);
 			}
 
 			this->output.update();
@@ -111,13 +110,22 @@ namespace TD_MoCap {
 		auto timeout = std::chrono::milliseconds(100);
 		auto frame = this->input.receiveNextFrameWait(timeout);
 
+		this->lockParameters.lock();
+		auto parametersCopy = this->parameters;
+		this->lockParameters.unlock();
+
 		while (frame) {
 			auto typedFrame = std::dynamic_pointer_cast<ProcessorType::InputFrame_t>(frame);
 			if (typedFrame) {
-				std::unique_lock<std::mutex> lockParameters(this->lockParameters);
-				auto parametersCopy = this->parameters;
-				lockParameters.unlock();
-
+				{
+					std::unique_lock<std::mutex> lockParameters(this->lockParameters);
+					if (this->parameters.needsUpdate) {
+						this->parameters.update();
+						parametersCopy = this->parameters;
+						this->parameters.needsUpdate = false;
+					}
+				}
+				
 				auto outputFrame = std::make_shared<ProcessorType::OutputFrame_t>();
 				outputFrame->startComputeTimer();
 				this->processor.process(typedFrame, outputFrame, parametersCopy);
