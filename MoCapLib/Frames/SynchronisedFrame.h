@@ -23,9 +23,13 @@ namespace TD_MoCap {
 
 			void serialise(nlohmann::json& json, const Utils::Serialisable::Args&) const override;
 			void deserialise(const nlohmann::json& json, const std::filesystem::path& workingFolder) override;
+			
+			void computeSecondaryID();
+
 
 			std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>> cameraFrames;
 			Links::Output::ID leaderID;
+			Links::Output::ID secondaryID;
 		private:
 			SynchronisedFrame();
 			SynchronisedFrame(const std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>>&

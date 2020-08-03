@@ -127,6 +127,7 @@ namespace TD_MoCap {
 				}
 				
 				auto outputFrame = ProcessorType::OutputFrame_t::make();
+				outputFrame->inputFrame = typedFrame;
 				outputFrame->startComputeTimer();
 				this->processor.process(typedFrame, outputFrame, parametersCopy);
 				outputFrame->endComputeTimer();

@@ -34,7 +34,7 @@ namespace TD_MoCap {
 			: cameraFrames(cameraFrames)
 			, leaderID(leaderID)
 		{
-
+			this->computeSecondaryID();
 		}
 
 		//----------
@@ -148,7 +148,19 @@ namespace TD_MoCap {
 			Utils::WorkerGroup::X().parallelFor(actions);
 
 			this->leaderID = json["leaderID"];
+			this->computeSecondaryID();
 		}
 
+		//----------
+		void
+			SynchronisedFrame::computeSecondaryID()
+		{
+			for (auto it : this->cameraFrames) {
+				if (it.first != this->leaderID) {
+					this->secondaryID = it.first;
+					return;
+				}
+			}
+		}
 	}
 }

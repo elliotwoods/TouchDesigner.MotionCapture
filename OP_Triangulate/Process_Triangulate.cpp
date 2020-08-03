@@ -7,6 +7,7 @@ namespace TD_MoCap {
 	void
 		TriangulateParameters::update()
 	{
+		// left camera intrinsics
 		{
 			auto path = this->leftCameraCalibration.getValue();
 			if (!path.empty()) {
@@ -14,6 +15,7 @@ namespace TD_MoCap {
 			}
 		}
 
+		// right camera intrinsics
 		{
 			auto path = this->rightCameraCalibration.getValue();
 			if (!path.empty()) {
@@ -21,6 +23,7 @@ namespace TD_MoCap {
 			}
 		}
 
+		// stereo camera calibration
 		{
 			auto path = this->stereoCameraCalibration.getValue();
 			if (!path.empty()) {
@@ -31,148 +34,20 @@ namespace TD_MoCap {
 				cv::Mat rotationMatrix, translation;
 				fs["rotation"] >> rotationMatrix;
 				fs["translation"] >> translation;
+				fs["F"] >> this->F;
+				this->F.convertTo(this->F, CV_32F);
 				this->cameraRight.setExtrinsics(rotationMatrix, translation);
 			}
 		}
 
+		// left camera in right
 		{
-			auto path = this->pointsLeft.getValue();
-			if (!path.empty()) {
-				cv::FileStorage fs(this->pointsLeft.getValue(), cv::FileStorage::READ);
-				cv::Mat pointsLoader;
-				fs["Points"] >> pointsLoader;
-				pointsLoader.convertTo(pointsLoader, CV_32F);
-				this->testData.pointsLeft.assign((cv::Point2f*)pointsLoader.data
-					, (cv::Point2f*)pointsLoader.data + pointsLoader.total() * pointsLoader.channels() / 2);
-			}
-			else {
-				this->testData.pointsLeft = {
-					{5.8921331787109375e+02, 1.0733201904296875e+03},
-					{5.5107086181640625e+02, 1.0726202392578125e+03},
-					{5.1332824707031250e+02, 1.0719261474609375e+03},
-					{4.7561630249023438e+02, 1.0713330078125000e+03},
-					{4.3830496215820313e+02, 1.0705584716796875e+03},
-					{4.0108453369140625e+02, 1.0698071289062500e+03},
-					{3.6409066772460938e+02, 1.0691767578125000e+03},
-					{3.2708071899414063e+02, 1.0684344482421875e+03},
-					{2.9026385498046875e+02, 1.0676412353515625e+03},
-					{5.8843395996093750e+02, 1.0352182617187500e+03},
-					{5.5038702392578125e+02, 1.0345524902343750e+03},
-					{5.1253100585937500e+02, 1.0339234619140625e+03},
-					{4.7487890625000000e+02, 1.0333275146484375e+03},
-					{4.3752606201171875e+02, 1.0326208496093750e+03},
-					{4.0035974121093750e+02, 1.0319962158203125e+03},
-					{3.6340341186523438e+02, 1.0313576660156250e+03},
-					{3.2642422485351563e+02, 1.0306098632812500e+03},
-					{2.8961676025390625e+02, 1.0299866943359375e+03},
-					{5.8771368408203125e+02, 9.9665472412109375e+02},
-					{5.4960650634765625e+02, 9.9621832275390625e+02},
-					{5.1175640869140625e+02, 9.9560876464843750e+02},
-					{4.7420407104492188e+02, 9.9512353515625000e+02},
-					{4.3676513671875000e+02, 9.9446966552734375e+02},
-					{3.9956701660156250e+02, 9.9386328125000000e+02},
-					{3.6260174560546875e+02, 9.9332415771484375e+02},
-					{3.2565744018554688e+02, 9.9264495849609375e+02},
-					{2.8884637451171875e+02, 9.9212713623046875e+02},
-					{5.8713970947265625e+02, 9.5823992919921875e+02},
-					{5.4897393798828125e+02, 9.5770092773437500e+02},
-					{5.1113262939453125e+02, 9.5733587646484375e+02},
-					{4.7346847534179688e+02, 9.5674786376953125e+02},
-					{4.3606680297851563e+02, 9.5635412597656250e+02},
-					{3.9876434326171875e+02, 9.5571368408203125e+02},
-					{3.6178875732421875e+02, 9.5532501220703125e+02},
-					{3.2481622314453125e+02, 9.5465771484375000e+02},
-					{2.8802221679687500e+02, 9.5429711914062500e+02},
-					{5.8654052734375000e+02, 9.1961315917968750e+02},
-					{5.4837060546875000e+02, 9.1933905029296875e+02},
-					{5.1046014404296875e+02, 9.1888519287109375e+02},
-					{4.7271005249023438e+02, 9.1853533935546875e+02},
-					{4.3534274291992188e+02, 9.1816784667968750e+02},
-					{3.9805798339843750e+02, 9.1764819335937500e+02},
-					{3.6102410888671875e+02, 9.1731817626953125e+02},
-					{3.2403839111328125e+02, 9.1679400634765625e+02},
-					{2.8718945312500000e+02, 9.1642980957031250e+02},
-					{5.8589849853515625e+02, 8.8079699707031250e+02},
-					{5.4769213867187500e+02, 8.8055560302734375e+02},
-					{5.0976129150390625e+02, 8.8035760498046875e+02},
-					{4.7207952880859375e+02, 8.8002673339843750e+02},
-					{4.3454211425781250e+02, 8.7966491699218750e+02},
-					{3.9731283569335938e+02, 8.7943615722656250e+02},
-					{3.6027337646484375e+02, 8.7908392333984375e+02},
-					{3.2323468017578125e+02, 8.7864257812500000e+02},
-					{2.8634161376953125e+02, 8.7840692138671875e+02}
-				};
-			}
-		}
-
-		{
-			auto path = this->pointsRight.getValue();
-			if (false && !path.empty()) {
-				cv::FileStorage fs(this->pointsRight.getValue(), cv::FileStorage::READ);
-				cv::Mat pointsLoader;
-				fs["Points"] >> pointsLoader;
-				pointsLoader.convertTo(pointsLoader, CV_32F);
-				this->testData.pointsRight.assign((cv::Point2f*)pointsLoader.data
-					, (cv::Point2f*)pointsLoader.data + pointsLoader.total() * pointsLoader.channels() / 2);
-			}
-			else {
-				this->testData.pointsRight = {
-						{4.2771792602539063e+02, 1.0734173583984375e+03},
-						{3.9082888793945313e+02, 1.0723505859375000e+03},
-						{3.5438098144531250e+02, 1.0712687988281250e+03},
-						{3.1794512939453125e+02, 1.0702329101562500e+03},
-						{2.8179077148437500e+02, 1.0691684570312500e+03},
-						{2.4583363342285156e+02, 1.0681457519531250e+03},
-						{2.1006341552734375e+02, 1.0671513671875000e+03},
-						{1.7424942016601563e+02, 1.0662108154296875e+03},
-						{1.3854029846191406e+02, 1.0652614746093750e+03},
-						{4.2719998168945313e+02, 1.0356794433593750e+03},
-						{3.9038525390625000e+02, 1.0346422119140625e+03},
-						{3.5377264404296875e+02, 1.0336595458984375e+03},
-						{3.1747338867187500e+02, 1.0326356201171875e+03},
-						{2.8137091064453125e+02, 1.0316711425781250e+03},
-						{2.4543051147460938e+02, 1.0307269287109375e+03},
-						{2.0967718505859375e+02, 1.0298081054687500e+03},
-						{1.7391091918945313e+02, 1.0289219970703125e+03},
-						{1.3835116577148438e+02, 1.0281087646484375e+03},
-						{4.2663208007812500e+02, 9.9766809082031250e+02},
-						{3.8979260253906250e+02, 9.9673968505859375e+02},
-						{3.5330169677734375e+02, 9.9583282470703125e+02},
-						{3.1691183471679688e+02, 9.9500177001953125e+02},
-						{2.8085510253906250e+02, 9.9411010742187500e+02},
-						{2.4492129516601563e+02, 9.9327331542968750e+02},
-						{2.0927584838867188e+02, 9.9236926269531250e+02},
-						{1.7354194641113281e+02, 9.9153222656250000e+02},
-						{1.3792431640625000e+02, 9.9069842529296875e+02},
-						{4.2618975830078125e+02, 9.5964746093750000e+02},
-						{3.8936038208007813e+02, 9.5883715820312500e+02},
-						{3.5273397827148438e+02, 9.5811389160156250e+02},
-						{3.1646298217773438e+02, 9.5732482910156250e+02},
-						{2.8039511108398438e+02, 9.5647973632812500e+02},
-						{2.4445462036132813e+02, 9.5564306640625000e+02},
-						{2.0869410705566406e+02, 9.5491198730468750e+02},
-						{1.7299925231933594e+02, 9.5419946289062500e+02},
-						{1.3736541748046875e+02, 9.5350030517578125e+02},
-						{4.2574057006835938e+02, 9.2163043212890625e+02},
-						{3.8882666015625000e+02, 9.2094982910156250e+02},
-						{3.5233596801757813e+02, 9.2032720947265625e+02},
-						{3.1593255615234375e+02, 9.1957312011718750e+02},
-						{2.7980075073242188e+02, 9.1884014892578125e+02},
-						{2.4386453247070313e+02, 9.1824652099609375e+02},
-						{2.0818469238281250e+02, 9.1753527832031250e+02},
-						{1.7244786071777344e+02, 9.1691192626953125e+02},
-						{1.3675820922851563e+02, 9.1632043457031250e+02},
-						{4.2532553100585938e+02, 8.8343835449218750e+02},
-						{3.8846908569335938e+02, 8.8275939941406250e+02},
-						{3.5181518554687500e+02, 8.8230456542968750e+02},
-						{3.1545675659179688e+02, 8.8161071777343750e+02},
-						{2.7931942749023438e+02, 8.8115234375000000e+02},
-						{2.4335418701171875e+02, 8.8053393554687500e+02},
-						{2.0761550903320313e+02, 8.7998797607421875e+02},
-						{1.7183255004882813e+02, 8.7943066406250000e+02},
-						{1.3621153259277344e+02, 8.7891961669921875e+02}
-				};
-			}
+			auto cameraRightViewProjection = this->cameraRight.getClippedProjectionMatrix() * this->cameraRight.getViewMatrix();
+			
+			auto cameraLeftInCameraRight = cameraRightViewProjection * glm::vec4(cameraRight.getPosition(), 1.0f);
+			cameraLeftInCameraRight /= cameraLeftInCameraRight.w;
+			this->cameraLeftInCameraRight.x = cameraLeftInCameraRight.x;
+			this->cameraLeftInCameraRight.y = cameraLeftInCameraRight.y;
 		}
 	}
 
@@ -180,35 +55,106 @@ namespace TD_MoCap {
 	//----------
 	void
 		Process_Triangulate::process(std::shared_ptr<Frames::CentroidsFrame> inputFrame
-			,std::shared_ptr<Frames::TriangulateFrame> outputFrame
+			, std::shared_ptr<Frames::TriangulateFrame> outputFrame
 			, TriangulateParameters& parameters)
 	{
-		// run test
+		if (inputFrame->cameras.size() != 2) {
+			throw(Exception("Triangulation currently only supports exactly 2 cameras"));
+		}
+
+		auto leftCamera = inputFrame->cameras[inputFrame->inputFrame->leaderID];
+		auto rightCamera = inputFrame->cameras[inputFrame->inputFrame->secondaryID];
+
+		// Calculate epipolar lines (so we can use them for centroid selection)
+		std::vector<cv::Point3f> epipolarLines;
+		cv::computeCorrespondEpilines(leftCamera->centroids
+			, 1
+			, parameters.F
+			, epipolarLines);
+
+		// Sort centroids in left by angle they appear on in right relative to left camera
+		std::multimap<float, size_t> leftCameraCentroids_IndexByAngle;
 		{
-			const auto& pointsLeft = parameters.testData.pointsLeft;
-			const auto& pointsRight = parameters.testData.pointsRight;
+			for (size_t i = 0; i < leftCamera->centroids.size(); i++) {
+				auto angle = atan(epipolarLines[i].x / epipolarLines[i].y);
+				leftCameraCentroids_IndexByAngle.emplace(angle, i);
+			}
+		}
 
-			if (!pointsLeft.empty()
-				&& !pointsRight.empty())
-			{
-				if (pointsLeft.size() != pointsRight.size()) {
-					throw(Exception("Size mismatch between test points on left and right cameras"));
+		const auto angleThreshold = parameters.angleThreshold.getValue() / 360.0f * acos(0) * 4.0f;
+		const auto& epipolarDistanceThreshold = parameters.epipolarLineThreshold.getValue();
+		const auto& massRatioThreshold = parameters.massRatioThreshold.getValue();
+
+		// Iterate through centroids in right camera to find matches
+		std::vector<size_t> matchedCentroidsIndexLeft;
+		std::vector<size_t> matchedCentroidsIndexRight;
+		std::vector<cv::Point2f> matchedCentroidsLeft;
+		std::vector<cv::Point2f> matchedCentroidsRight;
+		for (size_t rightCentroidIndex = 0; rightCentroidIndex < rightCamera->centroids.size(); rightCentroidIndex++) {
+			auto positionRelativeToLeftCamera = rightCamera->centroids[rightCentroidIndex] - parameters.cameraLeftInCameraRight;
+			auto rightCentroidAngle = atan(positionRelativeToLeftCamera.x / positionRelativeToLeftCamera.y);
+
+			for (auto leftCentroidIt = leftCameraCentroids_IndexByAngle.begin()
+				; leftCentroidIt != leftCameraCentroids_IndexByAngle.end()
+				; leftCentroidIt++) {
+
+				// test the angle threshold
+				const auto& leftAngle = leftCentroidIt->first;
+				if (leftAngle < rightCentroidAngle - angleThreshold) {
+					// too low - continue
+					continue;
 				}
+				else if (leftAngle > rightCentroidAngle + angleThreshold) {
+					// too high - break out early
+					break;
+				}
+				else {
+					// perform epipolar constraint test
+					const auto& leftCentroidIndex = leftCentroidIt->second;
+					const auto& rightCentroid = rightCamera->centroids[rightCentroidIndex];
 
-				// unproject rays
-				outputFrame->testData.raysLeft = parameters.cameraLeft.unprojectImagePoints(pointsLeft);
-				outputFrame->testData.raysRight = parameters.cameraRight.unprojectImagePoints(pointsRight);
-				
-				// interesect rays
-				auto size = pointsLeft.size();
-				outputFrame->testData.intersections.reserve(size);
-				for (size_t i = 0; i < size; i++) {
-					const auto& leftRay = outputFrame->testData.raysLeft[i];
-					const auto& rightRay = outputFrame->testData.raysRight[i];
+					auto distance = epipolarLines[leftCentroidIndex].dot(cv::Point3f(rightCentroid.x, rightCentroid.y, 1.0f));
+					if (distance <= epipolarDistanceThreshold) {
+						// perform mass ratio test
+						auto massLeft = leftCamera->moments[leftCentroidIndex].m00;
+						auto massRight = rightCamera->moments[rightCentroidIndex].m00;
+						auto massRatio = massLeft > massRight
+							? massLeft / massRight
+							: massRight / massLeft;
 
-					auto intersection = leftRay.intersect(rightRay);
+						if (massRatio <= massRatioThreshold) {
+							// Passed all 2D tests. Let's triangulate
+							matchedCentroidsIndexLeft.push_back(leftCentroidIndex);
+							matchedCentroidsIndexRight.push_back(rightCentroidIndex);
+							matchedCentroidsLeft.push_back(leftCamera->centroids[leftCentroidIndex]);
+							matchedCentroidsRight.push_back(rightCentroid);
+						}
+					}
+				}
+			}
+		}
 
-					outputFrame->testData.intersections.push_back(intersection);
+		// Unproject matches
+		auto cameraLeftRays = parameters.cameraLeft.unprojectImagePoints(matchedCentroidsLeft);
+		auto cameraRightRays = parameters.cameraRight.unprojectImagePoints(matchedCentroidsRight);
+		std::vector<Math::Ray> intersections;
+		for (size_t i = 0; i < cameraLeftRays.size(); i++) {
+			intersections.push_back(cameraLeftRays[i].intersect(cameraRightRays[i]));
+		}
+
+		// Filter matches
+		{
+			// Check that the intersections are within a maximum length
+			auto intersectDistanceThreshold = parameters.intersectDistanceThreshold.getValue();
+			for (size_t i = 0; i < cameraLeftRays.size(); i++) {
+				if (intersections[i].getLength() <= intersectDistanceThreshold) {
+					outputFrame->cameraLeftRays.push_back(cameraLeftRays[i]);
+					outputFrame->cameraRightRays.push_back(cameraRightRays[i]);
+					outputFrame->intersections.push_back(intersections[i]);
+					outputFrame->intersections.push_back(intersections[i]);
+					outputFrame->cameraLeftCentroidIndex.push_back(matchedCentroidsIndexLeft[i]);
+					outputFrame->cameraRightCentroidIndex.push_back(matchedCentroidsIndexRight[i]);
+					outputFrame->worldPoints.push_back(intersections[i].getMiddle());
 				}
 			}
 		}
