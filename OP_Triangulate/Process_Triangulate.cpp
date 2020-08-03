@@ -26,8 +26,8 @@ namespace TD_MoCap {
 			if (!path.empty()) {
 				cv::FileStorage fs(this->stereoCameraCalibration.getValue(), cv::FileStorage::READ);
 				cv::Mat rotationMatrix, translation;
-				fs["r"] >> rotationMatrix;
-				fs["t"] >> translation;
+				fs["rotation"] >> rotationMatrix;
+				fs["translation"] >> translation;
 				this->cameraRight.setExtrinsics(rotationMatrix, translation);
 			}
 		}
