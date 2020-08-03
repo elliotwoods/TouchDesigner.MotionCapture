@@ -22,7 +22,7 @@ namespace TD_MoCap {
 		{
 			Ray intersectRay;
 
-			const glm::vec3 p1(s), p2(s + t), p3(other.s), p4(other.s + other.t);
+			const glm::vec3 p1(this->s), p2(this->s + this->t), p3(other.s), p4(other.s + other.t);
 			const float EPS(1.0E-15);
 
 			glm::vec3 p13, p43, p21;

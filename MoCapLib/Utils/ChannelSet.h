@@ -13,7 +13,7 @@ namespace TD_MoCap {
 
 		class TDMOCAP_API ChannelSet : public std::vector<Channel> {
 		public:
-			void setChannels(const std::initializer_list<std::string>& names);
+			void setChannels(const std::vector<std::string>& names);
 			void setSampleCount(size_t);
 			size_t getSampleCount() const;
 		};

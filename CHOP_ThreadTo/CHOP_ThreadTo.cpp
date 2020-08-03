@@ -32,7 +32,7 @@ namespace TD_MoCap {
 					this->channelSet.clear();
 				}
 
-				outputEmpty = !this->channelSet.empty();
+				outputEmpty = this->channelSet.empty();
 				info->numChannels = this->channelSet.size();
 				info->numSamples = info->numChannels == 0 ? 0 : this->channelSet.front().samples.size();
 				

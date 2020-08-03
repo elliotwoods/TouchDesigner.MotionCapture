@@ -66,11 +66,11 @@ namespace TD_MoCap {
 
 
 				channelSet[c++].samples[i] = this->testData.intersections[i].s.x;
-				channelSet[c++].samples[i] = this->testData.intersections[i].t.z;
 				channelSet[c++].samples[i] = this->testData.intersections[i].s.y;
 				channelSet[c++].samples[i] = this->testData.intersections[i].s.z;
 				channelSet[c++].samples[i] = this->testData.intersections[i].t.x;
 				channelSet[c++].samples[i] = this->testData.intersections[i].t.y;
+				channelSet[c++].samples[i] = this->testData.intersections[i].t.z;
 			}
 
 			return true;

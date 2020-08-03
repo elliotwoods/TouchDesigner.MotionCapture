@@ -37,8 +37,6 @@ namespace TD_MoCap {
 
 			cv::vconcat(images, mat);
 
-			//cv::imshow("contours", mat);
-			//cv::waitKey(1);
 			return true;
 		}
 
@@ -53,6 +51,39 @@ namespace TD_MoCap {
 				auto& camera = cameraIt.second;
 				contours << camera->contours.size();
 				centroids << camera->centroids.size();
+			}
+
+			return true;
+		}
+
+		//----------
+		bool
+			CentroidsFrame::getPreviewCHOP(Utils::ChannelSet& channels) const
+		{
+			std::vector<std::string> channelNames;
+			for (auto & camera : this->cameras) {
+				channelNames.push_back("camera_" + std::to_string(camera.first) + "_x");
+				channelNames.push_back("camera_" + std::to_string(camera.first) + "_y");
+			}
+			channels.setChannels(channelNames);
+			
+			size_t maxCount = 0;
+			for (auto & camera : this->cameras) {
+				maxCount = MAX(maxCount, camera.second->centroids.size());
+			}
+			channels.setSampleCount(maxCount);
+
+			{
+				size_t index = 0;
+				for (auto& camera : this->cameras) {
+					const auto& centroids = camera.second->centroids;
+					for (size_t i = 0; i < centroids.size(); i++) {
+						channels[index * 2 + 0].samples[i] = centroids[i].x;
+						channels[index * 2 + 0].samples[i] = centroids[i].y;
+					}
+
+					index++;
+				}
 			}
 
 			return true;

@@ -5,7 +5,7 @@ namespace TD_MoCap {
 	namespace Utils {
 		//----------
 		void
-			ChannelSet::setChannels(const std::initializer_list<std::string>& names)
+			ChannelSet::setChannels(const std::vector<std::string>& names)
 		{
 			this->resize(names.size());
 			
@@ -24,7 +24,7 @@ namespace TD_MoCap {
 		{
 			for (auto& channel : *this)
 			{
-				channel.samples.resize(size);
+				channel.samples.resize(size, 0.0f);
 			}
 		}
 

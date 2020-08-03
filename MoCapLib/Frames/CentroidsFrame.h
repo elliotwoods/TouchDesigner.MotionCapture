@@ -28,6 +28,7 @@ namespace TD_MoCap {
 
 			bool getPreviewImage(cv::Mat&) const override;
 			bool getPreviewDAT(Utils::Table&) const override;
+			bool getPreviewCHOP(Utils::ChannelSet&) const override;
 
 			uint64_t getFrameIndex() const override;
 

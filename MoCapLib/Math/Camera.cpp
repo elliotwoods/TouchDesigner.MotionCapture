@@ -1,5 +1,6 @@
 #include "pch_MoCapLib.h"
 #include "Camera.h"
+#include "Exception.h"
 
 namespace TD_MoCap {
 	namespace Math {
@@ -8,6 +9,7 @@ namespace TD_MoCap {
 		{
 			this->translation = cv::Mat::zeros(3, 1, CV_32F);
 			this->rotationMatrix = cv::Mat::eye(3, 3, CV_32F);
+			this->updateViewMatrix();
 		}
 
 		//----------
@@ -18,7 +20,7 @@ namespace TD_MoCap {
 				cv::FileStorage fs(path.string(), cv::FileStorage::READ);
 				cv::Mat cameraMatrix, distortionCoefficients;
 				fs["camera_matrix"] >> cameraMatrix;
-				fs["dist_coeff"] >> distortionCoefficients;
+				fs["distortion_coefficients"] >> distortionCoefficients;
 
 				cv::Size size;
 				{
@@ -41,13 +43,16 @@ namespace TD_MoCap {
 			this->cameraMatrix.convertTo(this->cameraMatrix, CV_32F);
 			this->distortionCoefficients.convertTo(this->distortionCoefficients, CV_32F);
 
-			this->updateViewMatrix();
+			this->updateProjectionMatrix();
 		}
 
 		//----------
 		void
 			Camera::setExtrinsics(const cv::Mat& rotationMatrix, const cv::Mat& translation)
 		{
+			if (rotationMatrix.empty() || translation.empty()) {
+				throw(Exception("Cannot set extrinsics with empty data"));
+			}
 			this->rotationMatrix = rotationMatrix;
 			this->translation = translation;
 
@@ -114,7 +119,7 @@ namespace TD_MoCap {
 			posW /= posW.w;
 
 			auto s = this->getPosition();
-			auto t = (glm::vec3)posW - s;
+			auto t = glm::normalize((glm::vec3)posW - s);
 
 			return Ray(s, t);
 		}
@@ -181,15 +186,15 @@ namespace TD_MoCap {
 				auto height = (float)this->size.height;
 
 
-				this->projectionMatrix = glm::mat4();
-				this->projectionMatrix[0][0] = 2.0f * f_x / width;
-				this->projectionMatrix[1][1] = -2.0f * f_y / height;
+				this->projectionMatrix = glm::identity<glm::mat4>();
+				this->projectionMatrix[0][0] = 2.0f * f_x / (float) width;
+				this->projectionMatrix[1][1] = -2.0f * f_y / (float) height;
 				this->projectionMatrix[2][3] = 1.0f;
 				this->projectionMatrix[3][3] = 0.0f;
 
 				const glm::vec3 lensOffset(
 					2.0f * c_x / width - 1.0f
-					, 10.0f - 2.0f * c_y / height
+					, 1.0f - 2.0f * c_y / height
 					, 0.0f);
 
 				this->projectionMatrix = glm::translate(this->projectionMatrix, lensOffset);
