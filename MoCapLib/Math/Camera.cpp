@@ -63,6 +63,20 @@ namespace TD_MoCap {
 		}
 
 		//----------
+		const cv::Mat &
+			Camera::getCameraMatrix() const
+		{
+			return this->cameraMatrix;
+		}
+
+		//----------
+		const cv::Mat&
+			Camera::getDistortionCoefficients() const
+		{
+			return this->distortionCoefficients;
+		}
+
+		//----------
 		glm::vec3
 			Camera::getPosition() const
 		{

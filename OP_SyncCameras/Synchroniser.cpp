@@ -7,7 +7,9 @@ namespace TD_MoCap {
 	//----------
 	Synchroniser::Synchroniser()
 	{
-		this->requestUpdate();
+		this->workerThread.setIdleFunction([this] {
+			this->threadedUpdate();
+		});
 	}
 
 	//----------
@@ -66,32 +68,16 @@ namespace TD_MoCap {
 
 	//----------
 	void
-		Synchroniser::requestUpdate()
+		Synchroniser::threadedUpdate()
 	{
-		this->workerThread.perform([this] {
-			try {
-				this->receiveAllFrames();
+		this->receiveAllFrames();
 
-				if (this->needsResync) {
-					this->resync();
-				}
+		if (this->needsResync) {
+			this->resync();
+		}
 
-				this->sendSynchronisedFrames();
+		this->sendSynchronisedFrames();
 
-				// request next update
-				if (!this->workerThread.isJoining()) {
-					this->requestUpdate();
-				}
-			}
-			catch (...) {
-				// request next update
-				if (!this->workerThread.isJoining()) {
-					this->requestUpdate();
-				}
-
-				throw;
-			}
-		});
 	}
 
 	//----------

@@ -44,11 +44,15 @@ namespace TD_MoCap {
 			// Acquire a unique privilege to perform actions in this thread for the lifetime of the returned PerformLock
 			std::shared_ptr<PerformLock> acquirePerformLock();
 
+			// Set a function to run whenever the work queue is empty
+			void setIdleFunction(const std::function<void()>&);
+			
 			ThreadChannel<Exception> exceptionsInThread;
 		protected:
 			std::thread thread;
 			ThreadChannel<std::function<void()>> workQueue;
 			bool running = true;
+			std::function<void()> idleFunction;
 		};
 	}
 }

@@ -14,6 +14,9 @@ namespace TD_MoCap {
 			void setIntrinsics(const cv::Mat& cameraMatrix, const cv::Mat& distortionCoefficients, const cv::Size& size);
 			void setExtrinsics(const cv::Mat& rotationMatrix, const cv::Mat& translation);
 
+			const cv::Mat & getCameraMatrix() const;
+			const cv::Mat& getDistortionCoefficients() const;
+
 			glm::vec3 getPosition() const;
 			glm::mat4 getProjectionMatrix() const;
 			glm::mat4 getClippedProjectionMatrix() const;

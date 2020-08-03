@@ -34,20 +34,24 @@ namespace TD_MoCap {
 				cv::Mat rotationMatrix, translation;
 				fs["rotation"] >> rotationMatrix;
 				fs["translation"] >> translation;
-				fs["F"] >> this->F;
-				this->F.convertTo(this->F, CV_32F);
+				fs["fundamental_matrix"] >> this->fundamental_matrix;
+				this->fundamental_matrix.convertTo(this->fundamental_matrix, CV_32F);
 				this->cameraRight.setExtrinsics(rotationMatrix, translation);
-			}
-		}
 
-		// left camera in right
-		{
-			auto cameraRightViewProjection = this->cameraRight.getClippedProjectionMatrix() * this->cameraRight.getViewMatrix();
-			
-			auto cameraLeftInCameraRight = cameraRightViewProjection * glm::vec4(cameraRight.getPosition(), 1.0f);
-			cameraLeftInCameraRight /= cameraLeftInCameraRight.w;
-			this->cameraLeftInCameraRight.x = cameraLeftInCameraRight.x;
-			this->cameraLeftInCameraRight.y = cameraLeftInCameraRight.y;
+				// left camera in right
+				{
+					auto zeroPositionAsArray = std::vector<cv::Point3f>(1, { 0, 0, 0 });
+
+					std::vector<cv::Point2f> projectedImagePoint;
+					cv::projectPoints(zeroPositionAsArray
+						, rotationMatrix
+						, translation
+						, this->cameraRight.getCameraMatrix()
+						, cv::Mat() // we work in undistorted space
+						, projectedImagePoint);
+					this->cameraLeftInCameraRight = projectedImagePoint[0];
+				}
+			}
 		}
 	}
 
@@ -69,7 +73,7 @@ namespace TD_MoCap {
 		std::vector<cv::Point3f> epipolarLines;
 		cv::computeCorrespondEpilines(leftCamera->centroids
 			, 1
-			, parameters.F
+			, parameters.fundamental_matrix
 			, epipolarLines);
 
 		// Sort centroids in left by angle they appear on in right relative to left camera
@@ -114,7 +118,7 @@ namespace TD_MoCap {
 					const auto& rightCentroid = rightCamera->centroids[rightCentroidIndex];
 
 					auto distance = epipolarLines[leftCentroidIndex].dot(cv::Point3f(rightCentroid.x, rightCentroid.y, 1.0f));
-					if (distance <= epipolarDistanceThreshold) {
+					if (abs(distance) <= epipolarDistanceThreshold) {
 						// perform mass ratio test
 						auto massLeft = leftCamera->moments[leftCentroidIndex].m00;
 						auto massRight = rightCamera->moments[rightCentroidIndex].m00;

@@ -7,7 +7,7 @@ namespace TD_MoCap {
 	template<class ProcessorType>
 	ThreadedOP<ProcessorType>::ThreadedOP(const OP_NodeInfo* info)
 	{
-		this->thread.perform([this]() {
+		this->thread.setIdleFunction([this]() {
 			this->process();
 		});
 	}
@@ -105,7 +105,7 @@ namespace TD_MoCap {
 	//----------
 	template<class ProcessorType>
 	void
-	ThreadedOP<ProcessorType>::process()
+		ThreadedOP<ProcessorType>::process()
 	{
 		auto timeout = std::chrono::milliseconds(100);
 		auto frame = this->input.receiveNextFrameWait(timeout);
@@ -125,7 +125,7 @@ namespace TD_MoCap {
 						this->parameters.needsUpdate = false;
 					}
 				}
-				
+
 				auto outputFrame = ProcessorType::OutputFrame_t::make();
 				outputFrame->inputFrame = typedFrame;
 				outputFrame->startComputeTimer();
@@ -136,12 +136,6 @@ namespace TD_MoCap {
 			}
 
 			frame = this->input.receiveNextFrameWait(timeout);
-		}
-
-		if (!this->thread.isJoining()) {
-			this->thread.perform([this]() {
-				this->process();
-			});
 		}
 	}
 }

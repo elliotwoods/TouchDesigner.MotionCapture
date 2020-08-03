@@ -31,7 +31,7 @@ namespace TD_MoCap {
 
 		Links::Output output;
 	protected:
-		void requestUpdate();
+		void threadedUpdate();
 
 		void receiveAllFrames();
 		void resync();

@@ -61,7 +61,7 @@ namespace TD_MoCap
 		void update() override;
 
 		Math::Camera cameraLeft, cameraRight;
-		cv::Mat F;
+		cv::Mat fundamental_matrix;
 		cv::Point2f cameraLeftInCameraRight;
 	};
 
