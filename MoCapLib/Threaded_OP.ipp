@@ -76,7 +76,7 @@ namespace TD_MoCap {
 			OP_NumericParameter pulse;
 			pulse.name = "Clearexcept";
 			pulse.label = "Clear exceptions";
-			manager->appendPulse(&pulse);
+			manager->appendPulse(pulse);
 		}
 
 		std::unique_lock<std::mutex> lockParameters(this->lockParameters);

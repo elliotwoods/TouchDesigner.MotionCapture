@@ -85,7 +85,7 @@ namespace TD_MoCap {
 			}
 		}
 
-		const auto angleThreshold = parameters.angleThreshold.getValue() / 360.0f * acos(0) * 4.0f;
+		auto angleThreshold = parameters.angleThreshold.getValue() / 360.0f * acos(0) * 4.0f;
 		const auto& epipolarDistanceThreshold = parameters.epipolarLineThreshold.getValue();
 		const auto& massRatioThreshold = parameters.massRatioThreshold.getValue();
 
@@ -103,7 +103,8 @@ namespace TD_MoCap {
 				; leftCentroidIt++) {
 
 				// test the angle threshold
-				const auto& leftAngle = leftCentroidIt->first;
+				auto leftAngle = leftCentroidIt->first;
+				leftAngle += acos(0); // spin by 180 degrees
 				if (leftAngle < rightCentroidAngle - angleThreshold) {
 					// too low - continue
 					continue;
@@ -136,6 +137,11 @@ namespace TD_MoCap {
 					}
 				}
 			}
+		}
+
+		// Exit early if empty
+		if (matchedCentroidsLeft.empty()) {
+			return;
 		}
 
 		// Unproject matches
