@@ -41,6 +41,7 @@ namespace TD_MoCap {
 		void process();
 		Utils::WorkerThread thread;
 		std::vector<Exception> errors;
+		std::string errorString;
 
 		Links::Input input;
 		Links::Output output;
