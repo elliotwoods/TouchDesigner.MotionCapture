@@ -37,7 +37,7 @@ namespace TD_MoCap {
 			Utils::NumberParameter<float> framerate{
 				"Framerate", "fps"
 				, 50.0f, 50.0f
-				, 1.0f, 1000.0f
+				, 0.1f, 1000.0f
 			};
 
 			Utils::NumberParameter<int> threads{

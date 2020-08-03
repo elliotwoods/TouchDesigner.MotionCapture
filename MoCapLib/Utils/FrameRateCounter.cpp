@@ -48,8 +48,8 @@ namespace TD_MoCap {
 				}
 				else {
 					// buffer is only partially full
-					auto dt = this->data[this->firstRun - 1] - this->data[0];
-					return (1000.0f * (firstRun - 1)) / std::chrono::duration<float, std::milli>(dt).count();
+					auto dt = this->data[this->position - 1] - this->data[0];
+					return (1000.0f * (this->position - 1)) / std::chrono::duration<float, std::milli>(dt).count();
 				}
 			}
 			else {
@@ -59,6 +59,28 @@ namespace TD_MoCap {
 
 				auto dt = this->data[windowEnd] - this->data[windowBegin];
 				return (1000.0f * (this->windowSize - 1)) / std::chrono::duration<float, std::milli>(dt).count();
+			}
+		}
+
+		//----------
+		float
+			FrameRateCounter::getFPSUnfiltered() const
+		{
+			if (this->firstRun < 2) {
+				// not enough data yet
+				return 0.0f;
+			}
+			else {
+				auto currentPosition = this->position - 1;
+				auto previousPosition = this->position - 2;
+				if (currentPosition < 0) {
+					currentPosition += windowSize;
+				}
+				if (previousPosition < 0) {
+					previousPosition += windowSize;
+				}
+				auto dt = this->data[currentPosition] - this->data[previousPosition];
+				return (1000.0f) / std::chrono::duration<float, std::milli>(dt).count();
 			}
 		}
 	}

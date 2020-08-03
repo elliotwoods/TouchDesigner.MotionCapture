@@ -14,6 +14,7 @@ namespace TD_MoCap {
 			void clear();
 			void tick();
 			float getFPS() const;
+			float getFPSUnfiltered() const;
 		protected:
 			uint16_t position = 0;
 			uint16_t firstRun = 0;

@@ -50,6 +50,7 @@ namespace TD_MoCap {
 				std::lock_guard<std::mutex> mutex(this->lockInfo);
 				this->info.countThisFrame = this->incomingInfo.receivedCount;
 				this->info.frameRate = this->incomingInfo.fps;
+				this->info.frameRateUnfiltered = this->incomingInfo.fpsUnfiltered;
 				this->info.computeTimeMs = this->incomingInfo.computeTimeMs;
 
 				// reset the frame info
@@ -72,6 +73,7 @@ namespace TD_MoCap {
 			this->incomingInfo.receivedCount++;
 			this->frameRateCounter.tick();
 			this->incomingInfo.fps = this->frameRateCounter.getFPS();
+			this->incomingInfo.fpsUnfiltered = this->frameRateCounter.getFPSUnfiltered();
 			this->incomingInfo.computeTimeMs = (float)std::chrono::duration_cast<std::chrono::microseconds>(frame->getComputeTime()).count() / 1000.0f;
 
 			std::lock_guard<std::mutex> lockSubscribers(this->lockSubscribers);
@@ -90,8 +92,9 @@ namespace TD_MoCap {
 			table.newRow() << "framesSentThisMainloopFrame" << this->info.countThisFrame;
 			table.newRow() << "totalFrameCount" << this->info.totalCount;
 			table.newRow() << "outputFrameRate" << this->info.frameRate;
+			table.newRow() << "outputFrameRateUnfiltered" << this->info.frameRateUnfiltered;
 			table.newRow() << "computeTimeMs" << this->info.computeTimeMs;
-			table.newRow() << "computeDuty%" << this->info.computeTimeMs / 1000.0f * this->info.frameRate * 100.0f;
+			table.newRow() << "computeDuty%" << this->info.computeTimeMs / 1000.0f * this->info.frameRateUnfiltered * 100.0f;
 			table.newRow() << "subscriberCount" << this->info.subscriberCount;
 
 			table.populateOutput(output);

@@ -42,7 +42,8 @@ namespace TD_MoCap {
 
 			struct {
 				uint32_t receivedCount = 0;
-				float fps = 1.0f;
+				float fps = 0.0f;
+				float fpsUnfiltered = 0.0f;
 				float computeTimeMs = 0;
 			} incomingInfo;
 
@@ -50,6 +51,7 @@ namespace TD_MoCap {
 				uint32_t countThisFrame = 0;
 				uint64_t totalCount = 0;
 				float frameRate = 0;
+				float frameRateUnfiltered = 0;
 				float computeTimeMs = 0;
 				uint16_t subscriberCount = 0;
 			} info;
