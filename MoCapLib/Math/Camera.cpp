@@ -197,7 +197,7 @@ namespace TD_MoCap {
 					, 1.0f - 2.0f * c_y / height
 					, 0.0f);
 
-				this->projectionMatrix = glm::translate(this->projectionMatrix, lensOffset);
+				this->projectionMatrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(lensOffset.x, lensOffset.y, 0)) * this->projectionMatrix;
 			}
 
 			// Clipped projection matrix
