@@ -20,6 +20,11 @@ namespace TD_MoCap
 			, Utils::PathParameter::Type::File
 		};
 
+		Utils::ValueParameter<bool> includeTestData{
+			"Include test data"
+			, false, false
+		};
+
 		Utils::NumberParameter<float> angleThreshold{
 			"Angle threshold", "degrees"
 			, 2, 2
@@ -52,6 +57,7 @@ namespace TD_MoCap
 			&leftCameraCalibration
 			, &rightCameraCalibration
 			, &stereoCameraCalibration
+			, &includeTestData
 			, &angleThreshold
 			, &epipolarLineThreshold
 			, &massRatioThreshold

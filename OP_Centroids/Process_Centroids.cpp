@@ -80,7 +80,7 @@ namespace TD_MoCap {
 				}
 
 				// bounding rectangles
-				const auto dilationSize = parameters.minimumArea.getValue();
+				const auto dilationSize = parameters.dilationSize.getValue();
 				const auto areaThreshold = parameters.minimumArea.getValue() * parameters.minimumArea.getValue();
 				{
 					for (const auto& contour : output->contours) {
@@ -108,12 +108,12 @@ namespace TD_MoCap {
 						{
 							dilatedRect.x -= dilationSize;
 							dilatedRect.y -= dilationSize;
-							dilatedRect.width += dilationSize;
-							dilatedRect.height += dilationSize;
+							dilatedRect.width += dilationSize * 2;
+							dilatedRect.height += dilationSize * 2;
 						}
 						auto moment = cv::moments(output->greyscale(dilatedRect));
 
-						output->boundingRects.push_back(rect);
+						output->boundingRects.push_back(dilatedRect);
 						output->moments.push_back(moment);
 					}
 				}

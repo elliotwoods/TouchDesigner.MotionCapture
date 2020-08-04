@@ -22,6 +22,7 @@ namespace TD_MoCap {
 		~Player();
 
 		void setFramerate(float);
+		void setHoldFrame(bool);
 		void update();
 		Utils::Table getRecordingInfo();
 	protected:
@@ -37,6 +38,7 @@ namespace TD_MoCap {
 			std::filesystem::path path;
 			nlohmann::json recordingJson;
 			float framerate = 50.0f; // needs a default for first frame
+			bool holdFrame = false; // loop on same frame
 			uint64_t frameIndex;
 			uint64_t frameCount;
 			std::chrono::high_resolution_clock::time_point lastFrameStart;

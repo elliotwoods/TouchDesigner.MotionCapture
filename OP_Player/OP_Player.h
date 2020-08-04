@@ -57,11 +57,18 @@ namespace TD_MoCap {
 				, false, false
 			};
 
+			Utils::ValueParameter<bool> holdFrame{
+				"Hold frame"
+				, false, false
+			};
+
 			Utils::ParameterList list{
 				&framerate
 				, &threads
 				, &buffer
-				, &play };
+				, &play
+				, &holdFrame
+			};
 
 		} parameters;
 

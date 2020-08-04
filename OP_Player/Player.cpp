@@ -54,12 +54,20 @@ namespace TD_MoCap {
 	void
 		Player::setFramerate(float framerate)
 	{
+		std::unique_lock<std::mutex> lock(this->lockPlayerState);
 		if (framerate != this->playerState.framerate) {
-			std::unique_lock<std::mutex> lock(this->lockPlayerState);
-			if (framerate != this->playerState.framerate) {
-				this->playerState.framerate = framerate;
-				this->playerState.lastFrameStart = std::chrono::high_resolution_clock::now();
-			}
+			this->playerState.framerate = framerate;
+			this->playerState.lastFrameStart = std::chrono::high_resolution_clock::now();
+		}
+	}
+
+	//----------
+	void
+		Player::setHoldFrame(bool holdFrame)
+	{
+		std::unique_lock<std::mutex> lock(this->lockPlayerState);
+		if (holdFrame != this->playerState.holdFrame) {
+			this->playerState.holdFrame = holdFrame;
 		}
 	}
 

@@ -35,6 +35,7 @@ namespace TD_MoCap {
 			}
 			else {
 				this->player->setFramerate(this->parameters.framerate.getValue());
+				this->player->setHoldFrame(this->parameters.holdFrame.getValue());
 				this->player->update();
 			}
 		}
@@ -64,7 +65,7 @@ namespace TD_MoCap {
 			this->infoDAT.clear();
 		}
 
-		// update enabled parameters
+		// update enabled parameters (disable some during playing)
 		{
 			inputs->enablePar("Folder", !this->player);
 			inputs->enablePar(this->parameters.threads.getTDShortName().c_str(), !this->player);

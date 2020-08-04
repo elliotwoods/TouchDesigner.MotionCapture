@@ -119,32 +119,31 @@ namespace TD_MoCap {
 		auto timeout = std::chrono::milliseconds(100);
 		auto frame = this->input.receiveNextFrameWait(timeout);
 
+		if (!frame) {
+			return;
+		}
+
+		auto typedFrame = std::dynamic_pointer_cast<ProcessorType::InputFrame_t>(frame);
+		if (!typedFrame) {
+			return;
+		}
+
 		this->lockParameters.lock();
+		if (this->parameters.needsUpdate) {
+			this->parameters.update();
+			this->parameters.needsUpdate = false;
+		}
 		auto parametersCopy = this->parameters;
 		this->lockParameters.unlock();
 
-		while (frame) {
-			auto typedFrame = std::dynamic_pointer_cast<ProcessorType::InputFrame_t>(frame);
-			if (typedFrame) {
-				{
-					std::unique_lock<std::mutex> lockParameters(this->lockParameters);
-					if (this->parameters.needsUpdate) {
-						this->parameters.update();
-						parametersCopy = this->parameters;
-						this->parameters.needsUpdate = false;
-					}
-				}
-
-				auto outputFrame = ProcessorType::OutputFrame_t::make();
-				outputFrame->inputFrame = typedFrame;
-				outputFrame->startComputeTimer();
-				this->processor.process(typedFrame, outputFrame, parametersCopy);
-				outputFrame->endComputeTimer();
-
-				this->output.send(outputFrame);
-			}
-
-			frame = this->input.receiveNextFrameWait(timeout);
+		auto outputFrame = ProcessorType::OutputFrame_t::make();
+		outputFrame->inputFrame = typedFrame;
+		outputFrame->startComputeTimer();
+		{
+			this->processor.process(typedFrame, outputFrame, parametersCopy);
 		}
+		outputFrame->endComputeTimer();
+
+		this->output.send(outputFrame);
 	}
 }

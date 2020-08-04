@@ -23,8 +23,8 @@ namespace TD_MoCap {
 			std::vector<Math::Ray> cameraLeftRays;
 			std::vector<Math::Ray> cameraRightRays;
 			std::vector<Math::Ray> intersections;
-			std::vector<size_t> cameraLeftCentroidIndex;
-			std::vector<size_t> cameraRightCentroidIndex;
+			std::vector<cv::Point2f> cameraLeftCentroids;
+			std::vector<cv::Point2f> cameraRightCentroids;
 			std::vector<glm::vec3> worldPoints;
 		private:
 			TriangulateFrame();

@@ -25,10 +25,12 @@
     </ClCompile>
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="Process_Triangulate.cpp" />
+    <ClCompile Include="testData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch_OP_Triangulate.h" />
     <ClInclude Include="Process_Triangulate.h" />
+    <ClInclude Include="testData.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

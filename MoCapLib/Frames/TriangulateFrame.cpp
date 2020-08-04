@@ -34,13 +34,30 @@ namespace TD_MoCap {
 		bool
 			TriangulateFrame::getPreviewCHOP(Utils::ChannelSet& channelSet) const
 		{
-			channelSet.setChannels({ "x", "y", "z" });
+			channelSet.setChannels({
+				"x", "y", "z"
+				, "intersect_length"
+				, "camera_1_x",  "camera_1_y"
+				, "camera_2_x",  "camera_2_y" 
+				});
 			channelSet.setSampleCount(this->worldPoints.size());
-			for (int c = 0; c < 3; c++) {
-				for (int i = 0; i < this->worldPoints.size(); i++) {
-					channelSet[c].samples[i] = this->worldPoints[i][c];
-				}
+
+			auto leaderID = this->inputFrame->inputFrame->leaderID;
+			auto followerID = this->inputFrame->inputFrame->secondaryID;
+
+			for (int i = 0; i < this->worldPoints.size(); i++) {
+				int c = 0;
+				channelSet[c++].samples[i] = this->worldPoints[i].x;
+				channelSet[c++].samples[i] = this->worldPoints[i].y;
+				channelSet[c++].samples[i] = this->worldPoints[i].z;
+				channelSet[c++].samples[i] = this->intersections[i].getLength();
+
+				channelSet[c++].samples[i] = this->cameraLeftCentroids[i].x;
+				channelSet[c++].samples[i] = this->cameraLeftCentroids[i].y;
+				channelSet[c++].samples[i] = this->cameraRightCentroids[i].x;
+				channelSet[c++].samples[i] = this->cameraRightCentroids[i].y;
 			}
+
 			return true;
 		}
 	}

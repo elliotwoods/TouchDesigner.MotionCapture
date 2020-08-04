@@ -1,6 +1,8 @@
 #include "pch_OP_Triangulate.h"
 #include "Process_Triangulate.h"
 
+#include "testData.h"
+
 namespace TD_MoCap {
 #pragma mark TriangulateParameters
 	//----------
@@ -144,7 +146,24 @@ namespace TD_MoCap {
 			return;
 		}
 
-		// Unproject matches
+
+		// Insert test data (warning - we write directly to the output - double check this code if you move too much around)
+		if (parameters.includeTestData.getValue()) {
+			auto testDataSize = testPointsLeft.size();
+			outputFrame->cameraLeftRays = parameters.cameraLeft.unprojectImagePoints(testPointsLeft);
+			outputFrame->cameraRightRays = parameters.cameraRight.unprojectImagePoints(testPointsRight);
+			
+			for (size_t i = 0; i < testDataSize; i++) {
+				auto intersection = outputFrame->cameraLeftRays[i].intersect(outputFrame->cameraRightRays[i]);
+				outputFrame->worldPoints.push_back(intersection.getMiddle());
+				outputFrame->intersections.push_back(std::move(intersection));
+			}
+
+			outputFrame->cameraLeftCentroids = testPointsLeft;
+			outputFrame->cameraRightCentroids = testPointsRight;
+		}
+
+		// Unproject matches and intersect
 		auto cameraLeftRays = parameters.cameraLeft.unprojectImagePoints(matchedCentroidsLeft);
 		auto cameraRightRays = parameters.cameraRight.unprojectImagePoints(matchedCentroidsRight);
 		std::vector<Math::Ray> intersections;
@@ -161,9 +180,8 @@ namespace TD_MoCap {
 					outputFrame->cameraLeftRays.push_back(cameraLeftRays[i]);
 					outputFrame->cameraRightRays.push_back(cameraRightRays[i]);
 					outputFrame->intersections.push_back(intersections[i]);
-					outputFrame->intersections.push_back(intersections[i]);
-					outputFrame->cameraLeftCentroidIndex.push_back(matchedCentroidsIndexLeft[i]);
-					outputFrame->cameraRightCentroidIndex.push_back(matchedCentroidsIndexRight[i]);
+					outputFrame->cameraLeftCentroids.push_back(matchedCentroidsLeft[i]);
+					outputFrame->cameraRightCentroids.push_back(matchedCentroidsRight[i]);
 					outputFrame->worldPoints.push_back(intersections[i].getMiddle());
 				}
 			}
