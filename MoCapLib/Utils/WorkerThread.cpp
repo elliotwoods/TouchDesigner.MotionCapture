@@ -188,6 +188,7 @@ namespace TD_MoCap {
 			WorkerThread::setIdleFunction(const std::function<void()>& idleFunction)
 		{
 			this->idleFunction = idleFunction;
+			this->perform([] {}); // flush any waits
 		}
 
 		//----------

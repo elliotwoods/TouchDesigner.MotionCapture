@@ -26,7 +26,7 @@ namespace TD_MoCap {
 		void update();
 		Utils::Table getRecordingInfo();
 	protected:
-		void requestPlayFrame();
+		void threadedUpdate();
 
 		Links::Output & output;
 
