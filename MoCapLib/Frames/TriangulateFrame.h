@@ -26,6 +26,9 @@ namespace TD_MoCap {
 			std::vector<cv::Point2f> cameraLeftCentroids;
 			std::vector<cv::Point2f> cameraRightCentroids;
 			std::vector<glm::vec3> worldPoints;
+			std::vector<float> epipolarDistance;
+			std::vector<float> massRatio;
+			std::vector<float> angleDistance;
 		private:
 			TriangulateFrame();
 		};

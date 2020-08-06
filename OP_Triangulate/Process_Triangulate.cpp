@@ -71,9 +71,13 @@ namespace TD_MoCap {
 		auto leftCamera = inputFrame->cameras[inputFrame->inputFrame->leaderID];
 		auto rightCamera = inputFrame->cameras[inputFrame->inputFrame->secondaryID];
 
+		// Undistort centroids
+		auto centroidsLeftUndistorted = parameters.cameraLeft.undistortImagePoints(leftCamera->centroids);
+		auto centroidsRightUndistorted = parameters.cameraRight.undistortImagePoints(rightCamera->centroids);
+
 		// Calculate epipolar lines (so we can use them for centroid selection)
 		std::vector<cv::Point3f> epipolarLines;
-		cv::computeCorrespondEpilines(leftCamera->centroids
+		cv::computeCorrespondEpilines(centroidsLeftUndistorted
 			, 1
 			, parameters.fundamental_matrix
 			, epipolarLines);
@@ -81,7 +85,7 @@ namespace TD_MoCap {
 		// Sort centroids in left by angle they appear on in right relative to left camera
 		std::multimap<float, size_t> leftCameraCentroids_IndexByAngle;
 		{
-			for (size_t i = 0; i < leftCamera->centroids.size(); i++) {
+			for (size_t i = 0; i < centroidsLeftUndistorted.size(); i++) {
 				auto angle = atan(epipolarLines[i].x / epipolarLines[i].y);
 				leftCameraCentroids_IndexByAngle.emplace(angle, i);
 			}
@@ -96,9 +100,12 @@ namespace TD_MoCap {
 		std::vector<size_t> matchedCentroidsIndexRight;
 		std::vector<cv::Point2f> matchedCentroidsLeft;
 		std::vector<cv::Point2f> matchedCentroidsRight;
-		for (size_t rightCentroidIndex = 0; rightCentroidIndex < rightCamera->centroids.size(); rightCentroidIndex++) {
-			auto positionRelativeToLeftCamera = rightCamera->centroids[rightCentroidIndex] - parameters.cameraLeftInCameraRight;
-			auto rightCentroidAngle = atan(positionRelativeToLeftCamera.x / positionRelativeToLeftCamera.y);
+		std::vector<float> matchedEpipolarDistance;
+		std::vector<float> matchedMassRatio;
+		std::vector<float> matchedAngleDistance;
+		for (size_t rightCentroidIndex = 0; rightCentroidIndex < centroidsRightUndistorted.size(); rightCentroidIndex++) {
+			auto positionRelativeToLeftCamera = centroidsRightUndistorted[rightCentroidIndex] - parameters.cameraLeftInCameraRight;
+			auto rightCentroidAngle = atan(positionRelativeToLeftCamera.x / positionRelativeToLeftCamera.y) - acos(0);
 
 			for (auto leftCentroidIt = leftCameraCentroids_IndexByAngle.begin()
 				; leftCentroidIt != leftCameraCentroids_IndexByAngle.end()
@@ -106,7 +113,7 @@ namespace TD_MoCap {
 
 				// test the angle threshold
 				auto leftAngle = leftCentroidIt->first;
-				leftAngle += acos(0); // spin by 180 degrees
+
 				if (leftAngle < rightCentroidAngle - angleThreshold) {
 					// too low - continue
 					continue;
@@ -118,7 +125,7 @@ namespace TD_MoCap {
 				else {
 					// perform epipolar constraint test
 					const auto& leftCentroidIndex = leftCentroidIt->second;
-					const auto& rightCentroid = rightCamera->centroids[rightCentroidIndex];
+					const auto& rightCentroid = centroidsRightUndistorted[rightCentroidIndex];
 
 					auto distance = epipolarLines[leftCentroidIndex].dot(cv::Point3f(rightCentroid.x, rightCentroid.y, 1.0f));
 					if (abs(distance) <= epipolarDistanceThreshold) {
@@ -133,8 +140,11 @@ namespace TD_MoCap {
 							// Passed all 2D tests. Let's triangulate
 							matchedCentroidsIndexLeft.push_back(leftCentroidIndex);
 							matchedCentroidsIndexRight.push_back(rightCentroidIndex);
-							matchedCentroidsLeft.push_back(leftCamera->centroids[leftCentroidIndex]);
+							matchedCentroidsLeft.push_back(centroidsLeftUndistorted[leftCentroidIndex]);
 							matchedCentroidsRight.push_back(rightCentroid);
+							matchedEpipolarDistance.push_back(distance);
+							matchedMassRatio.push_back(massRatio);
+							matchedAngleDistance.push_back(rightCentroidAngle - leftAngle);
 						}
 					}
 				}
@@ -150,8 +160,11 @@ namespace TD_MoCap {
 		// Insert test data (warning - we write directly to the output - double check this code if you move too much around)
 		if (parameters.includeTestData.getValue()) {
 			auto testDataSize = testPointsLeft.size();
-			outputFrame->cameraLeftRays = parameters.cameraLeft.unprojectImagePoints(testPointsLeft);
-			outputFrame->cameraRightRays = parameters.cameraRight.unprojectImagePoints(testPointsRight);
+			auto testPointsLeftUndistorted = parameters.cameraLeft.undistortImagePoints(testPointsLeft);
+			auto testPointsRightUndistorted = parameters.cameraRight.undistortImagePoints(testPointsRight);
+
+			outputFrame->cameraLeftRays = parameters.cameraLeft.unprojectUndistortedImagePoints(testPointsLeftUndistorted);
+			outputFrame->cameraRightRays = parameters.cameraRight.unprojectUndistortedImagePoints(testPointsRightUndistorted);
 			
 			for (size_t i = 0; i < testDataSize; i++) {
 				auto intersection = outputFrame->cameraLeftRays[i].intersect(outputFrame->cameraRightRays[i]);
@@ -159,13 +172,32 @@ namespace TD_MoCap {
 				outputFrame->intersections.push_back(std::move(intersection));
 			}
 
-			outputFrame->cameraLeftCentroids = testPointsLeft;
-			outputFrame->cameraRightCentroids = testPointsRight;
+			outputFrame->cameraLeftCentroids = testPointsLeftUndistorted;
+			outputFrame->cameraRightCentroids = testPointsRightUndistorted;
+
+			std::vector<cv::Point3f> testEpipolarLines;
+			cv::computeCorrespondEpilines(testPointsLeftUndistorted
+				, 1
+				, parameters.fundamental_matrix
+				, testEpipolarLines);
+
+			for (size_t i = 0; i < testPointsLeftUndistorted.size(); i++) {
+				const auto& rightPoint = testPointsRightUndistorted[i];
+				auto distance = testEpipolarLines[i].dot(cv::Point3f(rightPoint.x, rightPoint.y, 1.0f));
+				outputFrame->epipolarDistance.push_back(distance);
+				outputFrame->massRatio.push_back(1);
+
+				// calculate angles
+				auto leftAngle = atan(testEpipolarLines[i].x / testEpipolarLines[i].y);
+				auto positionRelativeToLeftCamera = testPointsRightUndistorted[i] - parameters.cameraLeftInCameraRight;
+				auto rightAngle = atan(positionRelativeToLeftCamera.x / positionRelativeToLeftCamera.y) - acos(0);
+				outputFrame->angleDistance.push_back(rightAngle - leftAngle);
+			}
 		}
 
 		// Unproject matches and intersect
-		auto cameraLeftRays = parameters.cameraLeft.unprojectImagePoints(matchedCentroidsLeft);
-		auto cameraRightRays = parameters.cameraRight.unprojectImagePoints(matchedCentroidsRight);
+		auto cameraLeftRays = parameters.cameraLeft.unprojectUndistortedImagePoints(matchedCentroidsLeft);
+		auto cameraRightRays = parameters.cameraRight.unprojectUndistortedImagePoints(matchedCentroidsRight);
 		std::vector<Math::Ray> intersections;
 		for (size_t i = 0; i < cameraLeftRays.size(); i++) {
 			intersections.push_back(cameraLeftRays[i].intersect(cameraRightRays[i]));
@@ -183,6 +215,9 @@ namespace TD_MoCap {
 					outputFrame->cameraLeftCentroids.push_back(matchedCentroidsLeft[i]);
 					outputFrame->cameraRightCentroids.push_back(matchedCentroidsRight[i]);
 					outputFrame->worldPoints.push_back(intersections[i].getMiddle());
+					outputFrame->epipolarDistance.push_back(matchedEpipolarDistance[i]);
+					outputFrame->massRatio.push_back(matchedMassRatio[i]);
+					outputFrame->angleDistance.push_back(matchedAngleDistance[i]);
 				}
 			}
 		}

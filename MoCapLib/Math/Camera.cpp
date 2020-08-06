@@ -112,10 +112,42 @@ namespace TD_MoCap {
 		}
 
 		//----------
-		std::vector<Ray>
-			Camera::unprojectImagePoints(const std::vector<cv::Point2f>& imagePoints) const
+		std::vector<cv::Point2f>
+			Camera::undistortImagePoints(const std::vector<cv::Point2f>& imagePoints) const
 		{
-			auto coordinates = this->imagePointsToCoordinates(imagePoints);
+			// undistort
+			std::vector<cv::Point2f> imagePointsIdeal;
+			cv::undistortPoints(imagePoints
+				, imagePointsIdeal
+				, this->cameraMatrix
+				, this->distortionCoefficients);
+
+			// remap to pixel coordinates
+			std::vector<cv::Point2f> undistortedImagePoints;
+			{
+				undistortedImagePoints.reserve(imagePoints.size());
+
+				const auto& f_x = this->cameraMatrix.at<float>(0, 0);
+				const auto& f_y = this->cameraMatrix.at<float>(1, 1);
+				const auto& c_x = this->cameraMatrix.at<float>(0, 2);
+				const auto& c_y = this->cameraMatrix.at<float>(1, 2);
+
+				for (const auto& imagePointIdeal : imagePointsIdeal) {
+					undistortedImagePoints.emplace_back(
+						imagePointIdeal.x * f_x + c_x
+						, imagePointIdeal.y * f_y + c_y
+					);
+				}
+			}
+
+			return undistortedImagePoints;
+		}
+
+		//----------
+		std::vector<Ray>
+			Camera::unprojectUndistortedImagePoints(const std::vector<cv::Point2f>& undistortedImagePoints) const
+		{
+			auto coordinates = this->undistortedImagePointsToCoordinates(undistortedImagePoints);
 			std::vector<Ray> rays;
 			rays.reserve(coordinates.size());
 			for (const auto& coordinate : coordinates) {
@@ -140,44 +172,19 @@ namespace TD_MoCap {
 
 		//----------
 		std::vector<cv::Point2f>
-			Camera::imagePointsToCoordinates(const std::vector<cv::Point2f>& imagePoints) const
+			Camera::undistortedImagePointsToCoordinates(const std::vector<cv::Point2f>& undistortedImagePoints) const
 		{
-			// undistort
-			std::vector<cv::Point2f> imagePointsIdeal;
-			cv::undistortPoints(imagePoints
-				, imagePointsIdeal
-				, this->cameraMatrix
-				, this->distortionCoefficients);
-
-			// remap to pixel coordinates
-			std::vector<cv::Point2f> imagePointsUndistorted;
-			{
-				imagePointsUndistorted.reserve(imagePoints.size());
-
-				const auto& f_x = this->cameraMatrix.at<float>(0, 0);
-				const auto& f_y = this->cameraMatrix.at<float>(1, 1);
-				const auto& c_x = this->cameraMatrix.at<float>(0, 2);
-				const auto& c_y = this->cameraMatrix.at<float>(1, 2);
-
-				for (const auto& imagePointIdeal : imagePointsIdeal) {
-					imagePointsUndistorted.emplace_back(
-						imagePointIdeal.x * f_x + c_x
-						, imagePointIdeal.y * f_y + c_y
-					);
-				}
-			}
-
 			// remap to coordinates (note these 2 stages can be merged later)
 			std::vector<cv::Point2f> coordinates;
 			{
 				auto width = (float)this->size.width;
 				auto height = (float)this->size.height;
 
-				coordinates.reserve(imagePoints.size());
-				for (const auto& imagePointUndistorted : imagePointsUndistorted) {
+				coordinates.reserve(undistortedImagePoints.size());
+				for (const auto& undistortedImagePoint : undistortedImagePoints) {
 					coordinates.emplace_back(
-						(imagePointUndistorted.x + 0.5f) / width * 2.0f - 1.0f
-						, 1.0f - (imagePointUndistorted.y + 0.5f) / height* 2.0f
+						(undistortedImagePoint.x + 0.5f) / width * 2.0f - 1.0f
+						, 1.0f - (undistortedImagePoint.y + 0.5f) / height* 2.0f
 					);
 				}
 			}

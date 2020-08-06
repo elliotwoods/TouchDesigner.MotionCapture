@@ -1,6 +1,7 @@
 #pragma once
 
 #include <opencv2/opencv.hpp>
+#include <vector>
 
 #include "Ray.h"
 
@@ -23,10 +24,11 @@ namespace TD_MoCap {
 			glm::mat4 getViewMatrix() const;
 			glm::mat4 getInverseViewProjection() const;
 
-			std::vector<Ray> unprojectImagePoints(const std::vector<cv::Point2f>& imagePoints) const;
+			std::vector<cv::Point2f> undistortImagePoints(const std::vector<cv::Point2f>&) const;
+			std::vector<Ray> unprojectUndistortedImagePoints(const std::vector<cv::Point2f>&) const;
 			Ray unprojectCoordinate(const cv::Point2f& imageCoordinate) const;
 
-			std::vector<cv::Point2f> imagePointsToCoordinates(const std::vector<cv::Point2f>& imagePoints) const;
+			std::vector<cv::Point2f> undistortedImagePointsToCoordinates(const std::vector<cv::Point2f>& imagePoints) const;
 		protected:
 			void updateProjectionMatrix();
 			void updateViewMatrix();
