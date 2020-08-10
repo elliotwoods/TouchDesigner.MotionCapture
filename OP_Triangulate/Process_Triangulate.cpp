@@ -221,5 +221,9 @@ namespace TD_MoCap {
 				}
 			}
 		}
+
+		// Add extra output parts
+		outputFrame->cameraLeft = parameters.cameraLeft;
+		outputFrame->cameraRight = parameters.cameraRight;
 	}
 }

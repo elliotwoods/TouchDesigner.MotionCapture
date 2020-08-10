@@ -4,6 +4,7 @@
 #include "Utils/Table.h"
 #include "Utils/Serialisable.h"
 #include "Utils/ChannelSet.h"
+#include "SOP_CPlusPlusBase.h"
 
 namespace TD_MoCap {
 	namespace Frames {
@@ -26,6 +27,10 @@ namespace TD_MoCap {
 			}
 
 			virtual bool getPreviewCHOP(Utils::ChannelSet&) const {
+				return false;
+			}
+
+			virtual bool getPreviewSOP(SOP_Output*) const {
 				return false;
 			}
 

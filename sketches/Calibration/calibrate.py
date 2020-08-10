@@ -166,3 +166,5 @@ def calibrate_stereo():
 	return rotation, translation, essential_matrix, fundamental_matrix
 
 rotation, translation, E, F = calibrate_stereo()
+
+# %%
