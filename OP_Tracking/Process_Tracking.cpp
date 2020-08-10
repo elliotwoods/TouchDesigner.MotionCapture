@@ -92,7 +92,8 @@ namespace TD_MoCap {
 			//calculate where current frame centroids might be in previous frames
 			std::vector<cv::Point2f> backupCentroidsLeft;
 			std::vector<cv::Point2f> backupCentroidsRight;
-			{
+			
+			if(!parameters.useQuadTree.getValue()) {
 				std::vector<std::function<void()>> actions;
 				auto windowSize = parameters.opticalFlowRadius.getValue() * 2 + 1;
 
@@ -129,14 +130,17 @@ namespace TD_MoCap {
 				// perform the search
 				Utils::WorkerGroup::X().parallelFor(actions);
 			}
+			else {
+				throw(Exception("We need to build OpenCV with Cuda to get fast optical flow"));
+			}
 
 			//search for matches
-			{
+			const auto maxDistance = parameters.searchRadius.getValue();
+			if (parameters.useQuadTree.getValue()) {
 				// sort the previous centroids, we'll search through them when looking through backup centroids
 				const auto previousCentroidsLeftQT = imagePointsToQT(previousFrame->inputFrame->cameraLeftCentroids);
 				const auto previousCentroidsRightQT = imagePointsToQT(previousFrame->inputFrame->cameraRightCentroids);
 
-				const auto maxDistance = parameters.searchRadius.getValue();
 
 				// iterate over back-inferred centroids
 				for (size_t i = 0; i < backupCentroidsLeft.size(); i++)
@@ -162,10 +166,59 @@ namespace TD_MoCap {
 									outputFrame->trackedParticles.emplace(i, continuingParticle);
 								}
 								else {
-									outputFrame->trackedParticles.emplace(i, Frames::TrackingFrame::Particle {
+									outputFrame->trackedParticles.emplace(i, Frames::TrackingFrame::Particle{
 										 findLeft
 										 , 1
-									});
+										});
+								}
+							}
+						}
+					}
+				}
+			}
+			else {
+				auto findAdjacentPoints = [&](const std::vector<cv::Point2f>& points
+					, const cv::Point2f& point
+					, float maxDistance)
+				{
+					auto maxDistance2 = maxDistance * maxDistance;
+
+					std::vector<size_t> finds;
+					for (size_t i = 0; i < points.size(); i++) {
+						const auto delta = (points[i] - point);
+						if (delta.dot(delta) <= maxDistance2) {
+							finds.push_back(i);
+						}
+					}
+					return finds;
+				};
+
+				for (size_t i = 0; i < backupCentroidsLeft.size(); i++)
+				{
+					auto findsLeft = findAdjacentPoints(previousFrame->inputFrame->cameraLeftCentroids
+						, backupCentroidsLeft[i]
+						, maxDistance);
+					auto findsRight = findAdjacentPoints(previousFrame->inputFrame->cameraRightCentroids
+						, backupCentroidsRight[i]
+						, maxDistance);
+
+					// look for matching indices
+					for (const auto& findLeft : findsLeft) {
+						for (const auto& findRight : findsRight) {
+							if (findLeft == findRight) {
+								// was a match in the previous frame
+								auto findPrevious = this->previousFrame->trackedParticles.find(findLeft);
+								if (findPrevious != this->previousFrame->trackedParticles.end()) {
+									auto continuingParticle = findPrevious->second; // copy the particle
+									continuingParticle.lifeTime++;
+									continuingParticle.priorTriangulatedParticleIndex = findPrevious->first;
+									outputFrame->trackedParticles.emplace(i, continuingParticle);
+								}
+								else {
+									outputFrame->trackedParticles.emplace(i, Frames::TrackingFrame::Particle{
+										 findLeft
+										 , 1
+										});
 								}
 							}
 						}

@@ -12,6 +12,11 @@ namespace TD_MoCap
 			, 0, 64
 		};
 
+		Utils::ValueParameter<bool> fullImageOpticalFlow{
+			"Full image optical flow"
+			, false, false
+		};
+
 		Utils::NumberParameter<int> searchRadius{
 			"Search radius", "px"
 			, 5, 5
@@ -19,9 +24,15 @@ namespace TD_MoCap
 			, 0, 10
 		};
 
+		Utils::ValueParameter<bool> useQuadTree{
+			"Use quad tree"
+			, false, false
+		};
+
 		Utils::ParameterList list{
 			&opticalFlowRadius
 			, &searchRadius
+			, &useQuadTree
 		};
 
 		void update() override;
