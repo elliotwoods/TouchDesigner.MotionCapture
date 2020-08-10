@@ -11,6 +11,9 @@
     <ClCompile Include="Frames\SynchronisedFrame.cpp">
       <Filter>Frames</Filter>
     </ClCompile>
+    <ClCompile Include="Frames\TrackingFrame.cpp">
+      <Filter>Frames</Filter>
+    </ClCompile>
     <ClCompile Include="Frames\TriangulateFrame.cpp">
       <Filter>Frames</Filter>
     </ClCompile>
@@ -68,6 +71,9 @@
       <Filter>Frames</Filter>
     </ClInclude>
     <ClInclude Include="Frames\SynchronisedFrame.h">
+      <Filter>Frames</Filter>
+    </ClInclude>
+    <ClInclude Include="Frames\TrackingFrame.h">
       <Filter>Frames</Filter>
     </ClInclude>
     <ClInclude Include="Frames\TriangulateFrame.h">

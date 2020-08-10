@@ -25,6 +25,7 @@
 #include "Frames/SynchronisedFrame.h"
 #include "Frames/CentroidsFrame.h"
 #include "Frames/TriangulateFrame.h"
+#include "Frames/TrackingFrame.h"
 
 #include "Exception.h"
 #include "ImageFormat.h"

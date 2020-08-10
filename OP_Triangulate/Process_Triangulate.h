@@ -35,15 +35,15 @@ namespace TD_MoCap
 		Utils::NumberParameter<float> epipolarLineThreshold{
 			"Epipolar line distance", "px"
 			, 3, 3
-			, 0.001, 16
 			, 0, 1024
+			, 0.001, 16
 		};
 
 		Utils::NumberParameter<float> massRatioThreshold{
 			"Mass ratio threshold", "x"
 			, 5, 5
-			, 1, 16
 			, 1, 1024
+			, 1, 16
 		};
 
 		Utils::NumberParameter<float> intersectDistanceThreshold{
@@ -56,15 +56,15 @@ namespace TD_MoCap
 		Utils::NumberParameter<float> zMinimum{
 			"Z minimum", "m"
 			, 0.1, 0.1
-			, 0.0, 10.0
 			, -100, 100
+			, 0.0, 10.0
 		};
 
 		Utils::NumberParameter<float> zMaximum{
 			"Z maximum", "m"
 			, 2.0, 2.0
-			, 0.0, 10.0
 			, -100, 100
+			, 0.0, 10.0
 		};
 
 		Utils::ParameterList list{

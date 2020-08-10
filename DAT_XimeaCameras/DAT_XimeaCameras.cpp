@@ -66,7 +66,7 @@ namespace TD_MoCap {
 				this->deviceInfos.reserve(deviceCount);
 				for (DWORD i = 0; i < deviceCount; i++) {
 					DeviceInfo deviceInfo;
-
+					
 					// ignore errors here (e.g. invalid results)
 					checkResult(xiGetDeviceInfoString(i
 						, XI_PRM_DEVICE_SN

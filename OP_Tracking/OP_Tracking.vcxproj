@@ -11,73 +11,32 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Exception.cpp" />
-    <ClCompile Include="Frames\BaseFrame.cpp" />
-    <ClCompile Include="Frames\CentroidsFrame.cpp" />
-    <ClCompile Include="Frames\SynchronisedFrame.cpp" />
-    <ClCompile Include="Frames\TrackingFrame.cpp" />
-    <ClCompile Include="Frames\TriangulateFrame.cpp" />
-    <ClCompile Include="Frames\XimeaCameraFrame.cpp" />
-    <ClCompile Include="ImageFormat.cpp" />
-    <ClCompile Include="Links\Input.cpp" />
-    <ClCompile Include="Links\Output.cpp" />
-    <ClCompile Include="Links\OutputsRegister.cpp" />
-    <ClCompile Include="Math\Camera.cpp" />
-    <ClCompile Include="Math\Conversions.cpp" />
-    <ClCompile Include="Math\Ray.cpp" />
-    <ClCompile Include="pch_MoCapLib.cpp">
+    <ProjectReference Include="..\MoCapLib\MoCapLib.vcxproj">
+      <Project>{503e8306-8576-4e6c-a1db-109f90ec6127}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\OP_XimeaCamera\OP_XimeaCamera.vcxproj">
+      <Project>{92884d68-147a-4270-b517-f57727c76ca5}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pch_OP_Tracking.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Utils\ChannelSet.cpp" />
-    <ClCompile Include="Utils\FrameRateCounter.cpp" />
-    <ClCompile Include="Utils\Parameter.cpp" />
-    <ClCompile Include="Utils\Parameters.cpp" />
-    <ClCompile Include="Utils\Table.cpp" />
-    <ClCompile Include="Utils\WorkerGroup.cpp" />
-    <ClCompile Include="Utils\WorkerThread.cpp" />
+    <ClCompile Include="plugin.cpp" />
+    <ClCompile Include="Process_Tracking.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Exception.h" />
-    <ClInclude Include="Frames\BaseFrame.h" />
-    <ClInclude Include="Frames\CentroidsFrame.h" />
-    <ClInclude Include="Frames\SynchronisedFrame.h" />
-    <ClInclude Include="Frames\TrackingFrame.h" />
-    <ClInclude Include="Frames\TriangulateFrame.h" />
-    <ClInclude Include="Frames\XimeaCameraFrame.h" />
-    <ClInclude Include="ImageFormat.h" />
-    <ClInclude Include="Links\Input.h" />
-    <ClInclude Include="Links\Output.h" />
-    <ClInclude Include="Links\OutputsRegister.h" />
-    <ClInclude Include="Math\Camera.h" />
-    <ClInclude Include="Math\Conversions.h" />
-    <ClInclude Include="Math\Ray.h" />
-    <ClInclude Include="pch_MoCapLib.h" />
-    <ClInclude Include="MoCapLib.h" />
-    <ClInclude Include="Threaded_OP.h" />
-    <ClInclude Include="Utils\ThreadChannel.h" />
-    <ClInclude Include="Utils\ChannelSet.h" />
-    <ClInclude Include="Utils\Event.h" />
-    <ClInclude Include="Utils\FrameRateCounter.h" />
-    <ClInclude Include="Utils\Parameter.h" />
-    <ClInclude Include="Utils\Parameters.h" />
-    <ClInclude Include="Utils\Serialisable.h" />
-    <ClInclude Include="Utils\Table.h" />
-    <ClInclude Include="Utils\Wakeable.h" />
-    <ClInclude Include="Utils\WorkerGroup.h" />
-    <ClInclude Include="Utils\WorkerThread.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Threaded_OP.ipp">
-      <FileType>Document</FileType>
-    </ClInclude>
+    <ClInclude Include="pch_OP_Tracking.h" />
+    <ClInclude Include="Process_Tracking.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{503e8306-8576-4e6c-a1db-109f90ec6127}</ProjectGuid>
-    <RootNamespace>TDMoCap</RootNamespace>
+    <RootNamespace>TD_MoCap</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>OP_Tracking</ProjectName>
+    <ProjectGuid>{3DF4F888-027D-466D-BC32-07CC14BA23B1}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -101,10 +60,12 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\TD_MoCap_Common.props" />
+    <Import Project="..\XimeaSDK.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\TD_MoCap_Common.props" />
+    <Import Project="..\XimeaSDK.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -117,18 +78,15 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;TDMOCAP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;OP_TRACKING_EXPORT;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../OP_XimeaCamera;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
-    <PostBuildEvent>
-      <Command>robocopy "../thirdparty/opencv/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
-if errorlevel 1 exit 0 else exit %errorlevel%</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -136,8 +94,9 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;TDMOCAP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;OP_TRACKING_EXPORT;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../OP_XimeaCamera;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -146,10 +105,6 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
-    <PostBuildEvent>
-      <Command>robocopy "../thirdparty/opencv/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
-if errorlevel 1 exit 0 else exit %errorlevel%</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
