@@ -53,6 +53,20 @@ namespace TD_MoCap
 			, 0, 1024
 		};
 
+		Utils::NumberParameter<float> zMinimum{
+			"Z minimum", "m"
+			, 0.1, 0.1
+			, 0.0, 10.0
+			, -100, 100
+		};
+
+		Utils::NumberParameter<float> zMaximum{
+			"Z maximum", "m"
+			, 2.0, 2.0
+			, 0.0, 10.0
+			, -100, 100
+		};
+
 		Utils::ParameterList list{
 			&leftCameraCalibration
 			, &rightCameraCalibration
@@ -62,6 +76,8 @@ namespace TD_MoCap
 			, &epipolarLineThreshold
 			, &massRatioThreshold
 			, &intersectDistanceThreshold
+			, &zMinimum
+			, &zMaximum
 		};
 
 		void update() override;

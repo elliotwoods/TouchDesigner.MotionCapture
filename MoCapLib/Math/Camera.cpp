@@ -226,7 +226,7 @@ namespace TD_MoCap {
 				this->clippedProjectionMatrix = this->projectionMatrix;
 				
 				const auto n = 0.05f; // near clip
-				const auto f= 100.0f; // far clip
+				const auto f= 1.0f; // far clip
 
 				this->clippedProjectionMatrix[2][2] *= (f + n) / (f - n);
 				this->clippedProjectionMatrix[3][2] = -(f * n / (f - n));

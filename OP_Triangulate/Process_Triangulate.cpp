@@ -207,14 +207,20 @@ namespace TD_MoCap {
 		{
 			// Check that the intersections are within a maximum length
 			auto intersectDistanceThreshold = parameters.intersectDistanceThreshold.getValue();
+			auto zMinimum = parameters.zMinimum.getValue();
+			auto zMaximum = parameters.zMaximum.getValue();
 			for (size_t i = 0; i < cameraLeftRays.size(); i++) {
-				if (intersections[i].getLength() <= intersectDistanceThreshold) {
+				auto worldPoint = intersections[i].getMiddle();
+
+				if (intersections[i].getLength() <= intersectDistanceThreshold
+					&& worldPoint.z > zMinimum
+					&& worldPoint.z < zMaximum) {
 					outputFrame->cameraLeftRays.push_back(cameraLeftRays[i]);
 					outputFrame->cameraRightRays.push_back(cameraRightRays[i]);
 					outputFrame->intersections.push_back(intersections[i]);
 					outputFrame->cameraLeftCentroids.push_back(matchedCentroidsLeft[i]);
 					outputFrame->cameraRightCentroids.push_back(matchedCentroidsRight[i]);
-					outputFrame->worldPoints.push_back(intersections[i].getMiddle());
+					outputFrame->worldPoints.push_back(worldPoint);
 					outputFrame->epipolarDistance.push_back(matchedEpipolarDistance[i]);
 					outputFrame->massRatio.push_back(matchedMassRatio[i]);
 					outputFrame->angleDistance.push_back(matchedAngleDistance[i]);

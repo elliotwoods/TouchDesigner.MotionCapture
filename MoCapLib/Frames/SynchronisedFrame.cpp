@@ -52,7 +52,10 @@ namespace TD_MoCap {
 
 			for (const auto& cameraFrame : this->cameraFrames) {
 				if (cameraFrame.second) {
-					images.push_back(cameraFrame.second->image);
+					auto& image = cameraFrame.second->image;
+					if (!image.empty()) { // occasionally an empty image arrives, and that can cause vconcat to hang
+						images.push_back(image);
+					}
 				}
 			}
 			cv::vconcat(images, mat);
