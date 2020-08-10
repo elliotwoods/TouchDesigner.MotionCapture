@@ -8,6 +8,9 @@
     <ClCompile Include="Frames\CentroidsFrame.cpp">
       <Filter>Frames</Filter>
     </ClCompile>
+    <ClCompile Include="Frames\FilterAndBinFrame.cpp">
+      <Filter>Frames</Filter>
+    </ClCompile>
     <ClCompile Include="Frames\SynchronisedFrame.cpp">
       <Filter>Frames</Filter>
     </ClCompile>
@@ -68,6 +71,9 @@
       <Filter>Frames</Filter>
     </ClInclude>
     <ClInclude Include="Frames\CentroidsFrame.h">
+      <Filter>Frames</Filter>
+    </ClInclude>
+    <ClInclude Include="Frames\FilterAndBinFrame.h">
       <Filter>Frames</Filter>
     </ClInclude>
     <ClInclude Include="Frames\SynchronisedFrame.h">

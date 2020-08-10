@@ -26,6 +26,7 @@
 #include "Frames/CentroidsFrame.h"
 #include "Frames/TriangulateFrame.h"
 #include "Frames/TrackingFrame.h"
+#include "Frames/FilterAndBinFrame.h"
 
 #include "Exception.h"
 #include "ImageFormat.h"

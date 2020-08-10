@@ -154,9 +154,19 @@ namespace TD_MoCap {
 						for (const auto& findRight : findsRight) {
 							if (findLeft == findRight) {
 								// was a match in the previous frame
-								outputFrame->trackedParticles.push_back({
-									i
-								});
+								auto findPrevious = this->previousFrame->trackedParticles.find(findLeft);
+								if (findPrevious != this->previousFrame->trackedParticles.end()) {
+									auto continuingParticle = findPrevious->second; // copy the particle
+									continuingParticle.lifeTime++;
+									continuingParticle.priorTriangulatedParticleIndex = findPrevious->first;
+									outputFrame->trackedParticles.emplace(i, continuingParticle);
+								}
+								else {
+									outputFrame->trackedParticles.emplace(i, Frames::TrackingFrame::Particle {
+										 findLeft
+										 , 1
+									});
+								}
 							}
 						}
 					}

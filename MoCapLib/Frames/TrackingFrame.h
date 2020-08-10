@@ -13,7 +13,8 @@ namespace TD_MoCap {
 		{
 		public:
 			struct Particle {
-				size_t incomingCentroidIndex; // changes over time
+				size_t priorTriangulatedParticleIndex;
+				size_t lifeTime = 1;
 			};
 
 			static std::shared_ptr<TrackingFrame> make();
@@ -26,7 +27,8 @@ namespace TD_MoCap {
 
 			std::shared_ptr<TriangulateFrame> inputFrame;
 
-			std::vector<Particle> trackedParticles;
+			std::map<size_t, Particle> trackedParticles; // by current triangulated particle index
+
 		private:
 			TrackingFrame();
 		};
