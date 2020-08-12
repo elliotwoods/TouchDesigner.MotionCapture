@@ -1,6 +1,8 @@
 #include "pch_OP_Tracking.h"
 #include "Process_Tracking.h"
 
+#include <opencv2/cudaoptflow.hpp>
+
 // The quad tree is defined with interleaved bits y,x,y,x,y,x (LSB is x)
 // supports up to 2048px (11bit) resolution width by chopping off last 3 bits to fit in 8bit
 #define IMAGEPOINT_DECIMATION 3
@@ -93,7 +95,7 @@ namespace TD_MoCap {
 			std::vector<cv::Point2f> backupCentroidsLeft;
 			std::vector<cv::Point2f> backupCentroidsRight;
 			
-			if(!parameters.useQuadTree.getValue()) {
+			if(!parameters.useCUDA.getValue()) {
 				std::vector<std::function<void()>> actions;
 				auto windowSize = parameters.opticalFlowRadius.getValue() * 2 + 1;
 
@@ -131,7 +133,47 @@ namespace TD_MoCap {
 				Utils::WorkerGroup::X().parallelFor(actions);
 			}
 			else {
-				throw(Exception("We need to build OpenCV with Cuda to get fast optical flow"));
+				auto windowSize = parameters.opticalFlowRadius.getValue() * 2 + 1;
+				static auto opticalFlow = cv::cuda::SparsePyrLKOpticalFlow::create(cv::Size(windowSize, windowSize));
+
+				cv::cuda::Stream actionQueue;
+				cv::cuda::GpuMat backupCentroidsLeftGPU, backupCentroidsRightGPU;
+				{
+					const auto& priorImage = cv::cuda::GpuMat(this->previousFrame->inputFrame->inputFrame->cameras[leftID]->greyscale);
+					const auto& currentImage = cv::cuda::GpuMat(inputFrame->inputFrame->cameras[leftID]->greyscale);
+					auto status = cv::cuda::GpuMat();
+					auto error= cv::cuda::GpuMat();
+
+
+					opticalFlow->calc(currentImage
+						, priorImage
+						, cv::cuda::GpuMat(currentCentroidsLeft)
+						, backupCentroidsLeftGPU
+						, status
+						, error
+						, actionQueue
+					);
+				}
+
+				{
+					const auto& priorImage = cv::cuda::GpuMat(this->previousFrame->inputFrame->inputFrame->cameras[rightID]->greyscale);
+					const auto& currentImage = cv::cuda::GpuMat(inputFrame->inputFrame->cameras[rightID]->greyscale);
+					auto status = cv::cuda::GpuMat();
+					auto error = cv::cuda::GpuMat();
+
+					opticalFlow->calc(currentImage
+						, priorImage
+						, cv::cuda::GpuMat(currentCentroidsRight)
+						, backupCentroidsRightGPU
+						, status
+						, error
+						, actionQueue
+					);
+				}
+
+				actionQueue.waitForCompletion();
+				backupCentroidsLeftGPU.download(backupCentroidsLeft);
+				backupCentroidsRightGPU.download(backupCentroidsRight);
 			}
 
 			//search for matches

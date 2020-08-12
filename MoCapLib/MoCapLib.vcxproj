@@ -128,7 +128,11 @@
       <EnableUAC>false</EnableUAC>
     </Link>
     <PostBuildEvent>
-      <Command>robocopy "../thirdparty/opencv/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
+      <Command>robocopy "../thirdparty/cuda/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
+if errorlevel 1 exit 0 else exit %errorlevel%</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Command>robocopy "../thirdparty/opencv/$(Configuration)/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
 if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -149,7 +153,11 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
       <EnableUAC>false</EnableUAC>
     </Link>
     <PostBuildEvent>
-      <Command>robocopy "../thirdparty/opencv/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
+      <Command>robocopy "../thirdparty/opencv/$(Configuration)/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
+if errorlevel 1 exit 0 else exit %errorlevel%</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+          <Command>robocopy "../thirdparty/cuda/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
 if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

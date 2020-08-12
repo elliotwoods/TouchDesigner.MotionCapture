@@ -29,10 +29,16 @@ namespace TD_MoCap
 			, false, false
 		};
 
+		Utils::ValueParameter<bool> useCUDA{
+			"Use CUDA"
+			, false, false
+		};
+
 		Utils::ParameterList list{
 			&opticalFlowRadius
 			, &searchRadius
 			, &useQuadTree
+			, &useCUDA
 		};
 
 		void update() override;
