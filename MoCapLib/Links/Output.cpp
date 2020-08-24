@@ -52,6 +52,7 @@ namespace TD_MoCap {
 				this->info.frameRate = this->incomingInfo.fps;
 				this->info.frameRateUnfiltered = this->incomingInfo.fpsUnfiltered;
 				this->info.computeTimeMs = this->incomingInfo.computeTimeMs;
+				this->info.frameType = this->incomingInfo.frameType;
 
 				// reset the frame info
 				this->incomingInfo.receivedCount = 0;
@@ -75,6 +76,7 @@ namespace TD_MoCap {
 			this->incomingInfo.fps = this->frameRateCounter.getFPS();
 			this->incomingInfo.fpsUnfiltered = this->frameRateCounter.getFPSUnfiltered();
 			this->incomingInfo.computeTimeMs = (float)std::chrono::duration_cast<std::chrono::microseconds>(frame->getComputeTime()).count() / 1000.0f;
+			this->incomingInfo.frameType = frame->getTypeName();
 
 			std::lock_guard<std::mutex> lockSubscribers(this->lockSubscribers);
 			for (auto input : this->subscribedInputs) {
@@ -89,6 +91,7 @@ namespace TD_MoCap {
 			Utils::Table table;
 
 			table.newRow() << "ID" << this->getID();
+			table.newRow() << "frameType" << this->info.frameType;
 			table.newRow() << "framesSentThisMainloopFrame" << this->info.countThisFrame;
 			table.newRow() << "totalFrameCount" << this->info.totalCount;
 			table.newRow() << "outputFrameRate" << this->info.frameRate;

@@ -45,6 +45,7 @@ namespace TD_MoCap {
 				float fps = 0.0f;
 				float fpsUnfiltered = 0.0f;
 				float computeTimeMs = 0;
+				std::string frameType;
 			} incomingInfo;
 
 			struct {
@@ -53,6 +54,7 @@ namespace TD_MoCap {
 				float frameRate = 0;
 				float frameRateUnfiltered = 0;
 				float computeTimeMs = 0;
+				std::string frameType;
 				uint16_t subscriberCount = 0;
 			} info;
 		};
