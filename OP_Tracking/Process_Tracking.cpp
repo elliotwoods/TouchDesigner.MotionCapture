@@ -89,13 +89,14 @@ namespace TD_MoCap {
 		auto rightID = inputFrame->inputFrame->inputFrame->secondaryID;
 
 		const auto& currentCentroidsLeft = inputFrame->cameraLeftCentroids;
-		const auto & currentCentroidsRight = inputFrame->cameraRightCentroids;
+		const auto& currentCentroidsRight = inputFrame->cameraRightCentroids;
 		if (this->previousFrame) {
 			//calculate where current frame centroids might be in previous frames
 			std::vector<cv::Point2f> backupCentroidsLeft;
 			std::vector<cv::Point2f> backupCentroidsRight;
 			
-			if(!parameters.useCUDA.getValue()) {
+			const auto opticalFlowMethod = parameters.opticalFlowMethod.getSelectedOption();
+			if(opticalFlowMethod == "CPU") {
 				std::vector<std::function<void()>> actions;
 				auto windowSize = parameters.opticalFlowRadius.getValue() * 2 + 1;
 
@@ -132,7 +133,7 @@ namespace TD_MoCap {
 				// perform the search
 				Utils::WorkerGroup::X().parallelFor(actions);
 			}
-			else {
+			else if (opticalFlowMethod == "CUDA sparse") {
 				auto windowSize = parameters.opticalFlowRadius.getValue() * 2 + 1;
 				static auto opticalFlow = cv::cuda::SparsePyrLKOpticalFlow::create(cv::Size(windowSize, windowSize));
 
@@ -175,8 +176,67 @@ namespace TD_MoCap {
 				backupCentroidsLeftGPU.download(backupCentroidsLeft);
 				backupCentroidsRightGPU.download(backupCentroidsRight);
 			}
+			else if (opticalFlowMethod == "CUDA dense async") {
+				// Download the result and wait
+				cv::Mat flowLeft, flowRight;
+				{
+					auto& stream = inputFrame->inputFrame->inputFrame->opticalFlowComputeStream;
+					inputFrame->inputFrame->inputFrame->opticalFlowResults[leftID].denseFlow.download(flowLeft, stream);
+					inputFrame->inputFrame->inputFrame->opticalFlowResults[rightID].denseFlow.download(flowRight, stream);
+					stream.waitForCompletion();
+				}
 
-			//search for matches
+				auto getValueBilinear = [](const cv::Mat& img, cv::Point2f pt)
+				{
+					const int x = (int)pt.x;
+					const int y = (int)pt.y;
+
+					int x0 = cv::borderInterpolate(x, img.cols, cv::BORDER_REFLECT_101);
+					int x1 = cv::borderInterpolate(x + 1, img.cols, cv::BORDER_REFLECT_101);
+					int y0 = cv::borderInterpolate(y, img.rows, cv::BORDER_REFLECT_101);
+					int y1 = cv::borderInterpolate(y + 1, img.rows, cv::BORDER_REFLECT_101);
+
+					float a = pt.x - (float)x;
+					float c = pt.y - (float)y;
+
+					const auto& upLeft = img.at<cv::Vec2f>(y0, x0);
+					const auto& upRight = img.at<cv::Vec2f>(y0, x1);
+					const auto& downLeft = img.at<cv::Vec2f>(y1, x0);
+					const auto& downRight = img.at<cv::Vec2f>(y1, x1);
+
+					return (upLeft * (1.0f - a) + upRight * a) * (1.0f - c)
+						+ (downLeft * (1.0f - a) + downRight * a) * c;
+				};
+
+				// 'pipet' the results
+				{
+					// Left
+					{
+						for (const auto& currentCentroid : currentCentroidsLeft)
+						{
+							auto flowVector = getValueBilinear(flowLeft, currentCentroid);
+							auto backupCentroid = currentCentroid;
+							backupCentroid.x += flowVector[0];
+							backupCentroid.y += flowVector[1];
+							backupCentroidsLeft.push_back(backupCentroid);
+						}
+					}
+					// Right
+					{
+						for (const auto& currentCentroid : currentCentroidsRight)
+						{
+							auto flowVector = getValueBilinear(flowRight, currentCentroid);
+							auto backupCentroid = currentCentroid;
+							backupCentroid.x += flowVector[0];
+							backupCentroid.y += flowVector[1];
+							backupCentroidsRight.push_back(backupCentroid);
+						}
+					}
+				}
+			}
+
+
+			//search for correspondences between cameras in QT Tree
 			const auto maxDistance = parameters.searchRadius.getValue();
 			if (parameters.useQuadTree.getValue()) {
 				// sort the previous centroids, we'll search through them when looking through backup centroids

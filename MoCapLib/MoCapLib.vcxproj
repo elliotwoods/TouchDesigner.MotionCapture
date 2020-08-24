@@ -32,6 +32,7 @@
     </ClCompile>
     <ClCompile Include="Utils\ChannelSet.cpp" />
     <ClCompile Include="Utils\FrameRateCounter.cpp" />
+    <ClCompile Include="Utils\OpticalFlow.cpp" />
     <ClCompile Include="Utils\Parameter.cpp" />
     <ClCompile Include="Utils\Parameters.cpp" />
     <ClCompile Include="Utils\Table.cpp" />
@@ -57,6 +58,7 @@
     <ClInclude Include="pch_MoCapLib.h" />
     <ClInclude Include="MoCapLib.h" />
     <ClInclude Include="Threaded_OP.h" />
+    <ClInclude Include="Utils\OpticalFlow.h" />
     <ClInclude Include="Utils\ThreadChannel.h" />
     <ClInclude Include="Utils\ChannelSet.h" />
     <ClInclude Include="Utils\Event.h" />
@@ -132,7 +134,8 @@
 if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command>robocopy "../thirdparty/opencv/bin/$(Configuration)/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
+      <Command>robocopy "../thirdparty/cuda/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
+robocopy "../thirdparty/opencv/bin/$(Configuration)/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
 if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -157,7 +160,8 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
 if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-          <Command>robocopy "../thirdparty/cuda/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
+      <Command>robocopy "../thirdparty/cuda/bin/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
+robocopy "../thirdparty/opencv/bin/$(Configuration)/" "$(TargetDir)/" /njs /njh /np /fp /bytes /s
 if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

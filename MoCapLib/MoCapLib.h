@@ -15,6 +15,7 @@
 #include "Utils/WorkerGroup.h"
 #include "Utils/Parameter.h"
 #include "Utils/Parameters.h"
+#include "Utils/OpticalFlow.h"
 
 #include "Math/Camera.h"
 #include "Math/Ray.h"

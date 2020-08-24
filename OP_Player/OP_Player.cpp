@@ -74,6 +74,14 @@ namespace TD_MoCap {
 
 		this->output.update();
 		this->output.populateMainThreadOutput(output);
+
+		// observe any errors
+		if (this->player) {
+			Exception error;
+			while (this->player->thread.exceptionsInThread.tryReceive(error)) {
+				this->errors.push_back(error);
+			}
+		}
 	}
 
 	//----------
@@ -127,7 +135,5 @@ namespace TD_MoCap {
 			}
 			error->setString(errorString.c_str());
 		}
-
-		this->errors.clear();
 	}
 }

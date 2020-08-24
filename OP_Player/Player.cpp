@@ -111,20 +111,12 @@ namespace TD_MoCap {
 		std::this_thread::sleep_until(playerStateCopy.lastFrameStart + frameInterval);
 
 		// make a blank frame and start timer
-		auto frame = Frames::SynchronisedFrame::make();
-		frame->startComputeTimer();
-
+		auto frame = Frames::SynchronisedFrame::make(this->playerState.recordingJson["frames"][playerStateCopy.frameIndex]
+			, playerState.path);
+		
 		// record the time for next frame
 		auto newLastFrameStart = playerStateCopy.lastFrameStart + frameInterval; // use the ideal time so we dont drop fps
 
-		// get the local player state
-		auto frameJson = this->playerState.recordingJson["frames"][playerStateCopy.frameIndex];
-
-		// here we always make SynchronisedFrame - this could be extended to factory any frame type
-		frame->deserialise(frameJson, playerState.path);
-
-		// send the frame
-		frame->endComputeTimer();
 		this->output.send(frame);
 
 		std::unique_lock<std::mutex> lock(this->lockPlayerState);

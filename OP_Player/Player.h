@@ -25,13 +25,13 @@ namespace TD_MoCap {
 		void setHoldFrame(bool);
 		void update();
 		Utils::Table getRecordingInfo();
+
+		Utils::WorkerThread thread;
+
 	protected:
 		void threadedUpdate();
 
 		Links::Output & output;
-
-		Utils::WorkerThread thread;
-
 		
 		std::mutex lockPlayerState;
 		struct {

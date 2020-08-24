@@ -132,6 +132,7 @@ namespace TD_MoCap {
 				, const std::string& defaultValue);
 
 			const std::vector<std::string> & getOptions() const;
+			std::string getSelectedOption() const;
 
 			virtual void populateInterface(OP_ParameterManager*) const override;
 

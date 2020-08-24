@@ -28,17 +28,18 @@ namespace TD_MoCap
 			"Use quad tree"
 			, false, false
 		};
-
-		Utils::ValueParameter<bool> useCUDA{
-			"Use CUDA"
-			, false, false
+		
+		Utils::SelectorParameter opticalFlowMethod{
+			"Compute optical flow method"
+			, {"CPU", "CUDA sparse", "CUDA dense async"}
+			, "CUDA dense async"
 		};
 
 		Utils::ParameterList list{
 			&opticalFlowRadius
 			, &searchRadius
 			, &useQuadTree
-			, &useCUDA
+			, &opticalFlowMethod
 		};
 
 		void update() override;

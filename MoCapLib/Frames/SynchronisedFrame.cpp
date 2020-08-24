@@ -9,17 +9,21 @@ namespace TD_MoCap {
 	namespace Frames {
 		//----------
 		std::shared_ptr<SynchronisedFrame>
-			SynchronisedFrame::make()
-		{
-			return std::shared_ptr<SynchronisedFrame>(new SynchronisedFrame());
-		}
-
-		//----------
-		std::shared_ptr<SynchronisedFrame>
 			SynchronisedFrame::make(const std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>>& cameraFrames, Links::Output::ID leaderID)
 		{
 			return std::shared_ptr<SynchronisedFrame>(new SynchronisedFrame(cameraFrames, leaderID));
 			
+		}
+
+		//----------
+		std::shared_ptr<SynchronisedFrame>
+			SynchronisedFrame::make(const nlohmann::json& json, const std::filesystem::path& workingFolder)
+		{
+			auto frame = std::shared_ptr<SynchronisedFrame>(new SynchronisedFrame());
+			frame->startComputeTimer();
+			frame->deserialise(json, workingFolder);
+			frame->endComputeTimer();
+			return frame;
 		}
 
 		//----------
@@ -34,7 +38,7 @@ namespace TD_MoCap {
 			: cameraFrames(cameraFrames)
 			, leaderID(leaderID)
 		{
-			this->computeSecondaryID();
+			this->compute();
 		}
 
 		//----------
@@ -151,18 +155,29 @@ namespace TD_MoCap {
 			Utils::WorkerGroup::X().parallelFor(actions);
 
 			this->leaderID = json["leaderID"];
-			this->computeSecondaryID();
+			this->compute();
 		}
 
 		//----------
 		void
-			SynchronisedFrame::computeSecondaryID()
+			SynchronisedFrame::compute()
 		{
+			// calcualte the secondary ID
 			for (auto it : this->cameraFrames) {
 				if (it.first != this->leaderID) {
 					this->secondaryID = it.first;
-					return;
+					break;
 				}
+			}
+
+			// calculate Optical Flow
+			for (const auto& it : this->cameraFrames) {
+				// Store a future result for each camera (prior frames are stored in the singleton OpticalFlow class itself
+				this->opticalFlowResults.emplace(it.first, Utils::OpticalFlow::X()
+					.calculate(it.first
+						, it.second->image
+						, this->opticalFlowComputeStream
+					));
 			}
 		}
 	}

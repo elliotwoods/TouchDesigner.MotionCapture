@@ -49,6 +49,9 @@
     <ClCompile Include="Utils\FrameRateCounter.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Utils\OpticalFlow.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
     <ClCompile Include="Utils\Parameter.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
@@ -118,6 +121,9 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\FrameRateCounter.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\OpticalFlow.h">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Parameter.h">

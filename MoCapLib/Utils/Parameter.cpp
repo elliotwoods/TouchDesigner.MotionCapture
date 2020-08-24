@@ -19,10 +19,9 @@ namespace TD_MoCap {
 		}
 
 		//----------
-		std::string
-			AbstractParameter::getTDShortName() const
+		std::string makeShortName(const std::string& longName)
 		{
-			auto shortName = this->getName();
+			auto shortName = longName;
 			if (shortName.empty()) {
 				return shortName;
 			}
@@ -39,6 +38,13 @@ namespace TD_MoCap {
 			}
 
 			return shortName;
+		}
+
+		//----------
+		std::string
+			AbstractParameter::getTDShortName() const
+		{
+			return makeShortName(this->getName());
 		}
 
 #pragma mark ValueParameter
@@ -225,15 +231,28 @@ namespace TD_MoCap {
 
 			param.label = this->getName().c_str();
 
-			param.defaultValue = this->getDefaultValue().c_str();
+			auto defaultValueName = makeShortName(this->getDefaultValue());
+			param.defaultValue = defaultValueName.c_str();
 
-			std::vector<const char*> optionsC;
+			std::vector<const char*> optionNames;
+			std::vector<const char*> optionLabels;
 			const auto& options = this->getOptions();
+			std::vector<std::string> shortOptionsCache;
+			shortOptionsCache.reserve(options.size());
 			for (const auto& option : options) {
-				optionsC.push_back(option.c_str());
+				{
+					auto shortName = makeShortName(option);
+					shortOptionsCache.push_back(shortName);
+				}
+
+				optionNames.push_back(shortOptionsCache.back().c_str());
+				optionLabels.push_back(option.c_str());
 			}
 
-			auto res = manager->appendMenu(param, options.size(), optionsC.data(), optionsC.data());
+			auto res = manager->appendMenu(param
+				, options.size()
+				, optionNames.data()
+				, optionLabels.data());
 
 			// note that all options must be valid TD names for now
 			assert(res == OP_ParAppendResult::Success);
@@ -254,6 +273,20 @@ namespace TD_MoCap {
 			SelectorParameter::getOptions() const
 		{
 			return this->options;
+		}
+
+		//----------
+		std::string
+			SelectorParameter::getSelectedOption() const
+		{
+			for (const auto& option : this->options) {
+				if (makeShortName(option) == this->getValue()) {
+					return option;
+				}
+			}
+
+			// consider throwing an exception here instead
+			return "";
 		}
 
 #pragma mark PathParameter
