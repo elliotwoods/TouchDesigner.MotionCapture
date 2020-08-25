@@ -34,8 +34,11 @@ namespace TD_MoCap {
 			Links::Output::ID leaderID;
 			Links::Output::ID secondaryID;
 
-			std::map<Links::Output::ID, Utils::OpticalFlow::FutureResult> opticalFlowResults;
-			cv::cuda::Stream opticalFlowComputeStream;
+			struct {
+				std::map<Links::Output::ID, Utils::OpticalFlow::FutureResult> results;
+				cv::cuda::Stream computeStream;
+			} opticalFlow;
+			
 		private:
 			SynchronisedFrame();
 			SynchronisedFrame(const std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>>&

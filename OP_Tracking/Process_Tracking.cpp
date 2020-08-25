@@ -178,13 +178,10 @@ namespace TD_MoCap {
 			}
 			else if (opticalFlowMethod == "CUDA dense async") {
 				// Download the result and wait
-				cv::Mat flowLeft, flowRight;
-				{
-					auto& stream = inputFrame->inputFrame->inputFrame->opticalFlowComputeStream;
-					inputFrame->inputFrame->inputFrame->opticalFlowResults[leftID].denseFlow.download(flowLeft, stream);
-					inputFrame->inputFrame->inputFrame->opticalFlowResults[rightID].denseFlow.download(flowRight, stream);
-					stream.waitForCompletion();
-				}
+				auto& opticalFlow = inputFrame->inputFrame->inputFrame->opticalFlow;
+				opticalFlow.computeStream.waitForCompletion();
+				auto& flowLeft = opticalFlow.results[leftID].denseFlowCPU;
+				auto& flowRight = opticalFlow.results[rightID].denseFlowCPU;
 
 				auto getValueBilinear = [](const cv::Mat& img, cv::Point2f pt)
 				{

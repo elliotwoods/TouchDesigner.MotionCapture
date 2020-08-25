@@ -173,10 +173,10 @@ namespace TD_MoCap {
 			// calculate Optical Flow
 			for (const auto& it : this->cameraFrames) {
 				// Store a future result for each camera (prior frames are stored in the singleton OpticalFlow class itself
-				this->opticalFlowResults.emplace(it.first, Utils::OpticalFlow::X()
+				this->opticalFlow.results.emplace(it.first, Utils::OpticalFlow::X()
 					.calculate(it.first
 						, it.second->image
-						, this->opticalFlowComputeStream
+						, this->opticalFlow.computeStream
 					));
 			}
 		}

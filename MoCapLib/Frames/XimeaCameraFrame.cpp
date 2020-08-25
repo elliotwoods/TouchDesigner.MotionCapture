@@ -89,6 +89,9 @@ namespace TD_MoCap {
 
 			auto filename = workingFolder / (std::string) json["filePath"];
 			this->image = cv::imread(filename.string(), cv::IMREAD_UNCHANGED);
+			if (this->image.empty()) {
+				throw(Exception("XimeaCameraFrame::deserialise : Failed to load " + filename.string()));
+			}
 		}
 	}
 }

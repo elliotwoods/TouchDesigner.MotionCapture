@@ -16,6 +16,7 @@ namespace TD_MoCap {
 			struct FutureResult {
 				bool empty = true;
 				cv::cuda::GpuMat denseFlow;
+				cv::Mat denseFlowCPU;
 			};
 
 			static OpticalFlow& X();

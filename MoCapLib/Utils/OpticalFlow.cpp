@@ -59,6 +59,9 @@ namespace TD_MoCap {
 				, prior.image
 				, futureResult.denseFlow
 				, stream);
+
+			// Delayed download to CPU
+			futureResult.denseFlow.download(futureResult.denseFlowCPU, stream);
 			
 			// store the flow as a starting point for next frame
 			this->priors[cameraIndex].denseFlow = futureResult.denseFlow;
