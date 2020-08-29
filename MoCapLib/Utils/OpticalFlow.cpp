@@ -5,6 +5,17 @@
 namespace TD_MoCap {
 	namespace Utils {
 		//----------
+		OpticalFlow::FutureResult::~FutureResult()
+		{
+			// if the future result hasn't been consumed by Tracking then we need to join the thread ourselves
+			this->lockThreadJoin.lock();
+			if (this->thread.joinable() && this->thread.get_id() != std::this_thread::get_id()) {
+				this->thread.join();
+			}
+			this->lockThreadJoin.unlock();
+		}
+
+		//----------
 		OpticalFlow::OpticalFlow()
 		{
 			
@@ -19,8 +30,8 @@ namespace TD_MoCap {
 		}
 
 		//----------
-		OpticalFlow::FutureResult
-			OpticalFlow::calculate(Links::Output::ID cameraIndex, const cv::Mat& image, cv::cuda::Stream & stream)
+		std::shared_ptr<OpticalFlow::FutureResult>
+			OpticalFlow::calculate(Links::Output::ID cameraIndex, const cv::Mat& image)
 		{
 			if (image.empty()) {
 				throw(Exception("Cannot calculate optical flow on empty image"));
@@ -44,27 +55,29 @@ namespace TD_MoCap {
 					});
 
 				// return an empty result
-				FutureResult result;
-				result.empty = true;
-				return result;
+				return nullptr;
 			}
 			auto& prior = findPrior->second;
 
 			// initialise the result
-			FutureResult futureResult;
-			futureResult.empty = false;
+			auto futureResult = std::make_shared<FutureResult>();
+			futureResult->thread = std::thread([image, prior, this, cameraIndex, futureResult] () {
+				cv::cuda::GpuMat denseFlow;
 
-			// Calculate the optical flow
-			this->implementation->calc(cv::cuda::GpuMat(image)
-				, prior.image
-				, futureResult.denseFlow
-				, stream);
+				cv::cuda::Stream stream;
 
-			// Delayed download to CPU
-			futureResult.denseFlow.download(futureResult.denseFlowCPU, stream);
-			
-			// store the flow as a starting point for next frame
-			this->priors[cameraIndex].denseFlow = futureResult.denseFlow;
+				// Calculate the optical flow
+				this->implementation->calc(cv::cuda::GpuMat(image)
+					, prior.image
+					, denseFlow
+					, stream);
+
+				// Delayed download to CPU
+				denseFlow.download(futureResult->denseFlowCPU, stream);
+
+				// store the flow as a starting point for next frame
+				this->priors[cameraIndex].denseFlow = denseFlow;
+			});
 
 			return futureResult;
 		}

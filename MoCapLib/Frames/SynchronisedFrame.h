@@ -35,8 +35,7 @@ namespace TD_MoCap {
 			Links::Output::ID secondaryID;
 
 			struct {
-				std::map<Links::Output::ID, Utils::OpticalFlow::FutureResult> results;
-				cv::cuda::Stream computeStream;
+				std::map<Links::Output::ID, std::shared_ptr<Utils::OpticalFlow::FutureResult>> results;
 			} opticalFlow;
 			
 		private:

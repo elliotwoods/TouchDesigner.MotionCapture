@@ -176,8 +176,8 @@ namespace TD_MoCap {
 				this->opticalFlow.results.emplace(it.first, Utils::OpticalFlow::X()
 					.calculate(it.first
 						, it.second->image
-						, this->opticalFlow.computeStream
-					));
+					)
+				);
 			}
 		}
 	}

@@ -177,11 +177,24 @@ namespace TD_MoCap {
 				backupCentroidsRightGPU.download(backupCentroidsRight);
 			}
 			else if (opticalFlowMethod == "CUDA dense async") {
+				auto beginDownloadTime = std::chrono::high_resolution_clock::now();
+
 				// Download the result and wait
 				auto& opticalFlow = inputFrame->inputFrame->inputFrame->opticalFlow;
-				opticalFlow.computeStream.waitForCompletion();
-				auto& flowLeft = opticalFlow.results[leftID].denseFlowCPU;
-				auto& flowRight = opticalFlow.results[rightID].denseFlowCPU;
+
+				// wait for results
+				for (const auto& it: opticalFlow.results) {
+					it.second->lockThreadJoin.lock();
+					it.second->thread.join();
+					it.second->lockThreadJoin.unlock();
+				}
+
+				auto& flowLeft = opticalFlow.results[leftID]->denseFlowCPU;
+				auto& flowRight = opticalFlow.results[rightID]->denseFlowCPU;
+
+				auto endDownloadTime = std::chrono::high_resolution_clock::now();
+				auto downloadDuration = endDownloadTime - beginDownloadTime;
+				std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(downloadDuration).count() << "ms download time" << std::endl;
 
 				auto getValueBilinear = [](const cv::Mat& img, cv::Point2f pt)
 				{

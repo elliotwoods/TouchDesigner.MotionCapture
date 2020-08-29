@@ -14,13 +14,14 @@ namespace TD_MoCap {
 
 		public:
 			struct FutureResult {
-				bool empty = true;
-				cv::cuda::GpuMat denseFlow;
+				virtual ~FutureResult();
+				std::mutex lockThreadJoin;
+				std::thread thread;
 				cv::Mat denseFlowCPU;
 			};
 
 			static OpticalFlow& X();
-			FutureResult calculate(Links::Output::ID cameraIndex, const cv::Mat& image, cv::cuda::Stream& stream);
+			std::shared_ptr<FutureResult> calculate(Links::Output::ID cameraIndex, const cv::Mat& image);
 
 		private:
 			cv::Ptr<cv::cuda::FarnebackOpticalFlow> implementation;
