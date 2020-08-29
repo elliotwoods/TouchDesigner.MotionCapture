@@ -31,7 +31,7 @@ namespace TD_MoCap
 		
 		Utils::SelectorParameter opticalFlowMethod{
 			"Compute optical flow method"
-			, {"CPU", "CUDA sparse", "CUDA dense async"}
+			, {"CPU", "CUDA sparse", "CUDA dense async", "CUDA dense sparse return", "CUDA sparse + linear" }
 			, "CUDA dense async"
 		};
 

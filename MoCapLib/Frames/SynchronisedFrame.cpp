@@ -170,6 +170,7 @@ namespace TD_MoCap {
 				}
 			}
 
+#ifdef MOCAP_ENABLE_OPTICAL_FLOW_ASYNC
 			// calculate Optical Flow
 			for (const auto& it : this->cameraFrames) {
 				// Store a future result for each camera (prior frames are stored in the singleton OpticalFlow class itself
@@ -179,6 +180,7 @@ namespace TD_MoCap {
 					)
 				);
 			}
+#endif
 		}
 	}
 }

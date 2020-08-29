@@ -151,7 +151,6 @@ namespace TD_MoCap {
 						auto status = cv::cuda::GpuMat();
 						auto error = cv::cuda::GpuMat();
 
-
 						opticalFlow->calc(currentImage
 							, priorImage
 							, cv::cuda::GpuMat(currentCentroidsLeft)
@@ -183,6 +182,7 @@ namespace TD_MoCap {
 					actionQueue.waitForCompletion();
 				}
 				else if (opticalFlowMethod == "CUDA dense async") {
+#ifdef MOCAP_ENABLE_OPTICAL_FLOW_ASYNC
 					auto beginDownloadTime = std::chrono::high_resolution_clock::now();
 
 					// Download the result and wait
@@ -249,6 +249,44 @@ namespace TD_MoCap {
 							}
 						}
 					}
+#else
+				throw(Exception("Not implemented"));
+#endif
+				}
+				else if (opticalFlowMethod == "CUDA dense sparse return")
+				{
+#ifdef MOCAP_ENABLE_OPTICAL_FLOW_ASYNC
+					for (auto result : inputFrame->inputFrame->inputFrame->opticalFlow.results)	{
+						std::unique_lock<std::mutex> lock(result.second->lockThreadJoin);
+						result.second->thread.join();
+					}
+
+					//left
+					{
+						auto beginDownloadTime = std::chrono::high_resolution_clock::now();
+						cv::cuda::Stream stream;
+
+						auto flowGpu = inputFrame->inputFrame->inputFrame->opticalFlow.results[leftID]->denseFlowGpu;
+						std::vector<cv::Mat> patches(currentCentroidsLeft.size());
+
+						for (size_t i = 0; i < currentCentroidsLeft.size(); i++) {
+							auto& centroid = currentCentroidsLeft[i];
+							auto flowGpuSubsection = cv::cuda::GpuMat(flowGpu, cv::Rect(centroid.x, centroid.y, 1, 1));
+							flowGpuSubsection.download(patches[i], stream);
+						}
+						stream.waitForCompletion();
+
+						auto endDownloadTime = std::chrono::high_resolution_clock::now();
+						auto downloadDuration = endDownloadTime - beginDownloadTime;
+						std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(downloadDuration).count() << "ms download time" << std::endl;
+					}
+					throw(Exception("Not implemented"));
+#else
+					throw(Exception("Not implemented"));
+#endif
+				}
+				else if (opticalFlowMethod == "CUDA sparse + linear") {
+					
 				}
 
 

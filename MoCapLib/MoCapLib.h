@@ -33,3 +33,4 @@
 #include "Exception.h"
 #include "ImageFormat.h"
 #include "Threaded_OP.h"
+#include "Constants.h"

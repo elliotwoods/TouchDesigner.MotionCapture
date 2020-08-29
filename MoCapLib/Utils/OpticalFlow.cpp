@@ -62,21 +62,19 @@ namespace TD_MoCap {
 			// initialise the result
 			auto futureResult = std::make_shared<FutureResult>();
 			futureResult->thread = std::thread([image, prior, this, cameraIndex, futureResult] () {
-				cv::cuda::GpuMat denseFlow;
-
 				cv::cuda::Stream stream;
 
 				// Calculate the optical flow
 				this->implementation->calc(cv::cuda::GpuMat(image)
 					, prior.image
-					, denseFlow
+					, futureResult->denseFlowGpu
 					, stream);
 
 				// Delayed download to CPU
-				denseFlow.download(futureResult->denseFlowCPU, stream);
+				futureResult->denseFlowGpu.download(futureResult->denseFlowCPU, stream);
 
 				// store the flow as a starting point for next frame
-				this->priors[cameraIndex].denseFlow = denseFlow;
+				this->priors[cameraIndex].denseFlow = futureResult->denseFlowGpu;
 			});
 
 			return futureResult;

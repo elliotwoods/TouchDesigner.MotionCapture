@@ -75,6 +75,21 @@ namespace TD_MoCap {
 		auto centroidsLeftUndistorted = parameters.cameraLeft.undistortImagePoints(leftCamera->centroids);
 		auto centroidsRightUndistorted = parameters.cameraRight.undistortImagePoints(rightCamera->centroids);
 
+		// Insert test data
+		// We add this to the input - i.e. it gets passed through all of triangulate
+		if (parameters.includeTestData.getValue()) {
+			auto testDataSize = testPointsLeft.size();
+			auto testPointsLeftUndistorted = parameters.cameraLeft.undistortImagePoints(testPointsLeft);
+			centroidsLeftUndistorted.insert(centroidsLeftUndistorted.end()
+				, testPointsLeftUndistorted.begin()
+				, testPointsLeftUndistorted.end());
+
+			auto testPointsRightUndistorted = parameters.cameraRight.undistortImagePoints(testPointsRight);
+			centroidsRightUndistorted.insert(centroidsRightUndistorted.end()
+				, testPointsRightUndistorted.begin()
+				, testPointsRightUndistorted.end());
+		}
+
 		// Calculate epipolar lines (so we can use them for centroid selection)
 		std::vector<cv::Point3f> epipolarLines;
 		cv::computeCorrespondEpilines(centroidsLeftUndistorted
@@ -127,14 +142,24 @@ namespace TD_MoCap {
 					const auto& leftCentroidIndex = leftCentroidIt->second;
 					const auto& rightCentroid = centroidsRightUndistorted[rightCentroidIndex];
 
-					auto distance = epipolarLines[leftCentroidIndex].dot(cv::Point3f(rightCentroid.x, rightCentroid.y, 1.0f));
+					//from https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+					auto a = epipolarLines[leftCentroidIndex].x;
+					auto b = epipolarLines[leftCentroidIndex].y;
+					auto c = epipolarLines[leftCentroidIndex].z;
+					auto distance = abs(a * rightCentroid.x + b * rightCentroid.y + c) / sqrt(a * a + b * b);
+
 					if (abs(distance) <= epipolarDistanceThreshold) {
 						// perform mass ratio test
-						auto massLeft = leftCamera->moments[leftCentroidIndex].m00;
-						auto massRight = rightCamera->moments[rightCentroidIndex].m00;
-						auto massRatio = massLeft > massRight
-							? massLeft / massRight
-							: massRight / massLeft;
+						auto massRatio = 1.0f;
+						if (leftCentroidIndex < leftCamera->centroids.size()
+							// only perform the test if this is not test data (i.e. is within the data coming from the cameras)
+							&& rightCentroidIndex < rightCamera->centroids.size()) {
+							auto massLeft = leftCamera->moments[leftCentroidIndex].m00;
+							auto massRight = rightCamera->moments[rightCentroidIndex].m00;
+							massRatio = massLeft > massRight
+								? massLeft / massRight
+								: massRight / massLeft;
+						}
 
 						if (massRatio <= massRatioThreshold) {
 							// Passed all 2D tests. Let's triangulate
@@ -154,45 +179,6 @@ namespace TD_MoCap {
 		// Exit early if empty
 		if (matchedCentroidsLeft.empty()) {
 			return;
-		}
-
-
-		// Insert test data (warning - we write directly to the output - double check this code if you move too much around)
-		if (parameters.includeTestData.getValue()) {
-			auto testDataSize = testPointsLeft.size();
-			auto testPointsLeftUndistorted = parameters.cameraLeft.undistortImagePoints(testPointsLeft);
-			auto testPointsRightUndistorted = parameters.cameraRight.undistortImagePoints(testPointsRight);
-
-			outputFrame->cameraLeftRays = parameters.cameraLeft.unprojectUndistortedImagePoints(testPointsLeftUndistorted);
-			outputFrame->cameraRightRays = parameters.cameraRight.unprojectUndistortedImagePoints(testPointsRightUndistorted);
-			
-			for (size_t i = 0; i < testDataSize; i++) {
-				auto intersection = outputFrame->cameraLeftRays[i].intersect(outputFrame->cameraRightRays[i]);
-				outputFrame->worldPoints.push_back(intersection.getMiddle());
-				outputFrame->intersections.push_back(std::move(intersection));
-			}
-
-			outputFrame->cameraLeftCentroids = testPointsLeftUndistorted;
-			outputFrame->cameraRightCentroids = testPointsRightUndistorted;
-
-			std::vector<cv::Point3f> testEpipolarLines;
-			cv::computeCorrespondEpilines(testPointsLeftUndistorted
-				, 1
-				, parameters.fundamental_matrix
-				, testEpipolarLines);
-
-			for (size_t i = 0; i < testPointsLeftUndistorted.size(); i++) {
-				const auto& rightPoint = testPointsRightUndistorted[i];
-				auto distance = testEpipolarLines[i].dot(cv::Point3f(rightPoint.x, rightPoint.y, 1.0f));
-				outputFrame->epipolarDistance.push_back(distance);
-				outputFrame->massRatio.push_back(1);
-
-				// calculate angles
-				auto leftAngle = atan(testEpipolarLines[i].x / testEpipolarLines[i].y);
-				auto positionRelativeToLeftCamera = testPointsRightUndistorted[i] - parameters.cameraLeftInCameraRight;
-				auto rightAngle = atan(positionRelativeToLeftCamera.x / positionRelativeToLeftCamera.y) - acos(0);
-				outputFrame->angleDistance.push_back(rightAngle - leftAngle);
-			}
 		}
 
 		// Unproject matches and intersect

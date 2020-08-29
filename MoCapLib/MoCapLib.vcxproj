@@ -41,6 +41,7 @@
     <ClCompile Include="Utils\WorkerThread.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="Frames\BaseFrame.h" />
     <ClInclude Include="Frames\CentroidsFrame.h" />

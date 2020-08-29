@@ -5,6 +5,7 @@
 #include "pch_MoCapLib.h"
 #include "Links/Output.h"
 #include "Utils/OpticalFlow.h"
+#include "../Constants.h"
 
 namespace TD_MoCap {
 	namespace Frames {
@@ -34,10 +35,11 @@ namespace TD_MoCap {
 			Links::Output::ID leaderID;
 			Links::Output::ID secondaryID;
 
+#ifdef MOCAP_ENABLE_OPTICAL_FLOW_ASYNC
 			struct {
 				std::map<Links::Output::ID, std::shared_ptr<Utils::OpticalFlow::FutureResult>> results;
 			} opticalFlow;
-			
+#endif
 		private:
 			SynchronisedFrame();
 			SynchronisedFrame(const std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>>&

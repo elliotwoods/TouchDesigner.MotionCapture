@@ -72,6 +72,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="Frames\BaseFrame.h">
       <Filter>Frames</Filter>

@@ -17,7 +17,9 @@ namespace TD_MoCap {
 				virtual ~FutureResult();
 				std::mutex lockThreadJoin;
 				std::thread thread;
+				cv::cuda::GpuMat denseFlowGpu;
 				cv::Mat denseFlowCPU;
+				bool disposed = false;
 			};
 
 			static OpticalFlow& X();
