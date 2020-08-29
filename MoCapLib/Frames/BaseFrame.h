@@ -12,11 +12,10 @@ namespace TD_MoCap {
 		class TDMOCAP_API BaseFrame : public Utils::Serialisable
 		{
 		public:
-			virtual ~BaseFrame() {
+			BaseFrame();
+			virtual ~BaseFrame();
 
-			}
-
-			virtual std::string getTypeName() const = 0;
+			virtual std::string getTypeName() const;
 
 			virtual bool getPreviewImage(cv::Mat&) const {
 				return false;
@@ -43,6 +42,8 @@ namespace TD_MoCap {
 		protected:
 			std::chrono::high_resolution_clock::time_point startCompute;
 			std::chrono::high_resolution_clock::duration computeTime;
+		private:
+			static std::map<std::string, size_t> countPerType;
 		};
 	}
 }

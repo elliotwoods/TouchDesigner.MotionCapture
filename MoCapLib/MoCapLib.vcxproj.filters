@@ -46,6 +46,9 @@
     <ClCompile Include="Utils\ChannelSet.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Utils\ErrorBuffer.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
     <ClCompile Include="Utils\FrameRateCounter.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
@@ -115,6 +118,9 @@
     <ClInclude Include="Threaded_OP.h" />
     <ClInclude Include="Threaded_OP.ipp" />
     <ClInclude Include="Utils\ChannelSet.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\ErrorBuffer.h">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Event.h">

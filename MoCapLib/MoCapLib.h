@@ -16,6 +16,7 @@
 #include "Utils/Parameter.h"
 #include "Utils/Parameters.h"
 #include "Utils/OpticalFlow.h"
+#include "Utils/ErrorBuffer.h"
 
 #include "Math/Camera.h"
 #include "Math/Ray.h"

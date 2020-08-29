@@ -31,6 +31,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Utils\ChannelSet.cpp" />
+    <ClCompile Include="Utils\ErrorBuffer.cpp" />
     <ClCompile Include="Utils\FrameRateCounter.cpp" />
     <ClCompile Include="Utils\OpticalFlow.cpp" />
     <ClCompile Include="Utils\Parameter.cpp" />
@@ -58,6 +59,7 @@
     <ClInclude Include="pch_MoCapLib.h" />
     <ClInclude Include="MoCapLib.h" />
     <ClInclude Include="Threaded_OP.h" />
+    <ClInclude Include="Utils\ErrorBuffer.h" />
     <ClInclude Include="Utils\OpticalFlow.h" />
     <ClInclude Include="Utils\ThreadChannel.h" />
     <ClInclude Include="Utils\ChannelSet.h" />
