@@ -65,7 +65,6 @@ namespace TD_MoCap {
 
 	noSlotsRemaining:
 
-		outputFrame->previousFrame = this->previousFrame;
 		this->previousFrame = outputFrame;
 	}
 }

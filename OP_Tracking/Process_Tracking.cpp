@@ -262,11 +262,14 @@ namespace TD_MoCap {
 									auto continuingParticle = findPrevious->second; // copy the particle
 									continuingParticle.lifeTime++;
 									continuingParticle.priorTriangulatedParticleIndex = findPrevious->first;
+									continuingParticle.priorTriangulatedParticlePosition = this->previousFrame->inputFrame->worldPoints[findPrevious->first];
+
 									outputFrame->trackedParticles.emplace(i, continuingParticle);
 								}
 								else {
 									outputFrame->trackedParticles.emplace(i, Frames::TrackingFrame::Particle{
 										 findLeft
+										 , glm::vec3()
 										 , 1
 										});
 								}
@@ -275,6 +278,8 @@ namespace TD_MoCap {
 					}
 				}
 			}
+
+			// Search without QT Tree
 			else {
 				auto findAdjacentPoints = [&](const std::vector<cv::Point2f>& points
 					, const cv::Point2f& point
@@ -305,17 +310,20 @@ namespace TD_MoCap {
 					for (const auto& findLeft : findsLeft) {
 						for (const auto& findRight : findsRight) {
 							if (findLeft == findRight) {
-								// was a match in the previous frame
 								auto findPrevious = this->previousFrame->trackedParticles.find(findLeft);
 								if (findPrevious != this->previousFrame->trackedParticles.end()) {
+									// was a match in the previous frame
 									auto continuingParticle = findPrevious->second; // copy the particle
 									continuingParticle.lifeTime++;
 									continuingParticle.priorTriangulatedParticleIndex = findPrevious->first;
+									continuingParticle.priorTriangulatedParticlePosition = this->previousFrame->inputFrame->worldPoints[findPrevious->first];
 									outputFrame->trackedParticles.emplace(i, continuingParticle);
 								}
 								else {
+									// new find to add
 									outputFrame->trackedParticles.emplace(i, Frames::TrackingFrame::Particle{
 										 findLeft
+										 , glm::vec3()
 										 , 1
 										});
 								}

@@ -19,7 +19,6 @@ namespace TD_MoCap {
 			bool getPreviewSOP(SOP_Output*) const override;
 
 			std::shared_ptr<TrackingFrame> inputFrame;
-			std::shared_ptr<FilterAndBinFrame> previousFrame;
 
 			std::vector<int32_t> particleBins; // triangulated indices
 			std::vector<size_t> ids;

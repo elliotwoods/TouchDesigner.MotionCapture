@@ -66,8 +66,7 @@ namespace TD_MoCap {
 			for (auto& particleIndex : this->particleBins) {
 				if (particleIndex != -1) {
 					const auto& worldPointNow = this->inputFrame->inputFrame->worldPoints[particleIndex];
-					const auto& worldPointPriorIndex = this->inputFrame->trackedParticles[particleIndex].priorTriangulatedParticleIndex;
-					const auto& worldPointPrior = this->previousFrame->inputFrame->inputFrame->worldPoints[worldPointPriorIndex];
+					const auto& worldPointPrior = this->inputFrame->trackedParticles[particleIndex].priorTriangulatedParticlePosition;
 
 					output->addPoint(*(Position*)&worldPointNow);
 					output->addPoint(*(Position*)&worldPointPrior);
