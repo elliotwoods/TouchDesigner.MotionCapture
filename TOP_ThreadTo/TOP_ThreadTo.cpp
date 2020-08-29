@@ -39,26 +39,20 @@ namespace TD_MoCap {
 
 			if (frame) {
 				cv::Mat image;
-				try {
-					if (frame->getPreviewImage(image)) {
-						setTOP_OutputFormat(format, image, this->memPixelType);
+				if (frame->getPreviewImage(image)) {
+					setTOP_OutputFormat(format, image, this->memPixelType);
 
-						// make a copy for comparison later
-						this->allocatedOutputFormat = *format;
-						return true;
-					}
-				}
-				catch (Exception e) {
-					this->errors.push_back(e);
-					return false;
+					// make a copy for comparison later
+					this->allocatedOutputFormat = *format;
+					return true;
 				}
 			}
 		}
-		catch (Exception e) {
-			this->errors.push_back(e);
+		catch (const Exception & e) {
+			this->errorBuffer.push(e);
+			return false;
 		}
 		
-
 		// in all other cases
 		return false;
 	}
@@ -70,11 +64,13 @@ namespace TD_MoCap {
 			TOP_Context* context,
 			void* reserved1)
 	{
-		// update input stats
-		this->input.update(inputs->getParDAT("Source"));
+		try {
+			this->errorBuffer.updateFromInterface(inputs);
 
-		if (this->previewDirty) {
-			try {
+			// update input stats
+			this->input.update(inputs->getParDAT("Source"));
+
+			if (this->previewDirty) {
 				// We do not receive any new frames here, as we need to ensure that the frame is the same as the one seen at teh time of getOutputFormat
 				auto frame = this->input.getLastFrame();
 
@@ -105,10 +101,11 @@ namespace TD_MoCap {
 					, image.total() * elemSize);
 
 				this->previewDirty = false;
+
 			}
-			catch (Exception e) {
-				this->errors.push_back(e);
-			}
+		}
+		catch (Exception e) {
+			this->errorBuffer.push(e);
 		}
 	}
 
@@ -125,26 +122,21 @@ namespace TD_MoCap {
 			auto res = manager->appendDAT(param);
 			assert(res == OP_ParAppendResult::Success);
 		}
+
+		this->errorBuffer.setupParameters(manager);
 	}
 
 	//----------
 	void
 		TOP_ThreadTo::pulsePressed(const char* name, void* reserved1)
 	{
+		this->errorBuffer.pulsePressed(name);
 	}
 
 	//---------
 	void
 		TOP_ThreadTo::getErrorString(OP_String* error, void*)
 	{
-		if (!this->errors.empty()) {
-			std::string errorString;
-			for (const auto& error : this->errors) {
-				errorString += error.what() + "\n";
-			}
-			error->setString(errorString.c_str());
-		}
-
-		this->errors.clear();
+		this->errorBuffer.getErrorString(error);
 	}
 }

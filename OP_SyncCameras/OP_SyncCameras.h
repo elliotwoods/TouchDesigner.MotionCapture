@@ -41,6 +41,6 @@ namespace TD_MoCap {
 	protected:
 		Synchroniser synchroniser;
 
-		std::vector<Exception> errors;
+		Utils::ErrorBuffer errorBuffer;
 	};
 }

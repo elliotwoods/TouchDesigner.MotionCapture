@@ -25,25 +25,53 @@ namespace TD_MoCap {
 			const OP_Inputs* inputs,
 			void* reserved)
 	{
-		if (inputs->getNumInputs() < 1) {
-			return;
-		}
+		try {
+			this->errorBuffer.updateFromInterface(inputs);
 
-		this->input.update(inputs->getInputDAT(0));
+			if (inputs->getNumInputs() < 1) {
+				return;
+			}
 
-		{
-			auto newFrame = this->input.receiveLatestFrame(false);
-			if (newFrame) {
-				this->previewDirty = true;
-				this->lastFrameReceived = newFrame;
+			this->input.update(inputs->getInputDAT(0));
+
+			{
+				auto newFrame = this->input.receiveLatestFrame(false);
+				if (newFrame) {
+					this->previewDirty = true;
+					this->lastFrameReceived = newFrame;
+				}
+			}
+
+			if (this->previewDirty && this->lastFrameReceived) {
+				Utils::Table outputTable;
+				this->lastFrameReceived->getPreviewDAT(outputTable);
+				outputTable.populateOutput(output);
+				this->previewDirty = false;
 			}
 		}
-
-		if (this->previewDirty && this->lastFrameReceived) {
-			Utils::Table outputTable;
-			this->lastFrameReceived->getPreviewDAT(outputTable);
-			outputTable.populateOutput(output);
-			this->previewDirty = false;
+		catch (const Exception& e) {
+			this->errorBuffer.push(e);
 		}
+	}
+
+	//----------
+	void
+		DAT_ThreadTo::setupParameters(OP_ParameterManager* manager, void* reserved1)
+	{
+		this->errorBuffer.setupParameters(manager);
+	}
+
+	//----------
+	void
+		DAT_ThreadTo::pulsePressed(const char* name, void* reserved1)
+	{
+		this->errorBuffer.pulsePressed(name);
+	}
+
+	//----------
+	void
+		DAT_ThreadTo::getErrorString(OP_String* error, void* reserved1)
+	{
+		this->errorBuffer.getErrorString(error);
 	}
 }

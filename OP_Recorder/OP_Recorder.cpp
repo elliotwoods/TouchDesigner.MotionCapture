@@ -27,52 +27,60 @@ namespace TD_MoCap {
 	void
 		OP_Recorder::execute(DAT_Output* output, const OP_Inputs* inputs, void* reserved)
 	{
-		auto recordFolder = std::string(inputs->getParFilePath("Folder"));
+		try {
+			this->errorBuffer.updateFromInterface(inputs);
 
-		if (inputs->getNumInputs() < 1) {
-			return;
-		}
+			auto recordFolder = std::string(inputs->getParFilePath("Folder"));
 
-		this->input.update(inputs->getInputDAT(0));
-		this->parameters.list.updateFromInterface(inputs);
+			if (inputs->getNumInputs() < 1) {
+				return;
+			}
 
-		// start / stop recording
-		if (this->isRecording != this->parameters.record.getValue()) {
-			if (this->parameters.record.getValue()) {
-				this->outputPath.assign(recordFolder);
+			this->input.update(inputs->getInputDAT(0));
+			this->parameters.list.updateFromInterface(inputs);
 
-				//append timestamp
-				if (this->parameters.timestampFolder.getValue()) {
-					time_t rawTime;
-					char buffer[80];
-					time(&rawTime);
-					struct tm timeInfo;
-					localtime_s(&timeInfo, &rawTime);
+			// start / stop recording
+			if (this->isRecording != this->parameters.record.getValue()) {
+				if (this->parameters.record.getValue()) {
+					this->outputPath.assign(recordFolder);
 
-					strftime(buffer, sizeof(buffer), "%F %H.%M.%S", &timeInfo);
-					this->outputPath /= std::string(buffer);
+					//append timestamp
+					if (this->parameters.timestampFolder.getValue()) {
+						time_t rawTime;
+						char buffer[80];
+						time(&rawTime);
+						struct tm timeInfo;
+						localtime_s(&timeInfo, &rawTime);
+
+						strftime(buffer, sizeof(buffer), "%F %H.%M.%S", &timeInfo);
+						this->outputPath /= std::string(buffer);
+					}
+
+					this->startRecording();
 				}
+				else {
+					this->stopRecording();
+				}
+			}
 
-				this->startRecording();
+			// update recording
+			if (this->isRecording) {
+				this->updateRecording();
 			}
 			else {
-				this->stopRecording();
+				// always clear out input if we're not processing - else memory use will explode
+				this->input.getChannel().clear();
+			}
+
+			// update enabled parameters
+			{
+				inputs->enablePar(this->parameters.record.getTDShortName().c_str(), !recordFolder.empty() || this->isRecording);
 			}
 		}
-
-		// update recording
-		if (this->isRecording) {
-			this->updateRecording();
+		catch (const Exception& e) {
+			this->errorBuffer.push(e);
 		}
-		else {
-			// always clear out input if we're not processing - else memory use will explode
-			this->input.getChannel().clear();
-		}
-
-		// update enabled parameters
-		{
-			inputs->enablePar(this->parameters.record.getTDShortName().c_str(), !recordFolder.empty() || this->isRecording);
-		}
+		
 	}
 
 	//----------
@@ -120,28 +128,21 @@ namespace TD_MoCap {
 		}
 
 		this->parameters.list.populateInterface(manager);
+		this->errorBuffer.setupParameters(manager);
 	}
 
 	//----------
 	void
 		OP_Recorder::pulsePressed(const char* name, void* reserved1)
 	{
-
+		this->errorBuffer.pulsePressed(name);
 	}
 
 	//----------
 	void
 		OP_Recorder::getErrorString(OP_String* error, void* reserved1)
 	{
-		if (!this->errors.empty()) {
-			std::string errorString;
-			for (const auto& error : this->errors) {
-				errorString += error.what() + "\n";
-			}
-			error->setString(errorString.c_str());
-		}
-
-		this->errors.clear();
+		this->errorBuffer.getErrorString(error);
 	}
 
 	//----------
@@ -217,7 +218,7 @@ namespace TD_MoCap {
 		while (frame) {
 			// check if we're out of space
 			if (Utils::WorkerGroup::X().sizeWorkItems() > this->parameters.maxQueueLength.getValue()) {
-				this->errors.push_back(Exception("Work queue length exceeded"));
+				this->errorBuffer.push(Exception("Work queue length exceeded"));
 				this->input.getChannel().clear();
 				return;
 			}

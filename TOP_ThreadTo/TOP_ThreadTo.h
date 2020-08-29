@@ -31,6 +31,6 @@ namespace TD_MoCap {
 
 		bool previewDirty = false;
 
-		std::vector<Exception> errors;
+		Utils::ErrorBuffer errorBuffer;
 	};
 }

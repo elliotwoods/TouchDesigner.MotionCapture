@@ -22,7 +22,7 @@ namespace TD_MoCap {
 
 	//----------
 	bool
-		CHOP_ThreadTo::getOutputInfo(CHOP_OutputInfo* info, const OP_Inputs*, void*)
+		CHOP_ThreadTo::getOutputInfo(CHOP_OutputInfo* info, const OP_Inputs* inputs, void*)
 	{
 		try {
 			auto frameIsNew = (bool) this->input.receiveNextFrameDontWait();
@@ -45,7 +45,7 @@ namespace TD_MoCap {
 
 		}
 		catch (Exception e) {
-			this->errors.push_back(e);
+			this->errorBuffer.push(e);
 			return false;
 		}
 	}
@@ -66,6 +66,7 @@ namespace TD_MoCap {
 			void* reserved)
 	{
 		try {
+			this->errorBuffer.updateFromInterface(inputs);
 			this->input.update(inputs->getParDAT("Source"));
 
 			if (!this->outputEmpty && this->previewDirty) {
@@ -79,7 +80,7 @@ namespace TD_MoCap {
 			}
 		}
 		catch (Exception e) {
-			this->errors.push_back(e);
+			this->errorBuffer.push(e);
 		}
 		
 	}
@@ -97,19 +98,20 @@ namespace TD_MoCap {
 			auto res = manager->appendDAT(param);
 			assert(res == OP_ParAppendResult::Success);
 		}
+		this->errorBuffer.setupParameters(manager);
+	}
+
+	//----------
+	void
+		CHOP_ThreadTo::pulsePressed(const char* name, void* reserved1)
+	{
+		this->errorBuffer.pulsePressed(name);
 	}
 
 	//----------
 	void
 		CHOP_ThreadTo::getErrorString(OP_String* error, void*)
 	{
-		if (!this->errors.empty()) {
-			std::string errorString;
-			for (const auto& error : this->errors) {
-				errorString += error.what() + "\n";
-			}
-			error->setString(errorString.c_str());
-		}
-		this->errors.clear();
+		this->errorBuffer.getErrorString(error);
 	}
 }

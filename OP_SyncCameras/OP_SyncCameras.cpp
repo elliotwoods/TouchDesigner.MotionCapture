@@ -24,9 +24,11 @@ namespace TD_MoCap {
 	void
 		OP_SyncCameras::execute(DAT_Output* output, const OP_Inputs* inputs, void* reserved)
 	{
-		this->synchroniser.getParameters().updateFromInterface(inputs);
-
 		try {
+			this->errorBuffer.updateFromInterface(inputs);
+
+			this->synchroniser.getParameters().updateFromInterface(inputs);
+
 			// gather new IDs and check our list
 			{
 				auto inputCount = inputs->getNumInputs();
@@ -46,17 +48,10 @@ namespace TD_MoCap {
 			this->synchroniser.output.populateMainThreadOutput(output);
 		}
 		catch (const Exception & e) {
-			this->errors.push_back(e);
+			this->errorBuffer.push(e);
 		}
 
-		//receive all errors from thread
-		{
-			auto& errorsFromThread = this->synchroniser.getThread().exceptionsInThread;
-			Exception e;
-			while (errorsFromThread.tryReceive(e)) {
-				this->errors.push_back(e);
-			}
-		}
+		this->errorBuffer.push(this->synchroniser.getThread().exceptionsInThread);
 	}
 
 	//----------
@@ -101,6 +96,9 @@ namespace TD_MoCap {
 		}
 
 		this->synchroniser.getParameters().populateInterface(manager);
+
+		this->errorBuffer.setupParameters(manager);
+
 	}
 
 	//----------
@@ -110,20 +108,13 @@ namespace TD_MoCap {
 		if (strcmp(name, "Resync") == 0) {
 			this->synchroniser.requestResync();
 		}
+		this->errorBuffer.pulsePressed(name);
 	}
 
 	//----------
 	void
 		OP_SyncCameras::getErrorString(OP_String* error, void* reserved1)
 	{
-		if (!this->errors.empty()) {
-			std::string errorString;
-			for (const auto& error : this->errors) {
-				errorString += error.what() + "\n";
-			}
-			error->setString(errorString.c_str());
-		}
-
-		this->errors.clear();
+		this->errorBuffer.getErrorString(error);
 	}
 }

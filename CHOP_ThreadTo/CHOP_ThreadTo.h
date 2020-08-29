@@ -17,6 +17,7 @@ namespace TD_MoCap {
 			void* reserved) override;
 
 		void setupParameters(OP_ParameterManager* manager, void* reserved) override;
+		void pulsePressed(const char* name, void* reserved1) override;
 		void getErrorString(OP_String* error, void* reserved1) override;
 	protected:
 		Links::Input input;
@@ -25,6 +26,6 @@ namespace TD_MoCap {
 		bool previewDirty = true;
 
 		Utils::ChannelSet channelSet;
-		std::vector<Exception> errors;
+		Utils::ErrorBuffer errorBuffer;
 	};
 }

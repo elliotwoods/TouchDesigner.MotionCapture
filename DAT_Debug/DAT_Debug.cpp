@@ -28,6 +28,7 @@ namespace TD_MoCap {
 		DAT_Debug::execute(DAT_Output* output, const OP_Inputs* inputs, void* reserved)
 	{
 		try {
+			this->errorBuffer.updateFromInterface(inputs);
 			this->selectReport.updateFromInterface(inputs);
 
 			if (this->selectReport.getValue() == "Frames")

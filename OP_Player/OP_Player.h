@@ -31,7 +31,7 @@ namespace TD_MoCap {
 
 		virtual void		getErrorString(OP_String* error, void* reserved1);
 	protected:
-		std::vector<Exception> errors;
+		Utils::ErrorBuffer errorBuffer;
 
 		struct {
 			Utils::NumberParameter<float> framerate{

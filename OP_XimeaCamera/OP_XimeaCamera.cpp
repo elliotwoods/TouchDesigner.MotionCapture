@@ -34,6 +34,8 @@ namespace TD_MoCap {
 		}
 
 		try {
+			this->errorBuffer.updateFromInterface(inputs);
+
 			// Handle pulse on 'Re-Open'
 			if (this->needsReopen) {
 				this->close();
@@ -72,18 +74,12 @@ namespace TD_MoCap {
 				if (enabled) {
 					// perform the updates
 					this->cameraThread->performInThread([this](xiAPIplus_Camera& camera) {
-						try {
-							std::lock_guard<std::mutex> lock(this->parameters.mutex);
+						std::lock_guard<std::mutex> lock(this->parameters.mutex);
 
-							for (auto parameter : this->parameters.stale) {
-								this->cameraThread->pushToCamera(parameter);
-							}
-							this->parameters.stale.clear();
+						for (auto parameter : this->parameters.stale) {
+							this->cameraThread->pushToCamera(parameter);
 						}
-						catch (const Exception& e) {
-							std::lock_guard<std::mutex> lock(this->errorsLock);
-							this->errors.push_back(e);
-						}
+						this->parameters.stale.clear();
 					}, false);
 
 					// perform mainloop trigger if we're in that mode
@@ -104,12 +100,7 @@ namespace TD_MoCap {
 					}
 
 					// get all errors from camera thread
-					{
-						Exception e;
-						while (this->cameraThread->getThreadExceptionQueue().tryReceive(e)) {
-							this->errors.push_back(e);
-						}
-					}
+					this->errorBuffer.push(this->cameraThread->getThreadExceptionQueue());
 				}
 				else {
 				
@@ -121,35 +112,8 @@ namespace TD_MoCap {
 			this->output.populateMainThreadOutput(output);
 		}
 		catch (const Exception & e) {
-			std::lock_guard<std::mutex> lock(this->errorsLock);
-			this->errors.push_back(e);
+			this->errorBuffer.push(e);
 		}
-	}
-
-	//----------
-	int32_t
-		OP_XimeaCamera::getNumInfoCHOPChans(void* reserved1)
-	{
-		return 0;
-	}
-
-	//----------
-	void
-		OP_XimeaCamera::getInfoCHOPChan(int index, OP_InfoCHOPChan* chan, void* reserved1)
-	{
-	}
-
-	//----------
-	bool
-		OP_XimeaCamera::getInfoDATSize(OP_InfoDATSize* infoSize, void* reserved1)
-	{
-		return false;
-	}
-
-	//----------
-	void
-		OP_XimeaCamera::getInfoDATEntries(int32_t index, int32_t nEntries, OP_InfoDATEntries* entries, void* reserved1)
-	{
 	}
 
 	//----------
@@ -195,6 +159,8 @@ namespace TD_MoCap {
 			auto res = manager->appendPulse(param);
 			assert(res == OP_ParAppendResult::Success);
 		}
+
+		this->errorBuffer.setupParameters(manager);
 	}
 
 	//----------
@@ -209,21 +175,14 @@ namespace TD_MoCap {
 				this->cameraThread->requestManualTrigger();
 			}
 		}
+		this->errorBuffer.pulsePressed(name);
 	}
 
 	//----------
 	void
 		OP_XimeaCamera::getErrorString(OP_String* error, void* reserved1)
 	{
-		std::lock_guard<std::mutex> lock(this->errorsLock);
-
-		if (!this->errors.empty()) {
-			std::string errorString;
-			for (const auto& error : this->errors) {
-				errorString += error.what() +"\n";
-			}
-			error->setString(errorString.c_str());
-		}
+		this->errorBuffer.getErrorString(error);
 	}
 
 	//----------

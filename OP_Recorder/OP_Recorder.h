@@ -33,7 +33,7 @@ namespace TD_MoCap {
 		void updateRecording();
 
 		Links::Input input;
-		std::vector<Exception> errors;
+		Utils::ErrorBuffer errorBuffer;
 
 		struct {
 			Utils::NumberParameter<int> maxQueueLength{

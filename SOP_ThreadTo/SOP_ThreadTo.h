@@ -24,6 +24,6 @@ namespace TD_MoCap {
 	protected:
 		Links::Input input;
 		
-		std::vector<Exception> errors;
+		Utils::ErrorBuffer errorBuffer;
 	};
 }

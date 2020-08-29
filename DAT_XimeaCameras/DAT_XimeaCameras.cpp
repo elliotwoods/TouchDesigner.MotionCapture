@@ -38,6 +38,7 @@ namespace TD_MoCap {
 		DAT_XimeaCameras::execute(DAT_Output* output, const OP_Inputs* inputs, void* reserved)
 	{
 		try {
+			this->errorBuffer.updateFromInterface(inputs);
 
 			if (this->needsRefresh) {
 				DWORD deviceCount;
@@ -101,41 +102,15 @@ namespace TD_MoCap {
 			}
 		}
 		catch (const Exception& e) {
-			this->errors.push_back(e);
+			this->errorBuffer.push(e);
 		}
-	}
-
-	//----------
-	int32_t
-		DAT_XimeaCameras::getNumInfoCHOPChans(void* reserved1)
-	{
-		return 0;
-	}
-
-	//----------
-	void
-		DAT_XimeaCameras::getInfoCHOPChan(int index, OP_InfoCHOPChan* chan, void* reserved1)
-	{
-	}
-
-	//----------
-	bool
-		DAT_XimeaCameras::getInfoDATSize(OP_InfoDATSize* infoSize, void* reserved1)
-	{
-		return false;
-	}
-
-	//----------
-	void
-		DAT_XimeaCameras::getInfoDATEntries(int32_t index, int32_t nEntries, OP_InfoDATEntries* entries, void* reserved1)
-	{
 	}
 
 	//----------
 	void
 		DAT_XimeaCameras::setupParameters(OP_ParameterManager* manager, void* reserved1)
 	{
-
+		this->errorBuffer.setupParameters(manager);
 	}
 
 	//----------
@@ -145,18 +120,14 @@ namespace TD_MoCap {
 		if (strcmp(name, "Refresh") == 0) {
 			this->needsRefresh = true;
 		}
+		this->errorBuffer.pulsePressed(name);
+
 	}
 
 	//----------
 	void
 		DAT_XimeaCameras::getErrorString(OP_String* error, void* reserved1)
 	{
-		if (!this->errors.empty()) {
-			std::string errorString;
-			for (const auto& error : this->errors) {
-				errorString += error.what() +"\n";
-			}
-			error->setString(errorString.c_str());
-		}
+		this->errorBuffer.getErrorString(error);
 	}
 }

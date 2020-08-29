@@ -26,12 +26,20 @@ namespace TD_MoCap {
 			const OP_Inputs* inputs,
 			void* reserved1)
 	{
-		// update input stats
-		this->input.update(inputs->getParDAT("Source"));
+		try {
+			this->errorBuffer.updateFromInterface(inputs);
 
-		auto frame = this->input.receiveLatestFrame(true);
-		if (frame) {
-			frame->getPreviewSOP(output);
+			// update input stats
+			this->input.update(inputs->getParDAT("Source"));
+
+			auto frame = this->input.receiveLatestFrame(true);
+			if (frame) {
+				frame->getPreviewSOP(output);
+			}
+		}
+		catch (const Exception& e)
+		{
+			this->errorBuffer.push(e);
 		}
 	}
 
@@ -41,9 +49,17 @@ namespace TD_MoCap {
 			const OP_Inputs* inputs,
 			void* reserved1)
 	{
-		// update input stats
-		this->input.update(inputs->getParDAT("Source"));
-		this->errors.push_back(Exception("VBO mode not supported"));
+		try {
+			this->errorBuffer.updateFromInterface(inputs);
+
+			// update input stats
+			this->input.update(inputs->getParDAT("Source"));
+			throw(Exception("VBO mode not supported"));
+		}
+		catch (const Exception& e)
+		{
+			this->errorBuffer.push(e);
+		}
 	}
 
 	//----------
@@ -59,26 +75,21 @@ namespace TD_MoCap {
 			auto res = manager->appendDAT(param);
 			assert(res == OP_ParAppendResult::Success);
 		}
+
+		this->errorBuffer.setupParameters(manager);
 	}
 
 	//----------
 	void
 		SOP_ThreadTo::pulsePressed(const char* name, void* reserved1)
 	{
+		this->errorBuffer.pulsePressed(name);
 	}
 
 	//---------
 	void
 		SOP_ThreadTo::getErrorString(OP_String* error, void*)
 	{
-		if (!this->errors.empty()) {
-			std::string errorString;
-			for (const auto& error : this->errors) {
-				errorString += error.what() + "\n";
-			}
-			error->setString(errorString.c_str());
-		}
-
-		this->errors.clear();
+		this->errorBuffer.getErrorString(error);
 	}
 }

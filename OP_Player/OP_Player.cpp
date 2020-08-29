@@ -29,58 +29,63 @@ namespace TD_MoCap {
 	{
 		this->parameters.list.updateFromInterface(inputs);
 
-		if (this->player) {
-			if (!this->parameters.play.getValue()) {
-				this->player.reset();
+		try {
+			this->errorBuffer.updateFromInterface(inputs);
+
+			if (this->player) {
+				if (!this->parameters.play.getValue()) {
+					this->player.reset();
+				}
+				else {
+					this->player->setFramerate(this->parameters.framerate.getValue());
+					this->player->setHoldFrame(this->parameters.holdFrame.getValue());
+					this->player->update();
+				}
 			}
 			else {
-				this->player->setFramerate(this->parameters.framerate.getValue());
-				this->player->setHoldFrame(this->parameters.holdFrame.getValue());
-				this->player->update();
-			}
-		}
-		else {
-			if (this->parameters.play.getValue()) {
-				try {
-					auto folder = std::string(inputs->getParFilePath("Folder"));
+				if (this->parameters.play.getValue()) {
+					try {
+						auto folder = std::string(inputs->getParFilePath("Folder"));
 
-					rethrowFormattedExceptions([&] {
-						this->player = std::make_unique<Player>(folder
-							, this->output
-							, this->parameters.threads.getValue()
-							, this->parameters.buffer.getValue());
-					});
-				}
-				catch (const Exception& e) {
-					this->player.reset();
-					this->errors.push_back(e);
+						rethrowFormattedExceptions([&] {
+							this->player = std::make_unique<Player>(folder
+								, this->output
+								, this->parameters.threads.getValue()
+								, this->parameters.buffer.getValue());
+						});
+					}
+					catch (const Exception& e) {
+						this->player.reset();
+						this->errorBuffer.push(e);
+					}
 				}
 			}
-		}
 
-		if (this->player) {
-			this->infoDAT = this->player->getRecordingInfo();
-		}
-		else {
-			this->infoDAT.clear();
-		}
+			if (this->player) {
+				this->infoDAT = this->player->getRecordingInfo();
+			}
+			else {
+				this->infoDAT.clear();
+			}
 
-		// update enabled parameters (disable some during playing)
+			// update enabled parameters (disable some during playing)
+			{
+				inputs->enablePar("Folder", !this->player);
+				inputs->enablePar(this->parameters.threads.getTDShortName().c_str(), !this->player);
+				inputs->enablePar(this->parameters.buffer.getTDShortName().c_str(), !this->player);
+			}
+
+			this->output.update();
+			this->output.populateMainThreadOutput(output);
+
+			// observe any errors
+			if (this->player) {
+				this->errorBuffer.push(this->player->thread.exceptionsInThread);
+			}
+		}
+		catch (const Exception& e)
 		{
-			inputs->enablePar("Folder", !this->player);
-			inputs->enablePar(this->parameters.threads.getTDShortName().c_str(), !this->player);
-			inputs->enablePar(this->parameters.buffer.getTDShortName().c_str(), !this->player);
-		}
-
-		this->output.update();
-		this->output.populateMainThreadOutput(output);
-
-		// observe any errors
-		if (this->player) {
-			Exception error;
-			while (this->player->thread.exceptionsInThread.tryReceive(error)) {
-				this->errors.push_back(error);
-			}
+			this->errorBuffer.push(e);
 		}
 	}
 
@@ -115,25 +120,21 @@ namespace TD_MoCap {
 		}
 
 		this->parameters.list.populateInterface(manager);
+
+		this->errorBuffer.setupParameters(manager);
 	}
 
 	//----------
 	void
 		OP_Player::pulsePressed(const char* name, void* reserved1)
 	{
-
+		this->errorBuffer.pulsePressed(name);
 	}
 
 	//----------
 	void
 		OP_Player::getErrorString(OP_String* error, void* reserved1)
 	{
-		if (!this->errors.empty()) {
-			std::string errorString;
-			for (const auto& error : this->errors) {
-				errorString += error.what() + "\n";
-			}
-			error->setString(errorString.c_str());
-		}
+		this->errorBuffer.getErrorString(error);
 	}
 }
