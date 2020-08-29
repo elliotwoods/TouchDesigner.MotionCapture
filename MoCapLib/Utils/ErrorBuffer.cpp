@@ -58,11 +58,11 @@ namespace TD_MoCap {
 
 		//----------
 		void
-			ErrorBuffer::push(Exception&& exception)
+			ErrorBuffer::push(const Exception& exception)
 		{
 			if (this->errors.size() < this->maxErrors.getValue())
 			{
-				this->errors.emplace_back(std::move(exception));
+				this->errors.emplace_back(exception);
 			}
 			else {
 				this->overflow = true;
@@ -71,6 +71,16 @@ namespace TD_MoCap {
 			if (this->printToConsole.getValue())
 			{
 				std::cerr << exception.what() << std::endl;
+			}
+		}
+
+		//----------
+		void
+			ErrorBuffer::push(ThreadChannel<Exception>& channel)
+		{
+			Exception exception;
+			while (channel.tryReceive(exception)) {
+				this->push(exception);
 			}
 		}
 	}

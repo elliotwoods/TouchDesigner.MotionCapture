@@ -12,9 +12,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DAT_Debug.h" />
+    <ClInclude Include="Frames.h" />
     <ClInclude Include="pch_DAT_Debug.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Frames.cpp" />
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="DAT_Debug.cpp" />
     <ClCompile Include="pch_DAT_Debug.cpp">

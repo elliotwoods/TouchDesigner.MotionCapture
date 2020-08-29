@@ -40,7 +40,7 @@ namespace TD_MoCap {
 	protected:
 		void process();
 		Utils::WorkerThread thread;
-		std::vector<Exception> errors;
+		Utils::ErrorBuffer errorBuffer;
 		std::string errorString;
 
 		Links::Input input;

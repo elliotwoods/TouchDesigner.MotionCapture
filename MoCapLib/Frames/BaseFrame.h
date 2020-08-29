@@ -39,11 +39,13 @@ namespace TD_MoCap {
 			void setComputeTime(const std::chrono::high_resolution_clock::duration&);
 
 			virtual uint64_t getFrameIndex() const = 0;
+
+			static const std::set<BaseFrame*> & getAllFrames();
 		protected:
 			std::chrono::high_resolution_clock::time_point startCompute;
 			std::chrono::high_resolution_clock::duration computeTime;
 		private:
-			static std::map<std::string, size_t> countPerType;
+			static std::set<BaseFrame*> allFrames;
 		};
 	}
 }

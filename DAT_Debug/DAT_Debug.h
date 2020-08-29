@@ -28,6 +28,13 @@ namespace TD_MoCap {
 
 		virtual void		getErrorString(OP_String* error, void* reserved1) override;
 	protected:
-		std::vector<Exception> errors;
+		Utils::ErrorBuffer errorBuffer;
+
+		Utils::SelectorParameter selectReport
+		{
+			"Report"
+			, {"Frames"}
+			, "Frames"
+		};
 	};
 }

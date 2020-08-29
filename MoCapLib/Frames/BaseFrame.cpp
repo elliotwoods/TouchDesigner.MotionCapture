@@ -5,24 +5,17 @@
 namespace TD_MoCap {
 	namespace Frames {
 		//-----------
-		std::map<std::string, size_t> BaseFrame::countPerType;
+		std::set<BaseFrame*> BaseFrame::allFrames;
 
 		//-----------
 		BaseFrame::BaseFrame()
 		{
-			const auto typeName = this->getTypeName();
-			auto findCount = BaseFrame::countPerType.find(typeName);
-			if (findCount == BaseFrame::countPerType.end()) {
-				BaseFrame::countPerType.emplace(typeName, 1);
-			}
-			else {
-				findCount->second++;
-			}
+			this->allFrames.insert(this);
 		}
 
 		//-----------
 		BaseFrame::~BaseFrame() {
-			BaseFrame::countPerType[this->getTypeName()]--;
+			this->allFrames.erase(this->allFrames.find(this));
 		}
 
 		//-----------
@@ -58,6 +51,13 @@ namespace TD_MoCap {
 			BaseFrame::getComputeTime() const
 		{
 			return this->computeTime;
+		}
+
+		//-----------
+		const std::set<BaseFrame*>&
+			BaseFrame::getAllFrames()
+		{
+			return BaseFrame::allFrames;
 		}
 	}
 }

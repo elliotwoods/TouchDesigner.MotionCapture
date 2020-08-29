@@ -47,8 +47,10 @@ namespace TD_MoCap {
 		}
 		catch (Exception e)
 		{
-			this->errors.push_back(e);
+			this->errorBuffer.push(e);
 		}
+
+		this->errorBuffer.push(this->thread.exceptionsInThread);
 	}
 
 	//----------
@@ -72,16 +74,10 @@ namespace TD_MoCap {
 	void
 		ThreadedOP<ProcessorType>::setupParameters(OP_ParameterManager* manager, void* reserved1)
 	{
-		{
-			OP_NumericParameter pulse;
-			pulse.name = "Clearexcept";
-			pulse.label = "Clear exceptions";
-			manager->appendPulse(pulse);
-		}
-
 		std::unique_lock<std::mutex> lockParameters(this->lockParameters);
 		this->parameters.list.populateInterface(manager);
 		
+		this->errorBuffer.setupParameters(manager);
 	}
 
 	//----------
@@ -89,9 +85,7 @@ namespace TD_MoCap {
 	void
 		ThreadedOP<ProcessorType>::pulsePressed(const char* name, void* reserved1)
 	{
-		if (strcmp(name, "Clearexcept")) {
-			this->errorString.clear();
-		}
+		this->errorBuffer.pulsePressed(name);
 	}
 
 	//----------
@@ -99,16 +93,7 @@ namespace TD_MoCap {
 	void
 		ThreadedOP<ProcessorType>::getErrorString(OP_String* error, void* reserved1)
 	{
-		Exception exception;
-		while (this->thread.exceptionsInThread.tryReceive(exception)) {
-			this->errorString += exception.what() + "\n";
-		}
-		for (const auto& error : this->errors) {
-			this->errorString += error.what() + "\n";
-		}
-		this->errors.clear();
-
-		error->setString(errorString.c_str());
+		this->errorBuffer.getErrorString(error);
 	}
 
 	//----------
