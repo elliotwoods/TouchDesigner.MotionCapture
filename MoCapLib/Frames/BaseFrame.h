@@ -40,11 +40,12 @@ namespace TD_MoCap {
 
 			virtual uint64_t getFrameIndex() const = 0;
 
-			static const std::set<BaseFrame*> & getAllFrames();
+			static std::map<std::string, size_t> getCountPerType();
 		protected:
 			std::chrono::high_resolution_clock::time_point startCompute;
 			std::chrono::high_resolution_clock::duration computeTime;
 		private:
+			static std::mutex lockAllFrames;
 			static std::set<BaseFrame*> allFrames;
 		};
 	}

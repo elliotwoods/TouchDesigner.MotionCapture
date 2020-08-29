@@ -6,15 +6,18 @@ namespace TD_MoCap {
 	namespace Frames {
 		//-----------
 		std::set<BaseFrame*> BaseFrame::allFrames;
+		std::mutex BaseFrame::lockAllFrames;
 
 		//-----------
 		BaseFrame::BaseFrame()
 		{
+			std::unique_lock<std::mutex> lock(BaseFrame::lockAllFrames);
 			this->allFrames.insert(this);
 		}
 
 		//-----------
 		BaseFrame::~BaseFrame() {
+			std::unique_lock<std::mutex> lock(BaseFrame::lockAllFrames);
 			this->allFrames.erase(this->allFrames.find(this));
 		}
 
@@ -54,10 +57,24 @@ namespace TD_MoCap {
 		}
 
 		//-----------
-		const std::set<BaseFrame*>&
-			BaseFrame::getAllFrames()
+		std::map<std::string, size_t>
+			BaseFrame::getCountPerType()
 		{
-			return BaseFrame::allFrames;
+			std::unique_lock<std::mutex> lock(BaseFrame::lockAllFrames);
+			std::map<std::string, size_t> countPerType;
+			{
+				for (const auto& frame : BaseFrame::allFrames) {
+					auto typeName = frame->getTypeName();
+					auto it = countPerType.find(typeName);
+					if (it == countPerType.end()) {
+						countPerType.emplace(typeName, 1);
+					}
+					else {
+						it->second++;
+					}
+				}
+			}
+			return countPerType;
 		}
 	}
 }
