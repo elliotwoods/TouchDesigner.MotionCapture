@@ -18,7 +18,7 @@
     <ClCompile Include="Frames\SynchronisedFrame.cpp" />
     <ClCompile Include="Frames\TrackingFrame.cpp" />
     <ClCompile Include="Frames\TriangulateFrame.cpp" />
-    <ClCompile Include="Frames\XimeaCameraFrame.cpp" />
+    <ClCompile Include="Frames\CameraFrame.cpp" />
     <ClCompile Include="ImageFormat.cpp" />
     <ClCompile Include="Links\Input.cpp" />
     <ClCompile Include="Links\Output.cpp" />
@@ -49,7 +49,7 @@
     <ClInclude Include="Frames\SynchronisedFrame.h" />
     <ClInclude Include="Frames\TrackingFrame.h" />
     <ClInclude Include="Frames\TriangulateFrame.h" />
-    <ClInclude Include="Frames\XimeaCameraFrame.h" />
+    <ClInclude Include="Frames\CameraFrame.h" />
     <ClInclude Include="ImageFormat.h" />
     <ClInclude Include="Links\Input.h" />
     <ClInclude Include="Links\Output.h" />

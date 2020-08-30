@@ -9,7 +9,7 @@ namespace TD_MoCap {
 	namespace Frames {
 		//----------
 		std::shared_ptr<SynchronisedFrame>
-			SynchronisedFrame::make(const std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>>& cameraFrames, Links::Output::ID leaderID)
+			SynchronisedFrame::make(const std::map<Links::Output::ID, std::shared_ptr<CameraFrame>>& cameraFrames, Links::Output::ID leaderID)
 		{
 			return std::shared_ptr<SynchronisedFrame>(new SynchronisedFrame(cameraFrames, leaderID));
 			
@@ -34,7 +34,7 @@ namespace TD_MoCap {
 		}
 
 		//----------
-		SynchronisedFrame::SynchronisedFrame(const std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>>& cameraFrames, Links::Output::ID leaderID)
+		SynchronisedFrame::SynchronisedFrame(const std::map<Links::Output::ID, std::shared_ptr<CameraFrame>>& cameraFrames, Links::Output::ID leaderID)
 			: cameraFrames(cameraFrames)
 			, leaderID(leaderID)
 		{
@@ -142,7 +142,7 @@ namespace TD_MoCap {
 			for (const auto& cameraFrameJson : cameraFramesJson) {
 				actions.push_back([this, cameraFrameJson, workingFolder, &lockOutput] {
 					auto id = (Links::Output::ID) cameraFrameJson["id"];
-					auto cameraFrame = XimeaCameraFrame::make();
+					auto cameraFrame = CameraFrame::make();
 					cameraFrame->deserialise(cameraFrameJson["content"], workingFolder);
 
 					{

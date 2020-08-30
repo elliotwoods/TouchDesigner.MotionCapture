@@ -5,6 +5,9 @@
     <ClCompile Include="Frames\BaseFrame.cpp">
       <Filter>Frames</Filter>
     </ClCompile>
+    <ClCompile Include="Frames\CameraFrame.cpp">
+      <Filter>Frames</Filter>
+    </ClCompile>
     <ClCompile Include="Frames\CentroidsFrame.cpp">
       <Filter>Frames</Filter>
     </ClCompile>
@@ -18,9 +21,6 @@
       <Filter>Frames</Filter>
     </ClCompile>
     <ClCompile Include="Frames\TriangulateFrame.cpp">
-      <Filter>Frames</Filter>
-    </ClCompile>
-    <ClCompile Include="Frames\XimeaCameraFrame.cpp">
       <Filter>Frames</Filter>
     </ClCompile>
     <ClCompile Include="ImageFormat.cpp" />
@@ -77,6 +77,9 @@
     <ClInclude Include="Frames\BaseFrame.h">
       <Filter>Frames</Filter>
     </ClInclude>
+    <ClInclude Include="Frames\CameraFrame.h">
+      <Filter>Frames</Filter>
+    </ClInclude>
     <ClInclude Include="Frames\CentroidsFrame.h">
       <Filter>Frames</Filter>
     </ClInclude>
@@ -90,9 +93,6 @@
       <Filter>Frames</Filter>
     </ClInclude>
     <ClInclude Include="Frames\TriangulateFrame.h">
-      <Filter>Frames</Filter>
-    </ClInclude>
-    <ClInclude Include="Frames\XimeaCameraFrame.h">
       <Filter>Frames</Filter>
     </ClInclude>
     <ClInclude Include="ImageFormat.h" />

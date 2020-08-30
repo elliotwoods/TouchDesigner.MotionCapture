@@ -1,7 +1,7 @@
 #include "pch_OP_XimeaCamera.h"
 #include "CameraThread.h"
 #include "Exception.h"
-#include "Frames/XimeaCameraFrame.h"
+#include "Frames/CameraFrame.h"
 
 namespace TD_MoCap {
 	//----------
@@ -19,6 +19,7 @@ namespace TD_MoCap {
 			}
 
 			// Setup parameters
+			this->roiInfo.sensorHeight = this->camera.GetHeight_Maximum();
 			for (auto parameter : cameraParameters.list) {
 				this->pushToCamera(parameter);
 			}
@@ -175,19 +176,15 @@ namespace TD_MoCap {
 
 				auto roiPortion = typedParameter->getValue();
 				roiPortion = MAX(MIN(roiPortion, 1), 0);
-				auto sensorHeight = this->camera.GetHeight_Maximum();
-				std::cout << "sensorHeight" << sensorHeight << std::endl;
 				
-				int roiHeight = (sensorHeight - 1) * roiPortion + 1;
+				int roiHeight = (this->roiInfo.sensorHeight - 1) * roiPortion + 1;
 				roiHeight -= roiHeight % this->camera.GetHeight_Increment();
 
-				int roiY = (sensorHeight - roiHeight) / 2;
+				int roiY = (this->roiInfo.sensorHeight - roiHeight) / 2;
 				roiY -= roiY % this->camera.GetOffsetY_Increment();
 
 				auto priorHeight = this->camera.GetHeight();
 				auto priorRoiY = this->camera.GetOffsetY();
-				std::cout << "priorHeight" << priorHeight << std::endl;
-				std::cout << "priorRoiY" << priorRoiY << std::endl;
 
 				// we need to make sure every call is valid (i.e. we don't overstep the image area)
 				if (roiHeight > priorHeight) {
@@ -198,6 +195,9 @@ namespace TD_MoCap {
 					this->camera.SetHeight(roiHeight);
 					this->camera.SetOffsetY(roiY);
 				}
+
+				this->roiInfo.roiY = roiY;
+				this->roiInfo.roiHeight = roiHeight;
 
 				if (wasAcquisitionActive) {
 					this->camera.StartAcquisition();
@@ -265,7 +265,7 @@ namespace TD_MoCap {
 				
 				if (res == XI_OK) {
 					// Copy pixels into CV format
-					auto frame = Frames::XimeaCameraFrame::make();
+					auto frame = Frames::CameraFrame::make();
 					frame->startComputeTimer();
 
 					frame->image = cv::Mat(cv::Size(image->GetWidth(), image->GetHeight())
@@ -284,6 +284,9 @@ namespace TD_MoCap {
 						auto frameData = image->GetXI_IMG();
 						frame->metaData.frameIndex = frameData->acq_nframe;
 						frame->metaData.timestamp = std::chrono::seconds(frameData->tsSec) + std::chrono::microseconds(frameData->tsUSec);
+						frame->metaData.sensorHeight = this->roiInfo.sensorHeight;
+						frame->metaData.roiY = this->roiInfo.roiY;
+						frame->metaData.roiHeight = this->roiInfo.roiHeight;
 					}
 
 					// don't call shared_from_this on a closing object (we can give up on producing the frame)

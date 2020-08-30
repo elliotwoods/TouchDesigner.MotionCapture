@@ -97,13 +97,13 @@ namespace TD_MoCap {
 			auto& syncMember = it.second;
 
 			// always receive one frame
-			auto frame = std::dynamic_pointer_cast<Frames::XimeaCameraFrame>(syncMember->input.receiveNextFrameWait(timeout));
+			auto frame = std::dynamic_pointer_cast<Frames::CameraFrame>(syncMember->input.receiveNextFrameWait(timeout));
 
 			while (frame) {
 				syncMember->indexedFrames.emplace(frame->metaData.frameIndex, frame);
 
 				// receive any other frames that are waiting also
-				frame = std::dynamic_pointer_cast<Frames::XimeaCameraFrame>(syncMember->input.receiveNextFrameWait(timeout));
+				frame = std::dynamic_pointer_cast<Frames::CameraFrame>(syncMember->input.receiveNextFrameWait(timeout));
 			}
 
 			// cap history size
@@ -126,7 +126,7 @@ namespace TD_MoCap {
 		// check that we have a cameraThread for all syncMembers
 		std::map<Links::Output::ID, std::shared_ptr<CameraThread>> cameraThreads;
 		for (const auto& it: this->syncMembers) {
-			auto latestFrame = std::dynamic_pointer_cast<Frames::XimeaCameraFrame>(it.second->input.receiveLatestFrame(true));
+			auto latestFrame = std::dynamic_pointer_cast<Frames::CameraFrame>(it.second->input.receiveLatestFrame(true));
 			if (!latestFrame) {
 				throw(Exception("Camera input does not yet have a frame"));
 			}
@@ -308,7 +308,7 @@ namespace TD_MoCap {
 				}
 
 				if (matchFound) {
-					std::map<Links::Output::ID, std::shared_ptr<Frames::XimeaCameraFrame>> cameraFrames;
+					std::map<Links::Output::ID, std::shared_ptr<Frames::CameraFrame>> cameraFrames;
 
 					// put leader frame
 					cameraFrames.emplace(this->leaderID, itLeaderFrame->second);

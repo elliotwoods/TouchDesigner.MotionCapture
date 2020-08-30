@@ -35,7 +35,11 @@ namespace TD_MoCap {
 
 		Links::Output& output;
 
-		size_t sensorHeight;
+		struct {
+			size_t sensorHeight;
+			size_t roiY;
+			size_t roiHeight;
+		} roiInfo;
 
 		bool showPreviewWindow = false;
 		bool joining = false;

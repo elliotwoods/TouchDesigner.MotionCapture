@@ -9,7 +9,7 @@ namespace TD_MoCap {
 	class CameraThread;
 
 	namespace Frames {
-		class TDMOCAP_API XimeaCameraFrame : public BaseFrame
+		class TDMOCAP_API CameraFrame : public BaseFrame
 		{
 		public:
 			struct MetaData
@@ -17,12 +17,16 @@ namespace TD_MoCap {
 				uint64_t frameIndex;
 				std::chrono::microseconds timestamp;
 
+				size_t sensorHeight;
+				size_t roiY;
+				size_t roiHeight;
+
 				uint8_t reserved[128
 					- sizeof(uint64_t)
 					- sizeof(std::chrono::microseconds)];
 			};
 
-			static std::shared_ptr<XimeaCameraFrame> make();
+			static std::shared_ptr<CameraFrame> make();
 			std::string getTypeName() const override;
 
 			bool getPreviewImage(cv::Mat&) const override;
@@ -39,7 +43,7 @@ namespace TD_MoCap {
 
 			MetaData metaData;
 		private:
-			XimeaCameraFrame();
+			CameraFrame();
 		};
 	}
 }

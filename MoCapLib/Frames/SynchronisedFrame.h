@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BaseFrame.h"
-#include "XimeaCameraFrame.h"
+#include "CameraFrame.h"
 #include "pch_MoCapLib.h"
 #include "Links/Output.h"
 #include "Utils/OpticalFlow.h"
@@ -13,7 +13,7 @@ namespace TD_MoCap {
 		{
 		public:
 			// Make from incoming camera frames
-			static std::shared_ptr<SynchronisedFrame> make(const std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>>&
+			static std::shared_ptr<SynchronisedFrame> make(const std::map<Links::Output::ID, std::shared_ptr<CameraFrame>>&
 				, Links::Output::ID leaderID);
 
 			// Make from serialised data
@@ -31,7 +31,7 @@ namespace TD_MoCap {
 
 			void compute();
 
-			std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>> cameraFrames;
+			std::map<Links::Output::ID, std::shared_ptr<CameraFrame>> cameraFrames;
 			Links::Output::ID leaderID;
 			Links::Output::ID secondaryID;
 
@@ -42,7 +42,7 @@ namespace TD_MoCap {
 #endif
 		private:
 			SynchronisedFrame();
-			SynchronisedFrame(const std::map<Links::Output::ID, std::shared_ptr<XimeaCameraFrame>>&
+			SynchronisedFrame(const std::map<Links::Output::ID, std::shared_ptr<CameraFrame>>&
 				, Links::Output::ID leaderID);
 		};
 	}

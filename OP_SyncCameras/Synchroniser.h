@@ -2,7 +2,7 @@
 #include <map>
 #include "MoCapLib.h"
 
-#include "Frames/XimeaCameraFrame.h"
+#include "Frames/CameraFrame.h"
 
 namespace TD_MoCap {
 	/// <summary>
@@ -14,7 +14,7 @@ namespace TD_MoCap {
 		struct SyncMember
 		{
 			Links::Input input;
-			std::map<uint64_t, std::shared_ptr<Frames::XimeaCameraFrame>> indexedFrames;
+			std::map<uint64_t, std::shared_ptr<Frames::CameraFrame>> indexedFrames;
 
 			uint64_t frameNumberStart = 0;
 			std::chrono::microseconds timestampStart;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BaseFrame.h"
-#include "XimeaCameraFrame.h"
+#include "CameraFrame.h"
 #include "pch_MoCapLib.h"
 #include "Links/Output.h"
 #include "SynchronisedFrame.h"
