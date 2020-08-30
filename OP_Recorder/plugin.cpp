@@ -26,7 +26,7 @@ extern "C"
 		info->customOPInfo.authorName->setString("Elliot Woods");
 		info->customOPInfo.authorEmail->setString("elliot@kimchiandchips.com");
 
-		info->customOPInfo.minInputs = 1;
+		info->customOPInfo.minInputs = 0;
 		info->customOPInfo.maxInputs = 1;
 	}
 

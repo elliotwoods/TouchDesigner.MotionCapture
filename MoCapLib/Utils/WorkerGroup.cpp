@@ -58,7 +58,7 @@ namespace TD_MoCap {
 			std::vector<std::shared_ptr<std::promise<void>>> promises;
 			std::vector<std::future<void>> futures;
 
-			std::vector<Exception> exceptions;
+			ThreadChannel<Exception> exceptions;
 
 			//load actions into queue
 			for (const auto& action : actions) {
@@ -71,7 +71,7 @@ namespace TD_MoCap {
 						rethrowFormattedExceptions(action);
 					}
 					catch (Exception e) {
-						exceptions.push_back(e);
+						exceptions.send(e);
 					}
 					promise->set_value();
 				});
@@ -82,9 +82,15 @@ namespace TD_MoCap {
 				future.get();
 			}
 
-			if (!exceptions.empty()) {
-				throw(exceptions.front());
+			// if there are any exceptions
+			{
+				Exception e;
+				if (exceptions.tryReceive(e)) {
+					// throw the first one
+					throw(e);
+				}
 			}
+			
 		}
 
 		//---------

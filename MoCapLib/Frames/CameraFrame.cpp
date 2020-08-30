@@ -68,9 +68,9 @@ namespace TD_MoCap {
 
 			auto imageCopy = std::make_shared<cv::Mat>(this->image.clone());
 			auto relativeFilePathString = std::to_string(args.frameIndex) + "." + args.imageFormat;
-			auto absoluteFilePath = args.folderOut / relativeFilePathString;
+			auto absoluteFilePath = args.folderOut / args.innerFolder / relativeFilePathString;
 
-			json["filePath"] = relativeFilePathString;
+			json["filePath"] = (args.innerFolder / relativeFilePathString).string();
 
 			// Stereo recording test times
 			// PNG : 15 fps (858kB)

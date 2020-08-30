@@ -103,7 +103,7 @@ namespace TD_MoCap {
 
 				// append a subfolder
 				auto cameraFrameArgs = args;
-				cameraFrameArgs.folderOut /= std::to_string(cameraFrame.first);
+				cameraFrameArgs.innerFolder = std::to_string(cameraFrame.first);
 				auto cameraFrameIndex = cameraFrame.first;
 				auto completeAction = args.onComplete;
 				cameraFrameArgs.onComplete = [cameraFrameIndex, isComplete, completeAction] {

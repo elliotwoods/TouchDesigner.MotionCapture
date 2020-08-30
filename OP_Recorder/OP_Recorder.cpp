@@ -76,6 +76,17 @@ namespace TD_MoCap {
 			{
 				inputs->enablePar(this->parameters.record.getTDShortName().c_str(), !recordFolder.empty() || this->isRecording);
 			}
+
+			// Output a report
+			{
+				Utils::Table table;
+				table.newRow() << "Recording" << (this->isRecording ? 0 : 1);
+				table.newRow() << "Record frame rate" << this->recordFrameRateCounter.getFPS();
+				table.newRow() << "Input buffer" << this->input.getChannel().size();
+				table.newRow() << "WorkerGroup::X queue length" << Utils::WorkerGroup::X().sizeWorkItems();
+
+				table.populateOutput(output);
+			}
 		}
 		catch (const Exception& e) {
 			this->errorBuffer.push(e);
