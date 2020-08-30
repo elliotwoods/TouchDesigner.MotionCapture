@@ -54,8 +54,13 @@ namespace TD_MoCap {
 					}
 					else {
 						// wait for action (no idle function)
-						while (workQueue.receive(action) && this->running) {
-							rethrowFormattedExceptions(action);
+						while (workQueue.tryReceive(action) && this->running) {
+							try {
+								rethrowFormattedExceptions(action);
+							}
+							catch (const Exception& e) {
+								this->exceptionsInThread.send(e);
+							}
 						}
 					}
 				}

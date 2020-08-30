@@ -55,6 +55,9 @@ namespace TD_MoCap {
 				bool success;
 				while (this->synchroniser.syncSuccess.tryReceive(success)) {
 					this->errorBuffer.clear();
+
+					//clear out exceptions from thread
+					this->synchroniser.getThread().exceptionsInThread.clear();
 				}
 			}
 		}
