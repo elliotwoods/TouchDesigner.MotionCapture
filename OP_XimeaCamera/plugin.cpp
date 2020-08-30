@@ -17,7 +17,7 @@ extern "C"
 		info->customOPInfo.opType->setString("Mocapcamximea");
 
 		// The opLabel is the text that will show up in the OP Create Dialog
-		info->customOPInfo.opLabel->setString("MoCap Ximea Camera");
+		info->customOPInfo.opLabel->setString("MoCap Camera");
 
 		// Will be turned into a 3 letter icon on the nodes
 		info->customOPInfo.opIcon->setString("MCX");

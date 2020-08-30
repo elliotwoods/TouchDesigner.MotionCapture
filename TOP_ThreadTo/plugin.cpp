@@ -20,7 +20,7 @@ extern "C"
 		info->customOPInfo.opType->setString("Threadto");
 
 		// The opLabel is the text that will show up in the OP Create Dialog
-		info->customOPInfo.opLabel->setString("Thread To");
+		info->customOPInfo.opLabel->setString("MoCap Thread To (TOP)");
 
 		// Will be turned into a 3 letter icon on the nodes
 		info->customOPInfo.opIcon->setString("TT");

@@ -17,7 +17,7 @@ extern "C"
 		info->customOPInfo.opType->setString("Centroids");
 
 		// The opLabel is the text that will show up in the OP Create Dialog
-		info->customOPInfo.opLabel->setString("Centroids");
+		info->customOPInfo.opLabel->setString("MoCap Centroids");
 
 		// Will be turned into a 3 letter icon on the nodes
 		info->customOPInfo.opIcon->setString("CEN");

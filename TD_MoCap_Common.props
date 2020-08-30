@@ -3,9 +3,9 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <OutDir>$(SolutionDir)\bin\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)</TargetName>
+    <OutDir>$(USERPROFILE)\Documents\Derivative\Plugins\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>

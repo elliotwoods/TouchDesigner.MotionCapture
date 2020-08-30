@@ -17,7 +17,7 @@ extern "C"
 		info->customOPInfo.opType->setString("Triangulate");
 
 		// The opLabel is the text that will show up in the OP Create Dialog
-		info->customOPInfo.opLabel->setString("Triangulate");
+		info->customOPInfo.opLabel->setString("MoCap Triangulate");
 
 		// Will be turned into a 3 letter icon on the nodes
 		info->customOPInfo.opIcon->setString("TRI");
