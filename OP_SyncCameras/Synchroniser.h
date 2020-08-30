@@ -30,6 +30,9 @@ namespace TD_MoCap {
 		Utils::ParameterList& getParameters();
 
 		Links::Output output;
+
+		// send a message on this channel (to clear errors in main interface)
+		Utils::ThreadChannel<bool> syncSuccess;
 	protected:
 		void threadedUpdate();
 

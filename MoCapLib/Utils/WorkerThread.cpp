@@ -32,26 +32,31 @@ namespace TD_MoCap {
 		{
 			this->thread = std::thread([this] {
 				while (this->running) {
-					try {
-
-						Action action;
-						if (this->idleFunction) {
-							rethrowFormattedExceptions(this->idleFunction);
-
-							// don't wait for action (we have an idle function)
-							if (workQueue.tryReceive(action)) {
+					Action action;
+					if (this->idleFunction) {
+						// don't wait for action (we have an idle function)
+						while (workQueue.tryReceive(action) && this->running) {
+							try {
 								rethrowFormattedExceptions(action);
+							}
+							catch (const Exception& e) {
+								this->exceptionsInThread.send(e);
 							}
 						}
-						else {
-							// wait for action (no idle function)
-							if (workQueue.receive(action)) {
-								rethrowFormattedExceptions(action);
-							}
+
+						// perform the idle function 
+						try {
+							rethrowFormattedExceptions(this->idleFunction);
+						}
+						catch (const Exception& e) {
+							this->exceptionsInThread.send(e);
 						}
 					}
-					catch (const Exception & e) {
-						this->exceptionsInThread.send(e);
+					else {
+						// wait for action (no idle function)
+						while (workQueue.receive(action) && this->running) {
+							rethrowFormattedExceptions(action);
+						}
 					}
 				}
 			});

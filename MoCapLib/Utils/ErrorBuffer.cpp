@@ -33,8 +33,7 @@ namespace TD_MoCap {
 			ErrorBuffer::pulsePressed(const char* name)
 		{
 			if (strcmp(name, "Clearerror") == 0) {
-				this->errors.clear();
-				this->overflow = false;
+				this->clear();
 			}
 		}
 
@@ -82,6 +81,14 @@ namespace TD_MoCap {
 			while (channel.tryReceive(exception)) {
 				this->push(exception);
 			}
+		}
+
+		//----------
+		void
+			ErrorBuffer::clear()
+		{
+			this->errors.clear();
+			this->overflow = false;
 		}
 	}
 }

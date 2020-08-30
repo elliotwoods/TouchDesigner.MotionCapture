@@ -23,14 +23,20 @@ namespace TD_MoCap {
 	void 
 		Synchroniser::checkConnections(const std::vector<Links::Output::ID>& newOutputIDs)
 	{
-		this->workerThread.perform([newOutputIDs, this] {
-			// gather current IDs
-			std::vector<Links::Output::ID> currentOutputIDs;
-			for (const auto& camera : this->syncMembers) {
-				currentOutputIDs.push_back(camera.first);
-			}
-			// see if changed
-			if (newOutputIDs != currentOutputIDs) {
+		// gather current IDs (we presume these can't change in the other thread)
+		std::vector<Links::Output::ID> currentOutputIDs;
+		for (const auto& camera : this->syncMembers) {
+			currentOutputIDs.push_back(camera.first);
+		}
+
+		// quit early on empty
+		if (newOutputIDs.empty() && currentOutputIDs.empty()) {
+			throw(Exception("No cameras"));
+		}
+
+		// if we've changed
+		if (newOutputIDs != currentOutputIDs) {
+			this->workerThread.performBlocking([newOutputIDs, this] {
 				// rebuild syncMembers
 				this->syncMembers.clear();
 				this->workerThread.wakeOnPerformBlocking.clear();
@@ -40,10 +46,14 @@ namespace TD_MoCap {
 					this->workerThread.wakeOnPerformBlocking.insert(&camera->input.getChannel());
 					this->syncMembers.emplace(id, std::move(camera));
 				}
+
+				// record the leader as the first in the input
 				this->leaderID = newOutputIDs.front();
-				this->needsResync = true;
-			}
-		});
+
+				// force an immediate resync
+				this->requestResync();
+			});
+		}
 	}
 
 	//----------
@@ -222,6 +232,7 @@ namespace TD_MoCap {
 			syncMember->timestampStart = std::chrono::seconds(frameData->tsSec) + std::chrono::microseconds(frameData->tsUSec);
 		}
 
+		this->syncSuccess.send(true);
 		this->needsResync = false;
 	}
 

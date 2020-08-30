@@ -23,17 +23,6 @@ namespace TD_MoCap {
 								const OP_Inputs*,
 								void* reserved) override;
 
-		virtual int32_t		getNumInfoCHOPChans(void* reserved1) override;
-		virtual void		getInfoCHOPChan(int index,
-			OP_InfoCHOPChan* chan,
-			void* reserved1) override;
-
-		virtual bool		getInfoDATSize(OP_InfoDATSize* infoSize, void* reserved1) override;
-		virtual void		getInfoDATEntries(int32_t index,
-			int32_t nEntries,
-			OP_InfoDATEntries* entries,
-			void* reserved1) override;
-
 		virtual void		setupParameters(OP_ParameterManager* manager, void* reserved1) override;
 		virtual void		pulsePressed(const char* name, void* reserved1) override;
 

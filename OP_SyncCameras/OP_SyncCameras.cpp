@@ -25,12 +25,13 @@ namespace TD_MoCap {
 		OP_SyncCameras::execute(DAT_Output* output, const OP_Inputs* inputs, void* reserved)
 	{
 		try {
+			// update parameters
 			this->errorBuffer.updateFromInterface(inputs);
-
 			this->synchroniser.getParameters().updateFromInterface(inputs);
 
 			// gather new IDs and check our list
 			{
+				// gather the list of ID's
 				auto inputCount = inputs->getNumInputs();
 				std::vector<Links::Output::ID> newOutputIDs;
 				for (int i = 0; i < inputCount; i++) {
@@ -40,44 +41,29 @@ namespace TD_MoCap {
 					}
 				}
 
+				// send the new ID list to the synchroniser
 				this->synchroniser.checkConnections(newOutputIDs);
 			}
 
 			// Update output
 			this->synchroniser.output.update();
 			this->synchroniser.output.populateMainThreadOutput(output);
+
+			// clear all our errors when we have a successful sync
+			// This is because TD will bypass the OP if the error string is not empty
+			{
+				bool success;
+				while (this->synchroniser.syncSuccess.tryReceive(success)) {
+					this->errorBuffer.clear();
+				}
+			}
 		}
 		catch (const Exception & e) {
 			this->errorBuffer.push(e);
 		}
 
+		// gather any exceptions from the synchronsier thread
 		this->errorBuffer.push(this->synchroniser.getThread().exceptionsInThread);
-	}
-
-	//----------
-	int32_t
-		OP_SyncCameras::getNumInfoCHOPChans(void* reserved1)
-	{
-		return 0;
-	}
-
-	//----------
-	void
-		OP_SyncCameras::getInfoCHOPChan(int index, OP_InfoCHOPChan* chan, void* reserved1)
-	{
-	}
-
-	//----------
-	bool
-		OP_SyncCameras::getInfoDATSize(OP_InfoDATSize* infoSize, void* reserved1)
-	{
-		return false;
-	}
-
-	//----------
-	void
-		OP_SyncCameras::getInfoDATEntries(int32_t index, int32_t nEntries, OP_InfoDATEntries* entries, void* reserved1)
-	{
 	}
 
 	//----------

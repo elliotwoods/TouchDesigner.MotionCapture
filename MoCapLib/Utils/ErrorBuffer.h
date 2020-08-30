@@ -21,6 +21,7 @@ namespace TD_MoCap {
 
 			void push(const Exception&);
 			void push(ThreadChannel<Exception>&);
+			void clear();
 		protected:
 			std::deque<Exception> errors;
 			bool overflow = false;
