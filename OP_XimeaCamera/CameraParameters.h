@@ -27,6 +27,14 @@ namespace TD_MoCap {
 			, 0, 20000
 		};
 
+		Utils::NumberParameter<float> targetFrameRate
+		{
+			"Target frame rate", "fps"
+			, 120, 120
+			, 1, 10000
+			, 1, 240
+		};
+
 		Utils::NumberParameter<float> exposure
 		{
 			"Exposure", "ms"
@@ -35,6 +43,14 @@ namespace TD_MoCap {
 			, 0, 100
 		};
 
+		Utils::NumberParameter<float> roiPortion
+		{
+			"ROI portion", "[/Height]"
+			, 1, 1
+			, 0, 1
+			, 0, 1
+		};
+		
 		Utils::ValueParameter<bool> preview
 		{
 			"Preview", false, false
@@ -52,7 +68,9 @@ namespace TD_MoCap {
 			&serialNumber
 			, &limitBandwidth
 			, &maximumBandwidth
+			, &targetFrameRate
 			, &exposure
+			, &roiPortion
 			, &preview
 			, &trigger
 		};

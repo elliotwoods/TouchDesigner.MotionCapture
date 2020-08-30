@@ -35,6 +35,8 @@ namespace TD_MoCap {
 
 		Links::Output& output;
 
+		size_t sensorHeight;
+
 		bool showPreviewWindow = false;
 		bool joining = false;
 		Utils::WorkerThread workerThread;

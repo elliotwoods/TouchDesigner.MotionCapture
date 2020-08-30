@@ -143,6 +143,13 @@ namespace TD_MoCap {
 				}
 			}
 		}
+		else if (name == "Target frame rate") {
+			auto typedParameter = dynamic_cast<Utils::ValueParameter<float>*>(parameter);
+			if (typedParameter) {
+				this->camera.SetAcquisitionTimingMode(XI_ACQ_TIMING_MODE::XI_ACQ_TIMING_MODE_FRAME_RATE_LIMIT);
+				this->camera.SetFrameRate(typedParameter->getValue());
+			}
+		}
 		else if (name == "Maximum bandwidth") {
 			auto typedParameter = dynamic_cast<Utils::ValueParameter<int>*>(parameter);
 			if (typedParameter) {
@@ -152,6 +159,46 @@ namespace TD_MoCap {
 					this->camera.StopAcquisition();
 				}
 				this->camera.SetBandwidthLimit(typedParameter->getValue());
+				if (wasAcquisitionActive) {
+					this->camera.StartAcquisition();
+				}
+			}
+		}
+		else if (name == "ROI portion") {
+			auto typedParameter = dynamic_cast<Utils::ValueParameter<float>*>(parameter);
+			if (typedParameter) {
+				// needs camera to be stopped during change
+				auto wasAcquisitionActive = this->camera.IsAcquisitionActive();
+				if (wasAcquisitionActive) {
+					this->camera.StopAcquisition();
+				}
+
+				auto roiPortion = typedParameter->getValue();
+				roiPortion = MAX(MIN(roiPortion, 1), 0);
+				auto sensorHeight = this->camera.GetHeight_Maximum();
+				std::cout << "sensorHeight" << sensorHeight << std::endl;
+				
+				int roiHeight = (sensorHeight - 1) * roiPortion + 1;
+				roiHeight -= roiHeight % this->camera.GetHeight_Increment();
+
+				int roiY = (sensorHeight - roiHeight) / 2;
+				roiY -= roiY % this->camera.GetOffsetY_Increment();
+
+				auto priorHeight = this->camera.GetHeight();
+				auto priorRoiY = this->camera.GetOffsetY();
+				std::cout << "priorHeight" << priorHeight << std::endl;
+				std::cout << "priorRoiY" << priorRoiY << std::endl;
+
+				// we need to make sure every call is valid (i.e. we don't overstep the image area)
+				if (roiHeight > priorHeight) {
+					this->camera.SetOffsetY(roiY);
+					this->camera.SetHeight(roiHeight);
+				}
+				else {
+					this->camera.SetHeight(roiHeight);
+					this->camera.SetOffsetY(roiY);
+				}
+
 				if (wasAcquisitionActive) {
 					this->camera.StartAcquisition();
 				}
@@ -239,8 +286,8 @@ namespace TD_MoCap {
 						frame->metaData.timestamp = std::chrono::seconds(frameData->tsSec) + std::chrono::microseconds(frameData->tsUSec);
 					}
 
-					// don't call shared_from_this on a closing object
-					if (this->getThread().isJoining()) {
+					// don't call shared_from_this on a closing object (we can give up on producing the frame)
+					if (this->joining) {
 						return;
 					}
 					frame->cameraThread = this->shared_from_this();
