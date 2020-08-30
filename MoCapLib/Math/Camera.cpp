@@ -113,11 +113,17 @@ namespace TD_MoCap {
 
 		//----------
 		std::vector<cv::Point2f>
-			Camera::undistortImagePoints(const std::vector<cv::Point2f>& imagePoints) const
+			Camera::undistortImagePoints(const std::vector<cv::Point2f>& imagePoints, size_t roiY) const
 		{
+			// adjust for roi
+			auto imagePointsActual = imagePoints;
+			for (auto& imagePointActual : imagePointsActual) {
+				imagePointActual.y += roiY;
+			}
+
 			// undistort
 			std::vector<cv::Point2f> imagePointsIdeal;
-			cv::undistortPoints(imagePoints
+			cv::undistortPoints(imagePointsActual
 				, imagePointsIdeal
 				, this->cameraMatrix
 				, this->distortionCoefficients);

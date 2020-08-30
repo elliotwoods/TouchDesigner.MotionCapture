@@ -68,23 +68,28 @@ namespace TD_MoCap {
 			throw(Exception("Triangulation currently only supports exactly 2 cameras"));
 		}
 
-		auto leftCamera = inputFrame->cameras[inputFrame->inputFrame->leaderID];
-		auto rightCamera = inputFrame->cameras[inputFrame->inputFrame->secondaryID];
+		const auto leftID = inputFrame->inputFrame->leaderID;
+		const auto rightID = inputFrame->inputFrame->secondaryID;
+
+		auto leftCamera = inputFrame->cameras[leftID];
+		auto rightCamera = inputFrame->cameras[rightID];
 
 		// Undistort centroids
-		auto centroidsLeftUndistorted = parameters.cameraLeft.undistortImagePoints(leftCamera->centroids);
-		auto centroidsRightUndistorted = parameters.cameraRight.undistortImagePoints(rightCamera->centroids);
+		auto centroidsLeftUndistorted = parameters.cameraLeft.undistortImagePoints(leftCamera->centroids
+			, inputFrame->inputFrame->cameraFrames[leftID]->metaData.roiY);
+		auto centroidsRightUndistorted = parameters.cameraRight.undistortImagePoints(rightCamera->centroids
+			, inputFrame->inputFrame->cameraFrames[rightID]->metaData.roiY);
 
 		// Insert test data
 		// We add this to the input - i.e. it gets passed through all of triangulate
 		if (parameters.includeTestData.getValue()) {
 			auto testDataSize = testPointsLeft.size();
-			auto testPointsLeftUndistorted = parameters.cameraLeft.undistortImagePoints(testPointsLeft);
+			auto testPointsLeftUndistorted = parameters.cameraLeft.undistortImagePoints(testPointsLeft, 0);
 			centroidsLeftUndistorted.insert(centroidsLeftUndistorted.end()
 				, testPointsLeftUndistorted.begin()
 				, testPointsLeftUndistorted.end());
 
-			auto testPointsRightUndistorted = parameters.cameraRight.undistortImagePoints(testPointsRight);
+			auto testPointsRightUndistorted = parameters.cameraRight.undistortImagePoints(testPointsRight, 0);
 			centroidsRightUndistorted.insert(centroidsRightUndistorted.end()
 				, testPointsRightUndistorted.begin()
 				, testPointsRightUndistorted.end());

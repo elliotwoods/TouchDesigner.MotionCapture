@@ -24,7 +24,7 @@ namespace TD_MoCap {
 			glm::mat4 getViewMatrix() const;
 			glm::mat4 getInverseViewProjection() const;
 
-			std::vector<cv::Point2f> undistortImagePoints(const std::vector<cv::Point2f>&) const;
+			std::vector<cv::Point2f> undistortImagePoints(const std::vector<cv::Point2f>&, size_t roiY) const;
 			std::vector<Ray> unprojectUndistortedImagePoints(const std::vector<cv::Point2f>&) const;
 			Ray unprojectCoordinate(const cv::Point2f& imageCoordinate) const;
 
