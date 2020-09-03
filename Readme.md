@@ -23,7 +23,10 @@ In the future we may remove the requirement for CUDA if it becomes a problem.
 
 If you get errors on load of TouchDesigner which look like:
 
+![Touch Designer DLL load error](.github/td_dll_load_error.png)
+
 Then try to run the ConsoleTest project to see a more descriptive error message e.g.:
 
+![ConsoleTest DLL load error](.github/consoletest.png)
 
-Often these issues are related to mismatched CUDA versions.
+Often these issues are related to mismatched CUDA versions, e.g. in this case CUDA 10.1 Release 2 is installed, when we need to install CUDA 10.1.

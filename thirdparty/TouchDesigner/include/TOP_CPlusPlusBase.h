@@ -301,7 +301,14 @@ class TOP_GeneralInfo
 {
 public:
 	// Set this to true if you want the TOP to cook every frame, even
-	// if none of it's inputs/parameters are changing
+	// if none of it's inputs/parameters are changing.
+	// Important:
+	// If the node may not be viewed/used by other nodes in the file,
+	// such as a TCP network output node that isn't viewed in perform mode,
+	// you should set cookOnStart = true in OP_CustomOPInfo.
+	// That will ensure cooking is kick-started for this node.
+	// Note that this fix only works for Custom Operators, not
+	// cases where the .dll is loaded into CPlusPlus TOP.
 
 	bool			cookEveryFrame;
 
@@ -329,6 +336,7 @@ public:
 	// if using 'Input' or 'Half' options for example, it uses the first input
 	// by default. You can use a different input by assigning a value 
 	// to inputSizeIndex.
+	// This member is ignored if getOutputFormat() returns true.
 
 	int32_t			inputSizeIndex;
 
@@ -350,6 +358,7 @@ public:
 	// You can use this to vertically flip the image if it loads in
 	// upside-down. Flipping this way will be more efficient than
 	// doing it manually on the CPU.
+	// This member is ignored if getOutputFormat() returns true.
 	TOP_FirstPixel		memFirstPixel;
 
 	int32_t				reserved[17];
