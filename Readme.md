@@ -4,6 +4,8 @@ A library of motion capture operators for Touch Designer.
 
 These operators triangulate bright features in corresponding camera images (e.g. retroreflective markers).
 
-# Warnings
+# Installation
 
-* You may experience crashes on unload during development, i.e. when loading operators as seperate DLL's (e.g. during development/debugging), note that `shared_ptr` objects are passed between the DLL's and may be invalidated during unload.
+You will need some extra files which aren't inside this repo. Specifically DLL's for OpenCV with CUDA and CUDA itself. These are available at: https://www.dropbox.com/sh/yjeef9fvf588hhf/AADe-vf76ImbWikNl6mRIAhwa?dl=0 .
+
+In the future we may remove the requirement for CUDA if it becomes a problem. 
