@@ -1,26 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="pch_OP_XimeaCamera.h" />
-    <ClInclude Include="C:\XIMEA\Examples\Sources\_libs\xiAPIplus\xiapiplus.h">
+    <ClInclude Include="..\thirdparty\xiAPIplus\xiapiplus.h">
       <Filter>xiAPIplus</Filter>
     </ClInclude>
+    <ClInclude Include="CameraParameters.h" />
     <ClInclude Include="CameraThread.h" />
     <ClInclude Include="OP_XimeaCamera.h" />
-    <ClInclude Include="CameraParameters.h" />
+    <ClInclude Include="pch_OP_XimeaCamera.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="plugin.cpp" />
-    <ClCompile Include="pch_OP_XimeaCamera.cpp" />
-    <ClCompile Include="C:\XIMEA\Examples\Sources\_libs\xiAPIplus\xiAPIplus_core.cpp">
+    <ClCompile Include="..\thirdparty\xiAPIplus\xiAPIplus_core.cpp">
       <Filter>xiAPIplus</Filter>
     </ClCompile>
     <ClCompile Include="CameraThread.cpp" />
     <ClCompile Include="OP_XimeaCamera.cpp" />
+    <ClCompile Include="pch_OP_XimeaCamera.cpp" />
+    <ClCompile Include="plugin.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="xiAPIplus">
-      <UniqueIdentifier>{446054b7-59ba-49c4-b71e-da507dcc5051}</UniqueIdentifier>
+      <UniqueIdentifier>{8ab285b6-3ab1-4552-afe0-81f9e1476981}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
