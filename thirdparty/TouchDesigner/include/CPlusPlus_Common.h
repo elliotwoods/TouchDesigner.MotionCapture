@@ -136,7 +136,15 @@ public:
 	// It should be left unchanged if CPython isn't being used in this plugin.
 	OP_String*		pythonVersion;
 
-	int32_t			reserved[98];
+	// False by default. If this is on the node will cook at least once
+	// when the project it is contained within starts up, or when the node
+	// is created.
+	// For pure output nodes that are using 'cookEveryFrame=true' in their
+	// GeneralInfo, setting this to 'true' is required to kick-start the
+	// every-frame cooking.
+	bool			cookOnStart = false;
+
+	int32_t			reserved[97];
 };
 
 
