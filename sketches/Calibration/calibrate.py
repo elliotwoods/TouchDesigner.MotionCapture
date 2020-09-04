@@ -9,6 +9,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from pathlib import Path
 from multiprocessing import Pool
 import json
+from matplotlib import pyplot as plt
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 os.chdir('../Calibrationdata200904/')
@@ -184,12 +185,22 @@ camera_matrix_right, distortion_coefficients_right, reprojection_error_right, rv
 #%% Calculate reprojection error for intrinsics
 def write_reprojection_error(image_points, filenames, camera_matrix, distortion_coefficients, rvecs, tvecs, output_filename):
 	rms_per_image = {}
+
+	plt.figure()
+
 	for i in range(len(image_points)):
 		projected_points, _ = cv2.projectPoints(board_points, rvecs[i], tvecs[i], camera_matrix, distortion_coefficients)
 		rms_error = np.sqrt(np.mean(np.square(image_points[i] - projected_points.reshape(len(projected_points), 2))))
 		rms_per_image[filenames[i]] = rms_error
+		y = i % 10
+		plt.scatter(rms_error, y)
+		plt.annotate(filenames[i], xy=(rms_error, y))
+	
 	with open(output_filename, "w") as file:
 		file.write(json.dumps(rms_per_image, indent=4))
+	plt.title("Reprojection error for {}".format(output_filename))
+	plt.xlabel("px")
+	plt.show()
 
 write_reprojection_error(image_points_left, filenames_left, camera_matrix_left, distortion_coefficients_left, rvecs_left, tvecs_left, "reprojection_error_per_image_left.json")
 write_reprojection_error(image_points_right, filenames_right, camera_matrix_right, distortion_coefficients_right, rvecs_right, tvecs_right, "reprojection_error_per_image_right.json")
@@ -240,6 +251,8 @@ rotation, translation, E, F = calibrate_stereo()
 #%% Calculate reprojection errors
 stereo_epipolar_rms_per_image_pair = []
 
+plt.figure()
+
 for i in range(len(image_points_left_stereo)):
 	lines = cv2.computeCorrespondEpilines(image_points_left_stereo[i], 1, F)
 	
@@ -250,13 +263,22 @@ for i in range(len(image_points_left_stereo)):
 		distance = abs(line[0] * right_centroid[0] + line[1] * right_centroid[1] + line[2]) / np.sqrt(line[0] * line[0] + line[1] * line[1])
 		distances.append(float(distance))
 
+	rms = np.sqrt(np.mean(np.square(distances)))
+
 	stereo_epipolar_rms_per_image_pair.append({
 		"left_image" : filenames_stereo_left[i],
 		"right_image" : filenames_stereo_right[i],
-		"epipolar_distance_rms" : np.sqrt(np.mean(np.square(distances)))
+		"epipolar_distance_rms" : rms
 	})
 
-	with open("stereo_epipolar_rms_per_image_pair.json", "w") as file:
-		file.write(json.dumps(stereo_epipolar_rms_per_image_pair, indent=4))
+	plt.scatter(float(rms), i % 5)
+	plt.annotate(filenames_stereo_left[i], xy=(rms, i % 5))
+
+plt.title("Stereo epipolar distance RMS")
+plt.xlabel("px")
+plt.show()
+
+with open("stereo_epipolar_rms_per_image_pair.json", "w") as file:
+	file.write(json.dumps(stereo_epipolar_rms_per_image_pair, indent=4))
 
 # %%
