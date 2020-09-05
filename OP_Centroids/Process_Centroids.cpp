@@ -136,10 +136,10 @@ namespace TD_MoCap {
 				{
 					auto maxCentroids = parameters.maximumCount.getValue();
 					if (output->centroids.size() > maxCentroids) {
-						// store them in order by mass
+						// store them in order by mass (negative so largest will end up first)
 						std::multimap<float, size_t> indexByMass;
 						for (size_t i = 0; i < output->centroids.size(); i++) {
-							indexByMass.emplace(output->moments[i].m00, i);
+							indexByMass.emplace(-output->moments[i].m00, i);
 						}
 
 						// trim the output
