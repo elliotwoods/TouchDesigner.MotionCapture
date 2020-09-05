@@ -15,6 +15,7 @@
     <ClCompile Include="Frames\BaseFrame.cpp" />
     <ClCompile Include="Frames\CentroidsFrame.cpp" />
     <ClCompile Include="Frames\FilterAndBinFrame.cpp" />
+    <ClCompile Include="Frames\OneEuroFilterFrame.cpp" />
     <ClCompile Include="Frames\SynchronisedFrame.cpp" />
     <ClCompile Include="Frames\TrackingFrame.cpp" />
     <ClCompile Include="Frames\TriangulateFrame.cpp" />
@@ -33,6 +34,7 @@
     <ClCompile Include="Utils\ChannelSet.cpp" />
     <ClCompile Include="Utils\ErrorBuffer.cpp" />
     <ClCompile Include="Utils\FrameRateCounter.cpp" />
+    <ClCompile Include="Utils\OneEuroFilter.cpp" />
     <ClCompile Include="Utils\OpticalFlow.cpp" />
     <ClCompile Include="Utils\Parameter.cpp" />
     <ClCompile Include="Utils\Parameters.cpp" />
@@ -46,6 +48,7 @@
     <ClInclude Include="Frames\BaseFrame.h" />
     <ClInclude Include="Frames\CentroidsFrame.h" />
     <ClInclude Include="Frames\FilterAndBinFrame.h" />
+    <ClInclude Include="Frames\OneEuroFilterFrame.h" />
     <ClInclude Include="Frames\SynchronisedFrame.h" />
     <ClInclude Include="Frames\TrackingFrame.h" />
     <ClInclude Include="Frames\TriangulateFrame.h" />
@@ -61,6 +64,7 @@
     <ClInclude Include="MoCapLib.h" />
     <ClInclude Include="Threaded_OP.h" />
     <ClInclude Include="Utils\ErrorBuffer.h" />
+    <ClInclude Include="Utils\OneEuroFilter.h" />
     <ClInclude Include="Utils\OpticalFlow.h" />
     <ClInclude Include="Utils\ThreadChannel.h" />
     <ClInclude Include="Utils\ChannelSet.h" />

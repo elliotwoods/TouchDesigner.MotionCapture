@@ -35,7 +35,7 @@ namespace TD_MoCap
 
 		Utils::NumberParameter<float> resurrectionSearchDistance{
 			"Resurrection search distance", "m"
-			, 0.005, 0.005
+			, 0.05, 0.05
 			, 0, 100
 			, 0, 0.5
 		};

@@ -17,6 +17,7 @@
 #include "Utils/Parameters.h"
 #include "Utils/OpticalFlow.h"
 #include "Utils/ErrorBuffer.h"
+#include "Utils/OneEuroFilter.h"
 
 #include "Math/Camera.h"
 #include "Math/Ray.h"
@@ -29,6 +30,7 @@
 #include "Frames/TriangulateFrame.h"
 #include "Frames/TrackingFrame.h"
 #include "Frames/FilterAndBinFrame.h"
+#include "Frames/OneEuroFilterFrame.h"
 
 #include "Exception.h"
 #include "ImageFormat.h"

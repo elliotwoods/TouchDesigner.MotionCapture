@@ -70,6 +70,12 @@
     <ClCompile Include="Utils\WorkerThread.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Frames\OneEuroFilterFrame.cpp">
+      <Filter>Frames</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\OneEuroFilter.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Constants.h" />
@@ -155,6 +161,12 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\WorkerThread.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Frames\OneEuroFilterFrame.h">
+      <Filter>Frames</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\OneEuroFilter.h">
       <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
