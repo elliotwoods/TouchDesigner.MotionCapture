@@ -14,7 +14,8 @@ namespace TD_MoCap {
 		}
 
 		auto binCount = parameters.binCount.getValue();
-		
+		auto frameVelocitySoftUpdate = parameters.frameVelocitySoftUpdate.getValue();
+
 		outputFrame->particleBins = std::vector<Frames::FilterAndBinFrame::ParticleBin>(binCount);
 		
 		std::multimap<float, size_t> noPriors;
@@ -32,6 +33,8 @@ namespace TD_MoCap {
 					particleBin.currentIndex = particle.first;
 					particleBin.position = particle.second.triangulatedParticlePosition;
 					particleBin.frameVelocity = particle.second.triangulatedParticlePosition - particle.second.priorTriangulatedParticlePosition;
+					particleBin.frameVelocityFiltered = (1.0f - frameVelocitySoftUpdate) * priorBin.frameVelocityFiltered + frameVelocitySoftUpdate * particleBin.frameVelocity;
+
 					particleBin.lifetime = particle.second.lifeTime;
 
 					foundPriorBinForThisTrackedParticle = true;
@@ -56,8 +59,9 @@ namespace TD_MoCap {
 						currentBin.occupied = true;
 						currentBin.newBinAssignment = false;
 						currentBin.currentIndex = priorBin.currentIndex;
-						currentBin.position = priorBin.position + priorBin.frameVelocity;
+						currentBin.position = priorBin.position + priorBin.frameVelocityFiltered;
 						currentBin.frameVelocity = priorBin.frameVelocity;
+						currentBin.frameVelocityFiltered = priorBin.frameVelocityFiltered;
 						currentBin.lifetime = priorBin.lifetime + 1;
 						currentBin.fullyAlive = false;
 						currentBin.afterlifeDuration = priorBin.afterlifeDuration + 1;
@@ -76,6 +80,7 @@ namespace TD_MoCap {
 				}
 			};
 
+			const auto minimumLifetime = parameters.minimumLifetime.getValue();
 			for (const auto& trackedParticle : inputFrame->trackedParticles) {
 				// Try to resurrect it
 				{
@@ -105,8 +110,10 @@ namespace TD_MoCap {
 						outputBin.newBinAssignment = false;
 						outputBin.currentIndex = trackedParticle.first;
 						outputBin.position = trackedParticle.second.triangulatedParticlePosition;
-						outputBin.frameVelocity = trackedParticle.second.triangulatedParticlePosition - (outputBin.position - outputBin.frameVelocity);
+						auto newVelocity = trackedParticle.second.triangulatedParticlePosition - (outputBin.position - outputBin.frameVelocity);
+						outputBin.frameVelocity = newVelocity;
 						outputBin.lifetime = trackedParticle.second.lifeTime;
+						outputBin.frameVelocityFiltered = (1.0f - frameVelocitySoftUpdate) * outputBin.frameVelocityFiltered + frameVelocitySoftUpdate * newVelocity;
 
 						outputBin.fullyAlive = true;
 						outputBin.afterlifeDuration = 0;
@@ -115,14 +122,17 @@ namespace TD_MoCap {
 				}
 
 				// Put it in into an empty bin
-				nextFreeBin();
-				if (outputBin != outputFrame->particleBins.end()) {
-					outputBin->occupied = true;
-					outputBin->newBinAssignment = true;
-					outputBin->currentIndex = trackedParticle.first;
-					outputBin->position = trackedParticle.second.triangulatedParticlePosition;
-					outputBin->frameVelocity = trackedParticle.second.triangulatedParticlePosition - trackedParticle.second.priorTriangulatedParticlePosition;
-					outputBin->lifetime = trackedParticle.second.lifeTime;
+				if (trackedParticle.second.lifeTime > minimumLifetime) {
+					nextFreeBin();
+					if (outputBin != outputFrame->particleBins.end()) {
+						outputBin->occupied = true;
+						outputBin->newBinAssignment = true;
+						outputBin->currentIndex = trackedParticle.first;
+						outputBin->position = trackedParticle.second.triangulatedParticlePosition;
+						outputBin->frameVelocity = trackedParticle.second.triangulatedParticlePosition - trackedParticle.second.priorTriangulatedParticlePosition;
+						outputBin->frameVelocityFiltered = outputBin->frameVelocity;
+						outputBin->lifetime = trackedParticle.second.lifeTime;
+					}
 				}
 			}
 		}

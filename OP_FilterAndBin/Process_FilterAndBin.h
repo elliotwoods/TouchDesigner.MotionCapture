@@ -19,6 +19,13 @@ namespace TD_MoCap
 			, 0, 256
 		};
 
+		Utils::NumberParameter<float> frameVelocitySoftUpdate{
+			"Velocity soft update", "%"
+			, 0.5, 0.5
+			, 0, 1
+			, 0, 1
+		};
+
 		Utils::NumberParameter<int> keepAliveFor{
 			"Keep alive for", "frames"
 			, 3, 3
@@ -36,6 +43,7 @@ namespace TD_MoCap
 		Utils::ParameterList list{
 			&minimumLifetime
 			, &binCount
+			, &frameVelocitySoftUpdate
 			, &keepAliveFor
 			, &resurrectionSearchDistance
 		};

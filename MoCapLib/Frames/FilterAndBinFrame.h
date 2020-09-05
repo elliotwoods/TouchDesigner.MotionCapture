@@ -16,6 +16,7 @@ namespace TD_MoCap {
 				size_t currentIndex; // or index at death
 				glm::vec3 position;
 				glm::vec3 frameVelocity;
+				glm::vec3 frameVelocityFiltered;
 				size_t lifetime;
 
 				bool fullyAlive = true; // always check occupied also
