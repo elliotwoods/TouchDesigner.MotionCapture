@@ -127,8 +127,8 @@ namespace TD_MoCap {
 					auto& bounds = output->boundingRects[i];
 
 					output->centroids.emplace_back(
-						moment.m10 / moment.m00 + bounds.x - dilationSize
-						, moment.m01 / moment.m00 + bounds.y - dilationSize
+						moment.m10 / moment.m00 + float(bounds.x - dilationSize)
+						, moment.m01 / moment.m00 + float(bounds.y - dilationSize)
 					);
 				}
 			});
