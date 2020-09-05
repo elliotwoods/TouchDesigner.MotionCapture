@@ -77,6 +77,13 @@ namespace TD_MoCap {
 		}
 
 		//----------
+		bool
+			Camera::empty() const
+		{
+			return this->cameraMatrix.empty() || this->distortionCoefficients.empty();
+		}
+
+		//----------
 		glm::vec3
 			Camera::getPosition() const
 		{

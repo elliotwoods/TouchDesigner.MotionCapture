@@ -18,6 +18,8 @@ namespace TD_MoCap {
 			const cv::Mat & getCameraMatrix() const;
 			const cv::Mat& getDistortionCoefficients() const;
 
+			bool empty() const;
+
 			glm::vec3 getPosition() const;
 			glm::mat4 getProjectionMatrix() const;
 			glm::mat4 getClippedProjectionMatrix() const;
