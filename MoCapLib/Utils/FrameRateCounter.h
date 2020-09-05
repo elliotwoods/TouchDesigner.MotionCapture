@@ -8,7 +8,7 @@ namespace TD_MoCap {
 		class TDMOCAP_API FrameRateCounter
 		{
 		public:
-			FrameRateCounter(uint16_t windowSize = 10);
+			FrameRateCounter(uint16_t windowSize = 100);
 			~FrameRateCounter();
 
 			void clear();
