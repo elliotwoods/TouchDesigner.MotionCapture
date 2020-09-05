@@ -286,7 +286,7 @@ namespace TD_MoCap {
 #endif
 				}
 				else if (opticalFlowMethod == "CUDA sparse + linear") {
-					
+					throw(Exception("Not implemented"));
 				}
 
 
@@ -296,7 +296,6 @@ namespace TD_MoCap {
 					// sort the previous centroids, we'll search through them when looking through backup centroids
 					const auto previousCentroidsLeftQT = imagePointsToQT(previousFrame->inputFrame->cameraLeftCentroids);
 					const auto previousCentroidsRightQT = imagePointsToQT(previousFrame->inputFrame->cameraRightCentroids);
-
 
 					// iterate over back-inferred centroids
 					for (size_t i = 0; i < backupCentroidsLeft.size(); i++)
@@ -338,52 +337,59 @@ namespace TD_MoCap {
 
 				// Search without QT Tree
 				else {
-					auto findAdjacentPoints = [&](const std::vector<cv::Point2f>& points
-						, const cv::Point2f& point
+					auto findAdjacentPointsInPreviousFrame = [&](const std::vector<cv::Point2f>& previousFrameCentroids
+						, const cv::Point2f& backupPoint
 						, float maxDistance)
 					{
 						auto maxDistance2 = maxDistance * maxDistance;
 
-						std::vector<size_t> finds;
-						for (size_t i = 0; i < points.size(); i++) {
-							const auto delta = (points[i] - point);
-							if (delta.dot(delta) <= maxDistance2) {
-								finds.push_back(i);
+						std::multimap<float, size_t> findsByDistance2;
+						for (size_t i = 0; i < previousFrameCentroids.size(); i++) {
+							const auto delta = (previousFrameCentroids[i] - backupPoint);
+							auto distance2 = delta.dot(delta);
+							if (distance2 <= maxDistance2) {
+								findsByDistance2.emplace(distance2, i);
 							}
 						}
-						return finds;
+						return findsByDistance2;
 					};
 
 					for (size_t i = 0; i < backupCentroidsLeft.size(); i++)
 					{
-						auto findsLeft = findAdjacentPoints(previousFrame->inputFrame->cameraLeftCentroids
+						auto candidatePriorCentroidsLeft = findAdjacentPointsInPreviousFrame(previousFrame->inputFrame->cameraLeftCentroids
 							, backupCentroidsLeft[i]
 							, maxDistance);
-						auto findsRight = findAdjacentPoints(previousFrame->inputFrame->cameraRightCentroids
+						auto candidatePriorCentroidsRight = findAdjacentPointsInPreviousFrame(previousFrame->inputFrame->cameraRightCentroids
 							, backupCentroidsRight[i]
 							, maxDistance);
 
 						// look for matching indices
-						for (const auto& findLeft : findsLeft) {
-							for (const auto& findRight : findsRight) {
-								if (findLeft == findRight) {
-									auto findPrevious = this->previousFrame->trackedParticles.find(findLeft);
-									if (findPrevious != this->previousFrame->trackedParticles.end()) {
+						for (const auto& candidatePriorCentroidIndexLeft : candidatePriorCentroidsLeft) {
+							for (const auto& candidatePriorCentroidIndexRight : candidatePriorCentroidsRight) {
+								if (candidatePriorCentroidIndexLeft.second == candidatePriorCentroidIndexRight.second) {
+									// The indices of the centroids match in the Triangulate frame - i.e. these are matched centroids
+
+									// Look for prior centroid index in prior tracked particles
+									const auto& priorTrackedParticles = this->previousFrame->trackedParticles;
+									auto findPriorTrackedParticle = priorTrackedParticles.find(candidatePriorCentroidIndexLeft.second);
+									if (findPriorTrackedParticle != priorTrackedParticles.end()) {
 										// was a match in the previous frame
-										auto continuingParticle = findPrevious->second; // copy the particle
+										auto continuingParticle = findPriorTrackedParticle->second; // copy the particle
 										continuingParticle.lifeTime++;
-										continuingParticle.priorTriangulatedParticleIndex = findPrevious->first;
-										continuingParticle.priorTriangulatedParticlePosition = this->previousFrame->inputFrame->worldPoints[findPrevious->first];
+										continuingParticle.priorTriangulatedParticleIndex = findPriorTrackedParticle->first;
+										continuingParticle.priorTriangulatedParticlePosition = this->previousFrame->inputFrame->worldPoints[findPriorTrackedParticle->first];
 										outputFrame->trackedParticles.emplace(i, continuingParticle);
 									}
 									else {
 										// new find to add
 										outputFrame->trackedParticles.emplace(i, Frames::TrackingFrame::Particle{
-											 findLeft
+											 candidatePriorCentroidIndexLeft.second
 											 , glm::vec3()
 											 , 1
 											});
 									}
+
+									break;
 								}
 							}
 						}
