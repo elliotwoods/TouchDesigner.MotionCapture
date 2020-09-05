@@ -40,12 +40,20 @@ namespace TD_MoCap
 			, 0, 100
 		};
 
+		Utils::NumberParameter<int> maximumCount{
+			"Maximum count", "centroids"
+			, 1000, 1000
+			, 0, 100000
+			, 0, 10000
+		};
+
 		Utils::ParameterList list{
 			&blurRadius
 			, &threshold
 			, &differenceAmplify
 			, &dilationSize
 			, &minimumArea
+			, &maximumCount
 		};
 	};
 

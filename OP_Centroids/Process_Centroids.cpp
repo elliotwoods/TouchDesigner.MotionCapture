@@ -131,6 +131,44 @@ namespace TD_MoCap {
 						, moment.m01 / moment.m00 + float(bounds.y - dilationSize)
 					);
 				}
+
+				// trim output
+				{
+					auto maxCentroids = parameters.maximumCount.getValue();
+					if (output->centroids.size() > maxCentroids) {
+						// store them in order by mass
+						std::multimap<float, size_t> indexByMass;
+						for (size_t i = 0; i < output->centroids.size(); i++) {
+							indexByMass.emplace(output->moments[i].m00, i);
+						}
+
+						// trim the output
+						{
+							std::vector<std::vector<cv::Point2i>> trimmedContours;
+							std::vector<cv::Rect> trimmedBoundingRects;
+							std::vector<cv::Moments> trimmedMoments;
+							std::vector<cv::Point2f> trimmedCentroids;
+
+							trimmedContours.reserve(maxCentroids);
+							trimmedBoundingRects.reserve(maxCentroids);
+							trimmedMoments.reserve(maxCentroids);
+							trimmedCentroids.reserve(maxCentroids);
+
+							for (size_t i = 0; i < maxCentroids; i++) {
+								trimmedContours.push_back(std::move(output->contours[i]));
+								trimmedBoundingRects.push_back(output->boundingRects[i]);
+								trimmedMoments.push_back(output->moments[i]);
+								trimmedCentroids.push_back(output->centroids[i]);
+							}
+
+							//swap the trimmed values in 
+							std::swap(trimmedContours, output->contours);
+							std::swap(trimmedBoundingRects, output->boundingRects);
+							std::swap(trimmedMoments, output->moments);
+							std::swap(trimmedCentroids, output->centroids);
+						}
+					}
+				}
 			});
 		}
 
