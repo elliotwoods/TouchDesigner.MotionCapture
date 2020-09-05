@@ -39,6 +39,7 @@ namespace TD_MoCap {
 				, "intersect_length"
 				, "camera_1_x",  "camera_1_y"
 				, "camera_2_x",  "camera_2_y"
+				, "camera_1_mass"
 				, "epipolar_distance", "mass_ratio", "angle_distance"
 				});
 			channelSet.setSampleCount(this->worldPoints.size());
@@ -57,6 +58,8 @@ namespace TD_MoCap {
 				channelSet[c++].samples[i] = this->cameraLeftCentroids[i].y;
 				channelSet[c++].samples[i] = this->cameraRightCentroids[i].x;
 				channelSet[c++].samples[i] = this->cameraRightCentroids[i].y;
+
+				channelSet[c++].samples[i] = this->cameraLeftMasses[i];
 
 				channelSet[c++].samples[i] = this->epipolarDistance[i];
 				channelSet[c++].samples[i] = this->massRatio[i];

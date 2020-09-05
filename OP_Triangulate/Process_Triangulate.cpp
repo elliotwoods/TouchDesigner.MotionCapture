@@ -132,6 +132,7 @@ namespace TD_MoCap {
 			std::vector<size_t> matchedCentroidsIndexRight;
 			std::vector<cv::Point2f> matchedCentroidsLeft;
 			std::vector<cv::Point2f> matchedCentroidsRight;
+			std::vector<float> matchedCentroidsLeftMass;
 			std::vector<float> matchedEpipolarDistance;
 			std::vector<float> matchedMassRatio;
 			std::vector<float> matchedAngleDistance;
@@ -168,10 +169,11 @@ namespace TD_MoCap {
 						if (abs(distance) <= epipolarDistanceThreshold) {
 							// perform mass ratio test
 							auto massRatio = 1.0f;
+							float massLeft;
 							if (leftCentroidIndex < leftCamera->centroids.size()
 								// only perform the test if this is not test data (i.e. is within the data coming from the cameras)
 								&& rightCentroidIndex < rightCamera->centroids.size()) {
-								auto massLeft = leftCamera->moments[leftCentroidIndex].m00;
+								massLeft = leftCamera->moments[leftCentroidIndex].m00;
 								auto massRight = rightCamera->moments[rightCentroidIndex].m00;
 								massRatio = massLeft > massRight
 									? massLeft / massRight
@@ -183,6 +185,7 @@ namespace TD_MoCap {
 								matchedCentroidsIndexLeft.push_back(leftCentroidIndex);
 								matchedCentroidsIndexRight.push_back(rightCentroidIndex);
 								matchedCentroidsLeft.push_back(centroidsLeftUndistorted[leftCentroidIndex]);
+								matchedCentroidsLeftMass.push_back(massLeft);
 								matchedCentroidsRight.push_back(rightCentroid);
 								matchedEpipolarDistance.push_back(distance);
 								matchedMassRatio.push_back(massRatio);
@@ -223,6 +226,7 @@ namespace TD_MoCap {
 						outputFrame->intersections.push_back(intersections[i]);
 						outputFrame->cameraLeftCentroids.push_back(matchedCentroidsLeft[i]);
 						outputFrame->cameraRightCentroids.push_back(matchedCentroidsRight[i]);
+						outputFrame->cameraLeftMasses.push_back(matchedCentroidsLeftMass[i]);
 						outputFrame->worldPoints.push_back(worldPoint);
 						outputFrame->epipolarDistance.push_back(matchedEpipolarDistance[i]);
 						outputFrame->massRatio.push_back(matchedMassRatio[i]);

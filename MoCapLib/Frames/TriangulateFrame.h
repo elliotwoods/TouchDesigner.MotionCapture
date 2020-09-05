@@ -26,6 +26,7 @@ namespace TD_MoCap {
 			std::vector<Math::Ray> intersections;
 			std::vector<cv::Point2f> cameraLeftCentroids;
 			std::vector<cv::Point2f> cameraRightCentroids;
+			std::vector<float> cameraLeftMasses;
 			std::vector<glm::vec3> worldPoints;
 			std::vector<float> epipolarDistance;
 			std::vector<float> massRatio;

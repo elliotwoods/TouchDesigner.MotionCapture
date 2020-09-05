@@ -17,9 +17,11 @@ namespace TD_MoCap {
 		
 		outputFrame->particleBins = std::vector<int32_t>(binCount, -1);
 		outputFrame->ids = std::vector<size_t>(binCount, -1);
-		std::vector<size_t> noPriors;
+		
+		std::multimap<float, size_t> noPriors;
 
 		// Add all matched particles to the newTracked
+
 		for (const auto& particle : inputFrame->trackedParticles) {
 			bool foundPrior = false;
 			for (size_t i = 0; i < this->previousFrame->particleBins.size() && i < binCount; i++) {
@@ -31,9 +33,11 @@ namespace TD_MoCap {
 				}
 			}
 			if (!foundPrior) {
-				noPriors.push_back(particle.first);
+				auto leftCentroidMass = inputFrame->inputFrame->cameraLeftMasses[particle.first];
+				noPriors.emplace(leftCentroidMass, particle.first);
 			}
 		}
+
 
 		// Add all new particles (without priors) where a slot exists in the new particle bins
 		auto nextNoPrior = noPriors.begin();
@@ -49,21 +53,21 @@ namespace TD_MoCap {
 			}
 
 			bool isEnded = false;
-			while (inputFrame->trackedParticles[*nextNoPrior].lifeTime < minLifetime) {
+			while (inputFrame->trackedParticles[nextNoPrior->second].lifeTime < minLifetime) {
 				nextNoPrior++;
 				if (nextNoPrior == noPriors.end()) {
-					goto noSlotsRemaining;
+					goto noPriorsRemaining;
 				}
 			}
 			if (isEnded) {
 				break;
 			}
 
-			outputFrame->particleBins[i] = *nextNoPrior++;
+			outputFrame->particleBins[i] = (nextNoPrior++)->second;
 			outputFrame->ids[i] = this->nextID++;
 		}
 
-	noSlotsRemaining:
+	noPriorsRemaining:
 
 		this->previousFrame = outputFrame;
 	}
