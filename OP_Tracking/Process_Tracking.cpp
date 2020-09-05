@@ -349,8 +349,19 @@ namespace TD_MoCap {
 						auto maxDistance2 = maxDistance * maxDistance;
 
 						std::multimap<float, size_t> findsByDistance2;
+						auto min_Y_search = backupPoint.y - maxDistance;
+						auto max_Y_search = backupPoint.y + maxDistance;
+
 						for (size_t i = 0; i < previousFrameCentroids.size(); i++) {
-							const auto delta = (previousFrameCentroids[i] - backupPoint);
+							const auto& previousCentroid = previousFrameCentroids[i];
+							if (previousCentroid.y < min_Y_search) {
+								continue; // skip early
+							}
+							if (previousCentroid.y > max_Y_search) {
+								continue; // skip early
+							}
+
+							const auto delta = previousCentroid - backupPoint;
 							auto distance2 = delta.dot(delta);
 							if (distance2 <= maxDistance2) {
 								findsByDistance2.emplace(distance2, i);
