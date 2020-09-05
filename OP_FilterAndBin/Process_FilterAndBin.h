@@ -19,9 +19,25 @@ namespace TD_MoCap
 			, 0, 256
 		};
 
+		Utils::NumberParameter<int> keepAliveFor{
+			"Keep alive for", "frames"
+			, 3, 3
+			, 0, 1024
+			, 0, 32
+		};
+
+		Utils::NumberParameter<float> resurrectionSearchDistance{
+			"Resurrection search distance", "m"
+			, 0.005, 0.005
+			, 0, 100
+			, 0, 0.5
+		};
+
 		Utils::ParameterList list{
 			&minimumLifetime
 			, &binCount
+			, &keepAliveFor
+			, &resurrectionSearchDistance
 		};
 	};
 

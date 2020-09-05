@@ -14,6 +14,7 @@ namespace TD_MoCap {
 		public:
 			struct Particle {
 				size_t priorTriangulatedParticleIndex;
+				glm::vec3 triangulatedParticlePosition;
 				glm::vec3 priorTriangulatedParticlePosition;
 				size_t lifeTime = 1;
 			};
@@ -29,7 +30,6 @@ namespace TD_MoCap {
 			std::shared_ptr<TriangulateFrame> inputFrame;
 
 			std::map<size_t, Particle> trackedParticles; // by current triangulated particle index
-
 		private:
 			TrackingFrame();
 		};

@@ -87,7 +87,6 @@ namespace TD_MoCap {
 	{
 		// if we have a previous frame
 		if (this->previousFrame) {
-			
 			// if the frames are sequential (e.g. no dropped frame)
 			if (inputFrame->getFrameIndex() == this->previousFrame->getFrameIndex() + 1) {
 
@@ -119,7 +118,7 @@ namespace TD_MoCap {
 							, error
 							, cv::Size(windowSize, windowSize)
 						);
-					});
+						});
 
 					actions.emplace_back([&] {
 						const auto& priorImage = this->previousFrame->inputFrame->inputFrame->cameras[rightID]->greyscale;
@@ -134,7 +133,7 @@ namespace TD_MoCap {
 							, error
 							, cv::Size(windowSize, windowSize)
 						);
-					});
+						});
 
 					// perform the search
 					Utils::WorkerGroup::X().parallelFor(actions);
@@ -250,13 +249,13 @@ namespace TD_MoCap {
 						}
 					}
 #else
-				throw(Exception("Not implemented"));
+					throw(Exception("Not implemented"));
 #endif
 				}
 				else if (opticalFlowMethod == "CUDA dense sparse return")
 				{
 #ifdef MOCAP_ENABLE_OPTICAL_FLOW_ASYNC
-					for (auto result : inputFrame->inputFrame->inputFrame->opticalFlow.results)	{
+					for (auto result : inputFrame->inputFrame->inputFrame->opticalFlow.results) {
 						std::unique_lock<std::mutex> lock(result.second->lockThreadJoin);
 						result.second->thread.join();
 					}
@@ -293,6 +292,7 @@ namespace TD_MoCap {
 				//search for correspondences between cameras in QT Tree
 				const auto maxDistance = parameters.searchRadius.getValue();
 				if (parameters.useQuadTree.getValue()) {
+#ifdef ENABLE_QUAD_TREE
 					// sort the previous centroids, we'll search through them when looking through backup centroids
 					const auto previousCentroidsLeftQT = imagePointsToQT(previousFrame->inputFrame->cameraLeftCentroids);
 					const auto previousCentroidsRightQT = imagePointsToQT(previousFrame->inputFrame->cameraRightCentroids);
@@ -318,14 +318,16 @@ namespace TD_MoCap {
 										auto continuingParticle = findPrevious->second; // copy the particle
 										continuingParticle.lifeTime++;
 										continuingParticle.priorTriangulatedParticleIndex = findPrevious->first;
-										continuingParticle.priorTriangulatedParticlePosition = this->previousFrame->inputFrame->worldPoints[findPrevious->first];
+										continuingParticle.priorTriangulatedParticlePosition = inputFrame->worldPoints[i];
+										continuingParticle.priorTriangulatedParticlePosition = continuingParticle.triangulatedParticlePosition;
 
 										outputFrame->trackedParticles.emplace(i, continuingParticle);
 									}
 									else {
 										outputFrame->trackedParticles.emplace(i, Frames::TrackingFrame::Particle{
 											 findLeft
-											 , glm::vec3()
+											 , inputFrame->worldPoints[i]
+											 , inputFrame->worldPoints[i]
 											 , 1
 											});
 									}
@@ -333,6 +335,9 @@ namespace TD_MoCap {
 							}
 						}
 					}
+#else
+					throw(Exception("Quad tree is not implemented"));
+#endif
 				}
 
 				// Search without QT Tree
@@ -369,6 +374,8 @@ namespace TD_MoCap {
 								if (candidatePriorCentroidIndexLeft.second == candidatePriorCentroidIndexRight.second) {
 									// The indices of the centroids match in the Triangulate frame - i.e. these are matched centroids
 
+									const auto & particlePosition = inputFrame->worldPoints[i];
+
 									// Look for prior centroid index in prior tracked particles
 									const auto& priorTrackedParticles = this->previousFrame->trackedParticles;
 									auto findPriorTrackedParticle = priorTrackedParticles.find(candidatePriorCentroidIndexLeft.second);
@@ -377,16 +384,20 @@ namespace TD_MoCap {
 										auto continuingParticle = findPriorTrackedParticle->second; // copy the particle
 										continuingParticle.lifeTime++;
 										continuingParticle.priorTriangulatedParticleIndex = findPriorTrackedParticle->first;
-										continuingParticle.priorTriangulatedParticlePosition = this->previousFrame->inputFrame->worldPoints[findPriorTrackedParticle->first];
+										continuingParticle.priorTriangulatedParticlePosition = continuingParticle.triangulatedParticlePosition;
+										continuingParticle.triangulatedParticlePosition = particlePosition;
 										outputFrame->trackedParticles.emplace(i, continuingParticle);
 									}
 									else {
-										// new find to add
+										// this particle isn't being tracked
+
+										// new particle
 										outputFrame->trackedParticles.emplace(i, Frames::TrackingFrame::Particle{
-											 candidatePriorCentroidIndexLeft.second
-											 , glm::vec3()
-											 , 1
-											});
+											candidatePriorCentroidIndexLeft.second
+											, particlePosition
+											, particlePosition
+											, 1
+										});
 									}
 
 									break;

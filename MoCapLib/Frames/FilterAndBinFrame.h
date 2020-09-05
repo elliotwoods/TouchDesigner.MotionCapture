@@ -10,6 +10,19 @@ namespace TD_MoCap {
 		class TDMOCAP_API FilterAndBinFrame : public BaseFrame
 		{
 		public:
+			struct ParticleBin {
+				bool occupied = false;
+				bool newBinAssignment = false;
+				size_t currentIndex; // or index at death
+				glm::vec3 position;
+				glm::vec3 frameVelocity;
+				size_t lifetime;
+
+				bool fullyAlive = true; // always check occupied also
+				size_t afterlifeDuration = 0;
+				bool resurrected = false;
+			};
+
 			static std::shared_ptr<FilterAndBinFrame> make();
 
 			std::string getTypeName() const;
@@ -20,8 +33,7 @@ namespace TD_MoCap {
 
 			std::shared_ptr<TrackingFrame> inputFrame;
 
-			std::vector<int32_t> particleBins; // triangulated indices
-			std::vector<size_t> ids;
+			std::vector<ParticleBin> particleBins; // triangulated indices
 		private:
 			FilterAndBinFrame();
 		};

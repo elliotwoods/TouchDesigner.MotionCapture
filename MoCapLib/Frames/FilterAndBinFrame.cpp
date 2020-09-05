@@ -28,12 +28,20 @@ namespace TD_MoCap {
 		bool
 			FilterAndBinFrame::getPreviewCHOP(Utils::ChannelSet& channelSet) const
 		{
-			channelSet.setChannels({ "Alive", "x", "y", "z", "id", "lifetime"});
+			channelSet.setChannels({ "Alive", "New"
+				, "x", "y", "z"
+				, "vx", "vy", "vz"
+				, "id", "lifetime"});
 			channelSet.setSampleCount(this->particleBins.size());
 
 			for (size_t i = 0; i < this->particleBins.size(); i++) {
 				auto c = 0;
-				if (particleBins[i] == -1) {
+				if (!particleBins[i].occupied) {
+					channelSet[c++].samples[i] = 0;
+					channelSet[c++].samples[i] = 0;
+
+					channelSet[c++].samples[i] = 0;
+					channelSet[c++].samples[i] = 0;
 					channelSet[c++].samples[i] = 0;
 
 					channelSet[c++].samples[i] = 0;
@@ -46,13 +54,25 @@ namespace TD_MoCap {
 				else {
 					channelSet[c++].samples[i] = 1;
 
-					const auto& worldPoint = this->inputFrame->inputFrame->worldPoints[this->particleBins[i]];
-					channelSet[c++].samples[i] = worldPoint.x;
-					channelSet[c++].samples[i] = worldPoint.y;
-					channelSet[c++].samples[i] = worldPoint.z;
+					channelSet[c++].samples[i] = this->particleBins[i].newBinAssignment;
 
-					channelSet[c++].samples[i] = this->ids[i];
-					channelSet[c++].samples[i] = this->inputFrame->trackedParticles[this->particleBins[i]].lifeTime;
+
+					{
+						const auto& worldPoint = this->particleBins[i].position;
+						channelSet[c++].samples[i] = worldPoint.x;
+						channelSet[c++].samples[i] = worldPoint.y;
+						channelSet[c++].samples[i] = worldPoint.z;
+					}
+
+					{
+						const auto& velocity = this->particleBins[i].frameVelocity;
+						channelSet[c++].samples[i] = velocity.x;
+						channelSet[c++].samples[i] = velocity.y;
+						channelSet[c++].samples[i] = velocity.z;
+					}
+
+					channelSet[c++].samples[i] = this->particleBins[i].currentIndex;
+					channelSet[c++].samples[i] = this->particleBins[i].lifetime;
 				}
 			}
 			return true;
@@ -63,17 +83,21 @@ namespace TD_MoCap {
 			FilterAndBinFrame::getPreviewSOP(SOP_Output* output) const
 		{
 			int32_t vertexIndex = 0;
-			for (auto& particleIndex : this->particleBins) {
-				if (particleIndex != -1) {
-					const auto& worldPointNow = this->inputFrame->inputFrame->worldPoints[particleIndex];
-					const auto& worldPointPrior = this->inputFrame->trackedParticles[particleIndex].priorTriangulatedParticlePosition;
+			for (const auto& particleBin : this->particleBins) {
+				if (particleBin.occupied) {
+					const auto& worldPointNow = particleBin.position;
+					const auto& worldPointPrior = particleBin.position - particleBin.frameVelocity;
 
 					output->addPoint(*(Position*)&worldPointNow);
 					output->addPoint(*(Position*)&worldPointPrior);
-
-					int32_t lineIndices[2] = { vertexIndex++, vertexIndex++ };
-					output->addLine(lineIndices , 2);
 				}
+				else {
+					output->addPoint(Position{ 0, 0, 0 });
+					output->addPoint(Position{ 0, 0, 0 });
+				}
+
+				int32_t lineIndices[2] = { vertexIndex++, vertexIndex++ };
+				output->addLine(lineIndices, 2);
 			}
 			return true;
 		}
