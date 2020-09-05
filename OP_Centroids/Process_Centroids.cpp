@@ -36,22 +36,24 @@ namespace TD_MoCap {
 					// iterative blur
 					{
 						auto blurSize = parameters.blurRadius.getValue();
-						cv::blur(output->greyscale
-							, output->blurred
-							, cv::Size(blurSize / 2, blurSize / 2));
-
-						blurSize /= 2;
-						while (blurSize > 1) {
-							if (blurSize <= 32) {
-								cv::blur(output->blurred
-									, output->blurred
-									, cv::Size(blurSize, blurSize));
-								break;
-							}
-							cv::blur(output->blurred
+						if (blurSize > 1) {
+							cv::blur(output->greyscale
 								, output->blurred
 								, cv::Size(blurSize / 2, blurSize / 2));
+
 							blurSize /= 2;
+							while (blurSize > 1) {
+								if (blurSize <= 32) {
+									cv::blur(output->blurred
+										, output->blurred
+										, cv::Size(blurSize, blurSize));
+									break;
+								}
+								cv::blur(output->blurred
+									, output->blurred
+									, cv::Size(blurSize / 2, blurSize / 2));
+								blurSize /= 2;
+							}
 						}
 					}
 
