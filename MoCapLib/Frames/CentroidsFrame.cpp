@@ -104,9 +104,14 @@ namespace TD_MoCap {
 				size_t index = 0;
 				for (auto& camera : this->cameras) {
 					const auto& centroids = camera.second->centroids;
-					for (size_t i = 0; i < centroids.size(); i++) {
+					size_t i = 0;
+					for (; i < centroids.size(); i++) {
 						channels[index * 2 + 0].samples[i] = centroids[i].x;
 						channels[index * 2 + 1].samples[i] = centroids[i].y;
+					}
+					for (; i < maxCount; i++) {
+						channels[index * 2 + 0].samples[i] = 0.0f;
+						channels[index * 2 + 1].samples[i] = 0.0f;
 					}
 
 					index++;
