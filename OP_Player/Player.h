@@ -36,7 +36,7 @@ namespace TD_MoCap {
 		std::mutex lockPlayerState;
 		struct {
 			std::filesystem::path path;
-			nlohmann::json recordingJson;
+			std::shared_ptr<nlohmann::json> recordingJson;
 			float framerate = 50.0f; // needs a default for first frame
 			bool holdFrame = false; // loop on same frame
 			uint64_t frameIndex;

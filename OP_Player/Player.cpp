@@ -24,18 +24,20 @@ namespace TD_MoCap {
 
 			// load json
 			std::ifstream file(jsonPath.string());
-			file >> this->playerState.recordingJson;
+			auto json = std::make_shared<nlohmann::json>();
+			file >> (*json);
+			this->playerState.recordingJson = json;
 			file.close();
 		}
 
-		if (!this->playerState.recordingJson.contains("frames")) {
+		if (!this->playerState.recordingJson->contains("frames")) {
 			throw(Exception("Invalid json - missing frames array"));
 		}
-		if (!this->playerState.recordingJson["frames"].is_array()) {
+		if (!this->playerState.recordingJson->at("frames").is_array()) {
 			throw(Exception("Invalid json - frames is not an array"));
 		}
 
-		this->playerState.frameCount = this->playerState.recordingJson["frames"].size();
+		this->playerState.frameCount = this->playerState.recordingJson->at("frames").size();
 		if (this->playerState.frameCount == 0) {
 			throw(Exception("Recording is empty"));
 		}
@@ -90,9 +92,9 @@ namespace TD_MoCap {
 		Utils::Table table;
 		table.newRow() << "frameIndex" << this->playerState.frameIndex;
 		table.newRow() << "frameCount" << this->playerState.frameCount;
-		table.newRow() << "computer" << this->playerState.recordingJson["computer"];
-		table.newRow() << "dateString" << this->playerState.recordingJson["dateString"];
-		table.newRow() << "dateTimestamp" << this->playerState.recordingJson["dateTimestamp"];
+		table.newRow() << "computer" << this->playerState.recordingJson->at("computer");
+		table.newRow() << "dateString" << this->playerState.recordingJson->at("dateString");
+		table.newRow() << "dateTimestamp" << this->playerState.recordingJson->at("dateTimestamp");
 
 		return table;
 	}
@@ -110,24 +112,27 @@ namespace TD_MoCap {
 		// sleep until next frame should be presented
 		std::this_thread::sleep_until(playerStateCopy.lastFrameStart + frameInterval);
 
-		// make a blank frame and start timer
-		auto frame = Frames::SynchronisedFrame::make(this->playerState.recordingJson["frames"][playerStateCopy.frameIndex]
-			, playerState.path);
+		// create the frame and send it
+		auto frame = Frames::SynchronisedFrame::make(this->playerState.recordingJson->at("frames")[playerStateCopy.frameIndex]
+		, playerState.path);
 		
 		// record the time for next frame
 		auto newLastFrameStart = playerStateCopy.lastFrameStart + frameInterval; // use the ideal time so we dont drop fps
 
-		this->output.send(frame);
+		this->output.send(std::move(frame));
 
-		std::unique_lock<std::mutex> lock(this->lockPlayerState);
-		// advance to next frame
-		if (!this->playerState.holdFrame) {
-			this->playerState.frameIndex++;
+		// Update the player state
+		{
+			std::unique_lock<std::mutex> lock(this->lockPlayerState);
+			// advance to next frame
+			if (!this->playerState.holdFrame) {
+				this->playerState.frameIndex++;
+			}
+
+			// loop
+			this->playerState.frameIndex %= this->playerState.frameCount;
+
+			this->playerState.lastFrameStart = newLastFrameStart;
 		}
-
-		// loop
-		this->playerState.frameIndex %= this->playerState.frameCount;
-
-		this->playerState.lastFrameStart = newLastFrameStart;
 	}
 }
