@@ -3,7 +3,7 @@
 
 namespace TD_MoCap {
 	//----------
-	Player::Player(const std::string& path, Links::Output& output, size_t threads, size_t buffer)
+	Player::Player(const std::string& path, Links::Output& output)
 		: output(output)
 	{
 		if (path.empty()) {

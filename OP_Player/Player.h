@@ -16,9 +16,7 @@ namespace TD_MoCap {
 		};
 
 		Player(const std::string& path
-			, Links::Output & output
-			, size_t threads
-			, size_t buffer);
+			, Links::Output & output);
 		~Player();
 
 		void setFramerate(float);

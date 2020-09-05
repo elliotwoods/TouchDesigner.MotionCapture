@@ -27,7 +27,7 @@ namespace TD_MoCap
 
 		Utils::NumberParameter<float> angleThreshold{
 			"Angle threshold", "degrees"
-			, 2, 2
+			, 0.01, 0.01
 			, 0.001, 180
 			, 0.001, 180
 		};
@@ -41,28 +41,28 @@ namespace TD_MoCap
 
 		Utils::NumberParameter<float> massRatioThreshold{
 			"Mass ratio threshold", "x"
-			, 5, 5
+			, 4, 4
 			, 1, 1024
 			, 1, 16
 		};
 
 		Utils::NumberParameter<float> intersectDistanceThreshold{
 			"Intersect distance threshold", "m"
-			, 0.05, 0.05
+			, 0.01, 0.01
 			, 0.001, 1
 			, 0, 1024
 		};
 
 		Utils::NumberParameter<float> zMinimum{
 			"Z minimum", "m"
-			, 0.1, 0.1
+			, 0.5, 0.5
 			, -100, 100
 			, 0.0, 10.0
 		};
 
 		Utils::NumberParameter<float> zMaximum{
 			"Z maximum", "m"
-			, 2.0, 2.0
+			, 0.8, 0.8
 			, -100, 100
 			, 0.0, 10.0
 		};

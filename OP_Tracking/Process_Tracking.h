@@ -7,19 +7,14 @@ namespace TD_MoCap
 	struct TrackingParameters : Utils::Parameters {
 		Utils::NumberParameter<int> opticalFlowRadius{
 			"Optical Flow radius", "px"
-			, 10, 10
+			, 16, 16
 			, 0, 1024
 			, 0, 64
 		};
 
-		Utils::ValueParameter<bool> fullImageOpticalFlow{
-			"Full image optical flow"
-			, false, false
-		};
-
 		Utils::NumberParameter<int> searchRadius{
 			"Search radius", "px"
-			, 5, 5
+			, 4, 4
 			, 0, 1024
 			, 0, 10
 		};

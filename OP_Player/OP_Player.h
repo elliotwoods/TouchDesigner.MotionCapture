@@ -36,20 +36,8 @@ namespace TD_MoCap {
 		struct {
 			Utils::NumberParameter<float> framerate{
 				"Framerate", "fps"
-				, 50.0f, 50.0f
+				, 120.0f, 120.0f
 				, 0.1f, 1000.0f
-			};
-
-			Utils::NumberParameter<int> threads{
-				"Threads", ""
-				, 4, 4
-				, 1, 64
-			};
-
-			Utils::NumberParameter<int> buffer{
-				"Buffer", "frames"
-				, 8, 8
-				, 1, 100
 			};
 
 			Utils::ValueParameter<bool> play{
@@ -64,8 +52,6 @@ namespace TD_MoCap {
 
 			Utils::ParameterList list{
 				&framerate
-				, &threads
-				, &buffer
 				, &play
 				, &holdFrame
 			};

@@ -7,16 +7,16 @@ namespace TD_MoCap
 	struct FilterAndBinParameters : Utils::Parameters {
 		Utils::NumberParameter<int> minimumLifetime{
 			"Minimum lifetime", "frames"
-			, 2, 2
+			, 20, 20
 			, 0, 1024
 			, 0, 64
 		};
 
 		Utils::NumberParameter<int> binCount{
 			"Bins", ""
-			, 64, 64
+			, 256, 256
 			, 0, 1024
-			, 0, 256
+			, 0, 1024
 		};
 
 		Utils::NumberParameter<float> frameVelocitySoftUpdate{
@@ -28,7 +28,7 @@ namespace TD_MoCap
 
 		Utils::NumberParameter<int> keepAliveFor{
 			"Keep alive for", "frames"
-			, 3, 3
+			, 2, 2
 			, 0, 1024
 			, 0, 32
 		};

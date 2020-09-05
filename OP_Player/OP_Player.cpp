@@ -49,9 +49,7 @@ namespace TD_MoCap {
 
 						rethrowFormattedExceptions([&] {
 							this->player = std::make_unique<Player>(folder
-								, this->output
-								, this->parameters.threads.getValue()
-								, this->parameters.buffer.getValue());
+								, this->output);
 						});
 					}
 					catch (const Exception& e) {
@@ -71,8 +69,6 @@ namespace TD_MoCap {
 			// update enabled parameters (disable some during playing)
 			{
 				inputs->enablePar("Folder", !this->player);
-				inputs->enablePar(this->parameters.threads.getTDShortName().c_str(), !this->player);
-				inputs->enablePar(this->parameters.buffer.getTDShortName().c_str(), !this->player);
 			}
 
 			this->output.update();

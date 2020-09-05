@@ -7,15 +7,14 @@ namespace TD_MoCap
 	struct CentroidsParameters : Utils::Parameters {
 		Utils::NumberParameter<int> blurRadius{
 			"Threshold blur radius", "px"
-			, 100, 100
+			, 8, 8
 			, 0, 10000
 			, 0, 1000
 		};
 
 		Utils::NumberParameter<int> threshold{
 			"Threshold value", ""
-			, 30, 30
-			, 0, 255
+			, 10, 10
 			, 0, 255
 		};
 
@@ -28,21 +27,21 @@ namespace TD_MoCap
 
 		Utils::NumberParameter<int> dilationSize{
 			"Dilation size", "px"
-			, 3, 3
+			, 1, 1
 			, 0, 100
 			, 0, 32
 		};
 
 		Utils::NumberParameter<int> minimumArea{
 			"Minimum area", "px (length)"
-			, 3, 3
+			, 0, 0
 			, 0, 1000
 			, 0, 100
 		};
 
 		Utils::NumberParameter<int> maximumCount{
 			"Maximum count", "centroids"
-			, 1000, 1000
+			, 500, 500
 			, 0, 100000
 			, 0, 10000
 		};
