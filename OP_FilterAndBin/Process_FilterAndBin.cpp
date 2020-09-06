@@ -17,25 +17,32 @@ namespace TD_MoCap {
 		auto frameVelocitySoftUpdate = parameters.frameVelocitySoftUpdate.getValue();
 
 		outputFrame->particleBins = std::vector<Frames::FilterAndBinFrame::ParticleBin>(binCount);
-		
+		auto copyBinCount = MIN(previousFrame->particleBins.size(), binCount);
+
 		std::multimap<float, size_t> noPriors;
 
-		// Add all matched particles to the newTracked
+		// Add all continuing particle bins
 		for (const auto& particle : inputFrame->trackedParticles) {
 			bool foundPriorBinForThisTrackedParticle = false;
-			for (size_t i = 0; i < this->previousFrame->particleBins.size() && i < binCount; i++) {
+			for (size_t i = 0; i < copyBinCount; i++) {
 				const auto& priorBin = this->previousFrame->particleBins[i];
-				if (priorBin.fullyAlive && priorBin.currentIndex == particle.second.priorTriangulatedParticleIndex) {
+
+				// If it was alive in the last frame and exists now
+				if (priorBin.fullyAlive && priorBin.currentTriangulatedIndex == particle.second.priorTriangulatedIndex) {
 					auto& particleBin = outputFrame->particleBins[i];
 
 					particleBin.occupied = true;
 					particleBin.newBinAssignment = false;
-					particleBin.currentIndex = particle.first;
+					particleBin.currentTriangulatedIndex = particle.first;
 					particleBin.position = particle.second.triangulatedParticlePosition;
 					particleBin.frameVelocity = particle.second.triangulatedParticlePosition - particle.second.priorTriangulatedParticlePosition;
 					particleBin.frameVelocityFiltered = (1.0f - frameVelocitySoftUpdate) * priorBin.frameVelocityFiltered + frameVelocitySoftUpdate * particleBin.frameVelocity;
-
 					particleBin.lifetime = particle.second.lifeTime;
+
+					// These are redundant here
+					particleBin.fullyAlive = true;
+					particleBin.afterlifeDuration = 0;
+					particleBin.resurrectionCount = priorBin.resurrectionCount;
 
 					foundPriorBinForThisTrackedParticle = true;
 					break;
@@ -50,21 +57,26 @@ namespace TD_MoCap {
 		// Update afterlife particle bins
 		{
 			const auto& afterlifeMaxDuration = parameters.keepAliveFor.getValue();
-			for (size_t i = 0; i < MIN(previousFrame->particleBins.size(), binCount); i++) {
+			for (size_t i = 0; i < copyBinCount; i++) {
 				const auto& priorBin = previousFrame->particleBins[i];
-				auto& currentBin = outputFrame->particleBins[i];
-				if (!currentBin.occupied && priorBin.occupied) {
-					// absent from current input
+				auto& zombieBin = outputFrame->particleBins[i];
+
+				// Has this bin become empty? i.e. no alive particle was copied above, but last frame was occupied
+				// Could be a newly zombie particle, or could be a continuing zombie particle
+				if (!zombieBin.occupied && priorBin.occupied) {
+					// Has its afterlife expired (afterlifeMaxDuration=0 mean no afterlife)
 					if (priorBin.afterlifeDuration < afterlifeMaxDuration) {
-						currentBin.occupied = true;
-						currentBin.newBinAssignment = false;
-						currentBin.currentIndex = priorBin.currentIndex;
-						currentBin.position = priorBin.position + priorBin.frameVelocityFiltered;
-						currentBin.frameVelocity = priorBin.frameVelocity;
-						currentBin.frameVelocityFiltered = priorBin.frameVelocityFiltered;
-						currentBin.lifetime = priorBin.lifetime + 1;
-						currentBin.fullyAlive = false;
-						currentBin.afterlifeDuration = priorBin.afterlifeDuration + 1;
+						zombieBin.occupied = true;
+						zombieBin.newBinAssignment = false;
+						zombieBin.currentTriangulatedIndex = priorBin.currentTriangulatedIndex;
+						zombieBin.position = priorBin.position + priorBin.frameVelocityFiltered;
+						zombieBin.frameVelocity = priorBin.frameVelocity;
+						zombieBin.frameVelocityFiltered = priorBin.frameVelocityFiltered;
+						zombieBin.lifetime = priorBin.lifetime + 1;
+
+						zombieBin.fullyAlive = false;
+						zombieBin.afterlifeDuration = priorBin.afterlifeDuration + 1;
+						zombieBin.resurrectionCount = priorBin.resurrectionCount;
 					}
 				}
 			}
@@ -72,28 +84,25 @@ namespace TD_MoCap {
 		
 		// Add new particles (and resurrect where available)
 		{
-			auto outputBin = outputFrame->particleBins.begin();
-
-			auto nextFreeBin = [&]() {
-				while (outputBin != outputFrame->particleBins.end() && outputBin->occupied) {
-					outputBin++;
-				}
-			};
-
 			const auto minimumLifetime = parameters.minimumLifetime.getValue();
-			for (const auto& trackedParticle : inputFrame->trackedParticles) {
+			auto nextFreeBin = outputFrame->particleBins.begin(); // will be searched each time it's used
+			for (const auto& priorLessParticle : noPriors) {
+				auto triangulatedIndex = priorLessParticle.second;
+				auto& trackedParticle = inputFrame->trackedParticles[triangulatedIndex];
+
 				// Try to resurrect it
+				bool isResurrected = false;
 				{
+					// Search for closest zombie particle bin
 					float closestDistance2 = parameters.resurrectionSearchDistance.getValue();
 					closestDistance2 *= closestDistance2;
-
 					int foundBinIndex = -1;
 					for (size_t binIndex = 0; binIndex < outputFrame->particleBins.size(); binIndex++) {
 						const auto& particleBin = outputFrame->particleBins[binIndex];
 
 						if (particleBin.occupied && !particleBin.fullyAlive) {
-							// this is a zombie
-							auto delta = particleBin.position - trackedParticle.second.triangulatedParticlePosition;
+							// this is a zombie - measure its distance
+							auto delta = particleBin.position - trackedParticle.triangulatedParticlePosition;
 							auto distance2 = glm::dot(delta, delta);
 							if (distance2 < closestDistance2) {
 								closestDistance2 = distance2;
@@ -103,35 +112,48 @@ namespace TD_MoCap {
 					}
 
 					if (foundBinIndex != -1) {
-						// we found a close-by bin to use for this particle
-						auto& outputBin = outputFrame->particleBins[foundBinIndex];
+						// we found a close-by zombie to use for this particle. The zombie is already inside this bin
+						auto& zombieBin = outputFrame->particleBins[foundBinIndex];
 
-						outputBin.occupied = true;
-						outputBin.newBinAssignment = false;
-						outputBin.currentIndex = trackedParticle.first;
-						outputBin.position = trackedParticle.second.triangulatedParticlePosition;
-						auto newVelocity = trackedParticle.second.triangulatedParticlePosition - (outputBin.position - outputBin.frameVelocity);
-						outputBin.frameVelocity = newVelocity;
-						outputBin.lifetime = trackedParticle.second.lifeTime;
-						outputBin.frameVelocityFiltered = (1.0f - frameVelocitySoftUpdate) * outputBin.frameVelocityFiltered + frameVelocitySoftUpdate * newVelocity;
+						// Some parameters have already been set in the zombieBin update above
+						zombieBin.currentTriangulatedIndex = triangulatedIndex;
+						zombieBin.position = trackedParticle.triangulatedParticlePosition;
+						auto newVelocity = trackedParticle.triangulatedParticlePosition - (zombieBin.position - zombieBin.frameVelocityFiltered);
+						zombieBin.frameVelocity = newVelocity;
+						zombieBin.lifetime = trackedParticle.lifeTime; // This will result in a downwards jump in lifetime
+						zombieBin.frameVelocityFiltered = (1.0f - frameVelocitySoftUpdate) * zombieBin.frameVelocityFiltered + frameVelocitySoftUpdate * newVelocity;
 
-						outputBin.fullyAlive = true;
-						outputBin.afterlifeDuration = 0;
-						outputBin.resurrected = true;
+						zombieBin.fullyAlive = true;
+						zombieBin.afterlifeDuration = 0;
+						zombieBin.resurrectionCount++;
+
+						// don't also make a new bin
+						isResurrected = true;
 					}
 				}
 
-				// Put it in into an empty bin
-				if (trackedParticle.second.lifeTime > minimumLifetime) {
-					nextFreeBin();
-					if (outputBin != outputFrame->particleBins.end()) {
-						outputBin->occupied = true;
-						outputBin->newBinAssignment = true;
-						outputBin->currentIndex = trackedParticle.first;
-						outputBin->position = trackedParticle.second.triangulatedParticlePosition;
-						outputBin->frameVelocity = trackedParticle.second.triangulatedParticlePosition - trackedParticle.second.priorTriangulatedParticlePosition;
-						outputBin->frameVelocityFiltered = outputBin->frameVelocity;
-						outputBin->lifetime = trackedParticle.second.lifeTime;
+
+				// Put it in into an empty bin - it's a newly tracked particle without a zombie to resurrect
+				if (!isResurrected) {
+					if (trackedParticle.lifeTime > minimumLifetime) {
+						// Find the next free bin
+						while (nextFreeBin != outputFrame->particleBins.end() && nextFreeBin->occupied) {
+							nextFreeBin++;
+						}
+
+						if (nextFreeBin != outputFrame->particleBins.end()) {
+							nextFreeBin->occupied = true;
+							nextFreeBin->newBinAssignment = true;
+							nextFreeBin->currentTriangulatedIndex = triangulatedIndex;
+							nextFreeBin->position = trackedParticle.triangulatedParticlePosition;
+							nextFreeBin->frameVelocity = trackedParticle.triangulatedParticlePosition - trackedParticle.priorTriangulatedParticlePosition;
+							nextFreeBin->frameVelocityFiltered = nextFreeBin->frameVelocity;
+							nextFreeBin->lifetime = trackedParticle.lifeTime;
+
+							nextFreeBin->fullyAlive = true;
+							nextFreeBin->afterlifeDuration = 0;
+							nextFreeBin->resurrectionCount = 0;
+						}
 					}
 				}
 			}

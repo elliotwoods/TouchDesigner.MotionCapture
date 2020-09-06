@@ -317,7 +317,7 @@ namespace TD_MoCap {
 									if (findPrevious != this->previousFrame->trackedParticles.end()) {
 										auto continuingParticle = findPrevious->second; // copy the particle
 										continuingParticle.lifeTime++;
-										continuingParticle.priorTriangulatedParticleIndex = findPrevious->first;
+										continuingParticle.priorTriangulatedIndex = findPrevious->first;
 										continuingParticle.priorTriangulatedParticlePosition = inputFrame->worldPoints[i];
 										continuingParticle.priorTriangulatedParticlePosition = continuingParticle.triangulatedParticlePosition;
 
@@ -394,7 +394,7 @@ namespace TD_MoCap {
 										// was a match in the previous frame
 										auto continuingParticle = findPriorTrackedParticle->second; // copy the particle
 										continuingParticle.lifeTime++;
-										continuingParticle.priorTriangulatedParticleIndex = findPriorTrackedParticle->first;
+										continuingParticle.priorTriangulatedIndex = findPriorTrackedParticle->first;
 										continuingParticle.priorTriangulatedParticlePosition = continuingParticle.triangulatedParticlePosition;
 										continuingParticle.triangulatedParticlePosition = particlePosition;
 										outputFrame->trackedParticles.emplace(i, continuingParticle);

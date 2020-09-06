@@ -13,7 +13,7 @@ namespace TD_MoCap {
 		{
 		public:
 			struct Particle {
-				size_t priorTriangulatedParticleIndex;
+				size_t priorTriangulatedIndex;
 				glm::vec3 triangulatedParticlePosition;
 				glm::vec3 priorTriangulatedParticlePosition;
 				size_t lifeTime = 1;

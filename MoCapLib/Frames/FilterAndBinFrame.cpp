@@ -71,7 +71,7 @@ namespace TD_MoCap {
 						channelSet[c++].samples[i] = velocity.z;
 					}
 
-					channelSet[c++].samples[i] = this->particleBins[i].currentIndex;
+					channelSet[c++].samples[i] = this->particleBins[i].currentTriangulatedIndex;
 					channelSet[c++].samples[i] = this->particleBins[i].lifetime;
 				}
 			}

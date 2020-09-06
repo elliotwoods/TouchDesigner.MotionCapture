@@ -27,9 +27,9 @@ namespace TD_MoCap
 
 		Utils::NumberParameter<float> angleThreshold{
 			"Angle threshold", "degrees"
-			, 0.01, 0.01
-			, 0.001, 180
-			, 0.001, 180
+			, 0.001, 0.001
+			, 0.0001, 180
+			, 0.0001, 180
 		};
 
 		Utils::NumberParameter<float> epipolarLineThreshold{
@@ -41,7 +41,7 @@ namespace TD_MoCap
 
 		Utils::NumberParameter<float> massRatioThreshold{
 			"Mass ratio threshold", "x"
-			, 4, 4
+			, 2, 2
 			, 1, 1024
 			, 1, 16
 		};

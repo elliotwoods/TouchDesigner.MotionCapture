@@ -11,17 +11,17 @@ namespace TD_MoCap {
 		{
 		public:
 			struct ParticleBin {
-				bool occupied = false;
-				bool newBinAssignment = false;
-				size_t currentIndex; // or index at death
+				bool occupied;
+				bool newBinAssignment;
+				size_t currentTriangulatedIndex; // or index at death
 				glm::vec3 position;
 				glm::vec3 frameVelocity;
 				glm::vec3 frameVelocityFiltered;
 				size_t lifetime;
 
-				bool fullyAlive = true; // always check occupied also
-				size_t afterlifeDuration = 0;
-				bool resurrected = false;
+				bool fullyAlive; // always check occupied also
+				size_t afterlifeDuration;
+				size_t resurrectionCount;
 			};
 
 			static std::shared_ptr<FilterAndBinFrame> make();
