@@ -91,6 +91,7 @@ namespace TD_MoCap {
 			for (auto & camera : this->cameras) {
 				channelNames.push_back("camera_" + std::to_string(camera.first) + "_x");
 				channelNames.push_back("camera_" + std::to_string(camera.first) + "_y");
+				channelNames.push_back("camera_" + std::to_string(camera.first) + "_mass");
 			}
 			channels.setChannels(channelNames);
 			
@@ -104,14 +105,17 @@ namespace TD_MoCap {
 				size_t index = 0;
 				for (auto& camera : this->cameras) {
 					const auto& centroids = camera.second->centroids;
+					const auto& moments = camera.second->moments;
 					size_t i = 0;
 					for (; i < centroids.size(); i++) {
-						channels[index * 2 + 0].samples[i] = centroids[i].x;
-						channels[index * 2 + 1].samples[i] = centroids[i].y;
+						channels[index * 3 + 0].samples[i] = centroids[i].x;
+						channels[index * 3 + 1].samples[i] = centroids[i].y;
+						channels[index * 3 + 2].samples[i] = moments[i].m00;
 					}
 					for (; i < maxCount; i++) {
-						channels[index * 2 + 0].samples[i] = 0.0f;
-						channels[index * 2 + 1].samples[i] = 0.0f;
+						channels[index * 3 + 0].samples[i] = 0.0f;
+						channels[index * 3 + 1].samples[i] = 0.0f;
+						channels[index * 3 + 2].samples[i] = 0.0f;
 					}
 
 					index++;
