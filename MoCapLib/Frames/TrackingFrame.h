@@ -16,6 +16,9 @@ namespace TD_MoCap {
 				size_t priorTriangulatedIndex;
 				glm::vec3 triangulatedParticlePosition;
 				glm::vec3 priorTriangulatedParticlePosition;
+
+				cv::Point2f centroidLeftFrameVelocity; // <-- only available when using Process_Tracking_Forwawrds
+				cv::Point2f centroidRightFrameVelocity; // <-- only available when using Process_Tracking_Forwawrds
 				size_t lifeTime = 1;
 			};
 

@@ -407,6 +407,8 @@ namespace TD_MoCap {
 											candidatePriorCentroidIndexLeft.second
 											, particlePosition
 											, particlePosition
+											, cv::Point2f() // these are not set when doing this type of tracking
+											, cv::Point2f()
 											, 1
 										});
 									}

@@ -1,5 +1,5 @@
-#include "pch_OP_Tracking.h"
-#include "Process_Tracking.h"
+#include "pch_OP_TrackingForwards.h"
+#include "Process_TrackingForwards.h"
 
 extern "C"
 {
@@ -14,13 +14,13 @@ extern "C"
 		// The opType is the unique name for this TOP. It must start with a
 		// capital A-Z character, and all the following characters must lower case
 		// or numbers (a-z, 0-9)
-		info->customOPInfo.opType->setString("Tracking");
+		info->customOPInfo.opType->setString("Trackingforwards");
 
 		// The opLabel is the text that will show up in the OP Create Dialog
-		info->customOPInfo.opLabel->setString("MoCap Tracking");
+		info->customOPInfo.opLabel->setString("MoCap Tracking Forwards");
 
 		// Will be turned into a 3 letter icon on the nodes
-		info->customOPInfo.opIcon->setString("TRA");
+		info->customOPInfo.opIcon->setString("TRF");
 
 		// Information about the author of this OP
 		info->customOPInfo.authorName->setString("Elliot Woods");
@@ -36,7 +36,7 @@ extern "C"
 	{
 		// Return a new instance of your class every time this is called.
 		// It will be called once per DAT that is using the .dll
-		return new TD_MoCap::ThreadedOP<TD_MoCap::Process_Tracking>(info);
+		return new TD_MoCap::ThreadedOP<TD_MoCap::Process_TrackingForwards>(info);
 	}
 
 	DLLEXPORT
@@ -46,7 +46,7 @@ extern "C"
 		// Delete the instance here, this will be called when
 		// Touch is shutting down, when the DAT using that instance is deleted, or
 		// if the DAT loads a different DLL
-		delete (TD_MoCap::ThreadedOP<TD_MoCap::Process_Tracking>*)instance;
+		delete (TD_MoCap::ThreadedOP<TD_MoCap::Process_TrackingForwards>*)instance;
 	}
 
 };

@@ -37,6 +37,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleTest", "ConsoleTest\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OP_OneEuroFilter", "OP_OneEuroFilter\OP_OneEuroFilter.vcxproj", "{8479C828-1AC3-4741-A495-4B094A1F6C46}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OP_TrackingForwards", "OP_TrackingForwards\OP_TrackingForwards.vcxproj", "{284CF5C9-C989-4957-B45D-09B792931D3E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -149,6 +151,12 @@ Global
 		{8479C828-1AC3-4741-A495-4B094A1F6C46}.Release|x64.ActiveCfg = Release|x64
 		{8479C828-1AC3-4741-A495-4B094A1F6C46}.Release|x64.Build.0 = Release|x64
 		{8479C828-1AC3-4741-A495-4B094A1F6C46}.Release|x86.ActiveCfg = Release|x64
+		{284CF5C9-C989-4957-B45D-09B792931D3E}.Debug|x64.ActiveCfg = Debug|x64
+		{284CF5C9-C989-4957-B45D-09B792931D3E}.Debug|x64.Build.0 = Debug|x64
+		{284CF5C9-C989-4957-B45D-09B792931D3E}.Debug|x86.ActiveCfg = Debug|x64
+		{284CF5C9-C989-4957-B45D-09B792931D3E}.Release|x64.ActiveCfg = Release|x64
+		{284CF5C9-C989-4957-B45D-09B792931D3E}.Release|x64.Build.0 = Release|x64
+		{284CF5C9-C989-4957-B45D-09B792931D3E}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
