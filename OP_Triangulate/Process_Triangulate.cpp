@@ -153,7 +153,7 @@ namespace TD_MoCap {
 					}
 					else if (leftAngle > rightCentroidAngle + angleThreshold) {
 						// too high - break out early
-						break;
+						continue;
 					}
 					else {
 						// perform epipolar constraint test
@@ -225,7 +225,9 @@ namespace TD_MoCap {
 						outputFrame->cameraRightRays.push_back(cameraRightRays[i]);
 						outputFrame->intersections.push_back(intersections[i]);
 						outputFrame->cameraLeftCentroids.push_back(matchedCentroidsLeft[i]);
+						outputFrame->cameraLeftCentroidsRaw.push_back(leftCamera->centroids[matchedCentroidsIndexLeft[i]]);
 						outputFrame->cameraRightCentroids.push_back(matchedCentroidsRight[i]);
+						outputFrame->cameraRightCentroidsRaw.push_back(rightCamera->centroids[matchedCentroidsIndexRight[i]]);
 						outputFrame->cameraLeftMasses.push_back(matchedCentroidsLeftMass[i]);
 						outputFrame->worldPoints.push_back(worldPoint);
 						outputFrame->epipolarDistance.push_back(matchedEpipolarDistance[i]);

@@ -1,5 +1,6 @@
 {
 	"files.associations": {
 		"*.ipp": "cpp"
-	}
+	},
+	"python.pythonPath": "C:\\Users\\kimchips\\miniconda3\\python.exe"
 }

@@ -6,11 +6,11 @@ These operators triangulate bright features in corresponding camera images (e.g.
 
 # Installation
 
-You will need some extra files which aren't inside this repo. Specifically DLL's for OpenCV with CUDA and CUDA itself. These are available at: https://www.dropbox.com/sh/yjeef9fvf588hhf/AADe-vf76ImbWikNl6mRIAhwa?dl=0 .
+You will need some extra files which aren't inside this repo. Specifically DLL's for OpenCV with CUDA. These are available at: https://www.dropbox.com/sh/yjeef9fvf588hhf/AADe-vf76ImbWikNl6mRIAhwa?dl=0 .
 
 These should be unzipped into your `thirdparty` folder.
 
-In the future we may remove the requirement for CUDA if it becomes a problem. 
+In the future we may remove the requirement for CUDA if it becomes a problem, as it doesn't seem to be useful at the moment.
 
 ## Requirements
 

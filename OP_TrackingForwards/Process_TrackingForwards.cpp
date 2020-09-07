@@ -12,15 +12,18 @@ namespace TD_MoCap {
 			const auto leftID = inputFrame->inputFrame->inputFrame->leaderID;
 			const auto rightID = inputFrame->inputFrame->inputFrame->secondaryID;
 
-			const auto& currentCentroidsLeft = inputFrame->cameraLeftCentroids;
-			const auto& currentCentroidsRight = inputFrame->cameraRightCentroids;
+			const auto& currentCentroidsLeftRaw = inputFrame->cameraLeftCentroidsRaw;
+			const auto& currentCentroidsRightRaw = inputFrame->cameraRightCentroidsRaw;
 
 			const auto priorTrackedSize = this->previousFrame->trackedParticles.size();
-			const auto currentTriangulatedSize = currentCentroidsLeft.size();
+			const auto currentTriangulatedSize = currentCentroidsLeftRaw.size();
 
 			const auto searchRadius = parameters.searchRadius.getValue();
 			const auto searchRadius2 = searchRadius * searchRadius;
 			const auto windowSize = parameters.opticalFlowRadius.getValue() * 2 + 1;
+
+			const auto opticalFlowLevel = 3;
+			const auto opticalFlowTermCriteria = cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01);
 
 			std::set<size_t> assignedCurrentTriangulatedIndices;
 			std::set<size_t> assignedPriorTriangulatedIndices;
@@ -41,13 +44,13 @@ namespace TD_MoCap {
 						priorTriangulatedIndices[i] = priorTrackedParticleIt->first;
 
 						{
-							const auto& priorCentroid = this->previousFrame->inputFrame->cameraLeftCentroids[priorTrackedParticleIt->first];
+							const auto& priorCentroid = this->previousFrame->inputFrame->cameraLeftCentroidsRaw[priorTrackedParticleIt->first];
 							priorCentroidsLeftList[i] = priorCentroid;
 							lookAheadCentroidsLeft[i] = priorCentroid + priorTrackedParticleIt->second.centroidLeftFrameVelocity;
 						}
 
 						{
-							const auto& priorCentroid = this->previousFrame->inputFrame->cameraRightCentroids[priorTrackedParticleIt->first];
+							const auto& priorCentroid = this->previousFrame->inputFrame->cameraRightCentroidsRaw[priorTrackedParticleIt->first];
 							priorCentroidsRightList[i] = priorCentroid;
 							lookAheadCentroidsRight[i] = priorCentroid + priorTrackedParticleIt->second.centroidRightFrameVelocity;
 						}
@@ -70,7 +73,27 @@ namespace TD_MoCap {
 							, status
 							, error
 							, cv::Size(windowSize, windowSize)
+							, opticalFlowLevel
+							, opticalFlowTermCriteria
+							, cv::OPTFLOW_USE_INITIAL_FLOW
 						);
+
+						{
+							cv::Mat preview;
+							cv::cvtColor(priorImage, preview, cv::COLOR_GRAY2BGR);
+							cv::circle(preview, priorCentroidsLeftList[0], 5, cv::Scalar(255, 0, 0), 1);
+							cv::imshow("prior", preview);
+						}
+
+						{
+							cv::Mat preview;
+							cv::cvtColor(currentImage, preview, cv::COLOR_GRAY2BGR);
+							cv::circle(preview, lookAheadCentroidsLeft[0], 5, cv::Scalar(255, 0, 0), 1);
+							cv::imshow("current", preview);
+						}
+						cv::waitKey(0);
+
+						std::cout << "pause" << std::endl;
 						});
 
 					actions.emplace_back([&] {
@@ -85,7 +108,12 @@ namespace TD_MoCap {
 							, status
 							, error
 							, cv::Size(windowSize, windowSize)
+							, opticalFlowLevel
+							, opticalFlowTermCriteria
+							, cv::OPTFLOW_USE_INITIAL_FLOW
 						);
+						std::cout << "pause" << std::endl;
+
 						});
 
 					Utils::WorkerGroup::X().parallelFor(actions);
@@ -109,7 +137,7 @@ namespace TD_MoCap {
 								continue;
 							}
 
-							const auto& currentCentroidLeft = currentCentroidsLeft[currentTriangulatedIndex];
+							const auto& currentCentroidLeft = currentCentroidsLeftRaw[currentTriangulatedIndex];
 							if (currentCentroidLeft.y < minYLeft) {
 								// no more left in this loop which will match (they're in reverse order)
 								break;
@@ -117,7 +145,7 @@ namespace TD_MoCap {
 							if (currentCentroidLeft.y > maxYLeft) {
 								continue;
 							}
-							const auto& currentCentroidRight = currentCentroidsRight[currentTriangulatedIndex];
+							const auto& currentCentroidRight = currentCentroidsRightRaw[currentTriangulatedIndex];
 
 							float errorSum = 0.0f;
 
@@ -154,8 +182,8 @@ namespace TD_MoCap {
 								priorTriangulatedIndex
 								, inputFrame->worldPoints[currentTriangulatedIndex]
 								, this->previousFrame->inputFrame->worldPoints[priorTriangulatedIndex]
-								, currentCentroidsLeft[currentTriangulatedIndex] - priorCentroidsLeftList[priorTrackedIndex]
-								, currentCentroidsRight[currentTriangulatedIndex] - priorCentroidsRightList[priorTrackedIndex]
+								, currentCentroidsLeftRaw[currentTriangulatedIndex] - priorCentroidsLeftList[priorTrackedIndex]
+								, currentCentroidsRightRaw[currentTriangulatedIndex] - priorCentroidsRightList[priorTrackedIndex]
 								, this->previousFrame->trackedParticles[priorTriangulatedIndex].lifeTime + 1
 								});
 
@@ -177,8 +205,8 @@ namespace TD_MoCap {
 				for (size_t i = 0; i < currentTriangulatedSize; i++) {
 					if (assignedCurrentTriangulatedIndices.find(i) == assignedCurrentTriangulatedIndices.end()) {
 						// not assigned already
-						currentRemainingCentroidsLeft.push_back(currentCentroidsLeft[i]);
-						currentRemainingCentroidsRight.push_back(currentCentroidsRight[i]);
+						currentRemainingCentroidsLeft.push_back(currentCentroidsLeftRaw[i]);
+						currentRemainingCentroidsRight.push_back(currentCentroidsRightRaw[i]);
 						currentRemainingCentroidsTriangulatedIndices.push_back(i);
 					}
 				}
@@ -201,6 +229,8 @@ namespace TD_MoCap {
 							, status
 							, error
 							, cv::Size(windowSize, windowSize)
+							, opticalFlowLevel
+							, opticalFlowTermCriteria
 						);
 						});
 
@@ -216,6 +246,8 @@ namespace TD_MoCap {
 							, status
 							, error
 							, cv::Size(windowSize, windowSize)
+							, opticalFlowLevel
+							, opticalFlowTermCriteria
 						);
 						});
 
@@ -291,8 +323,8 @@ namespace TD_MoCap {
 								priorTriangulatedIndex
 								, inputFrame->worldPoints[currentTriangulatedIndex]
 								, this->previousFrame->inputFrame->worldPoints[priorTriangulatedIndex]
-								, currentCentroidsLeft[currentTriangulatedIndex] - priorCentroidsLeft[priorTriangulatedIndex]
-								, currentCentroidsRight[currentTriangulatedIndex] - priorCentroidsRight[priorTriangulatedIndex]
+								, currentCentroidsLeftRaw[currentTriangulatedIndex] - priorCentroidsLeft[priorTriangulatedIndex]
+								, currentCentroidsRightRaw[currentTriangulatedIndex] - priorCentroidsRight[priorTriangulatedIndex]
 								, this->previousFrame->trackedParticles[priorTriangulatedIndex].lifeTime + 1
 								});
 
