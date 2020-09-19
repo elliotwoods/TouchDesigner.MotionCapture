@@ -3,6 +3,8 @@
 
 #include <opencv2/cudaoptflow.hpp>
 
+#ifdef ENABLE_QUAD_TREE
+
 // The quad tree is defined with interleaved bits y,x,y,x,y,x (LSB is x)
 // supports up to 2048px (11bit) resolution width by chopping off last 3 bits to fit in 8bit
 #define IMAGEPOINT_DECIMATION 3
@@ -68,6 +70,7 @@ std::vector<size_t> findAdjacentQTPoints(const std::multimap<QTPoint, size_t>& q
 	}
 	return results;
 }
+#endif
 
 namespace TD_MoCap {
 #pragma mark TrackingParameters
@@ -93,8 +96,12 @@ namespace TD_MoCap {
 				auto leftID = inputFrame->inputFrame->inputFrame->leaderID;
 				auto rightID = inputFrame->inputFrame->inputFrame->secondaryID;
 
-				const auto& currentCentroidsLeft = inputFrame->cameraLeftCentroids;
-				const auto& currentCentroidsRight = inputFrame->cameraRightCentroids;
+				const auto& currentCentroidsLeftRaw = inputFrame->cameraLeftCentroidsRaw;
+				const auto& currentCentroidsRightRaw = inputFrame->cameraRightCentroidsRaw;
+				const auto& cameraLeft = inputFrame->cameraLeft;
+				const auto& cameraRight = inputFrame->cameraRight;
+				const auto& roiYLeft = inputFrame->inputFrame->inputFrame->cameraFrames[leftID]->metaData.roiY;
+				const auto& roiYRight = inputFrame->inputFrame->inputFrame->cameraFrames[rightID]->metaData.roiY;
 
 				//calculate where current frame centroids might be in previous frames
 				std::vector<cv::Point2f> backupCentroidsLeft;
@@ -110,14 +117,20 @@ namespace TD_MoCap {
 						const auto& currentImage = inputFrame->inputFrame->cameras[leftID]->greyscale;
 						std::vector<uchar> status;
 						std::vector<float> error;
+
+						std::vector<cv::Point2f> backupCentroidsRaw;
+
 						cv::calcOpticalFlowPyrLK(currentImage
 							, priorImage
-							, currentCentroidsLeft
-							, backupCentroidsLeft
+							, currentCentroidsLeftRaw
+							, backupCentroidsRaw
 							, status
 							, error
 							, cv::Size(windowSize, windowSize)
 						);
+
+						backupCentroidsLeft = cameraLeft.undistortImagePoints(backupCentroidsRaw, roiYLeft);
+
 						});
 
 					actions.emplace_back([&] {
@@ -125,14 +138,20 @@ namespace TD_MoCap {
 						const auto& currentImage = inputFrame->inputFrame->cameras[rightID]->greyscale;
 						std::vector<uchar> status;
 						std::vector<float> error;
+
+						std::vector<cv::Point2f> backupCentroidsRaw;
+
 						cv::calcOpticalFlowPyrLK(currentImage
 							, priorImage
-							, currentCentroidsRight
-							, backupCentroidsRight
+							, currentCentroidsRightRaw
+							, backupCentroidsRaw
 							, status
 							, error
 							, cv::Size(windowSize, windowSize)
 						);
+
+						backupCentroidsRight = cameraRight.undistortImagePoints(backupCentroidsRaw, roiYRight);
+
 						});
 
 					// perform the search
@@ -150,9 +169,11 @@ namespace TD_MoCap {
 						auto status = cv::cuda::GpuMat();
 						auto error = cv::cuda::GpuMat();
 
+						std::vector<cv::Point2f> backupCentroidsRaw;
+
 						opticalFlow->calc(currentImage
 							, priorImage
-							, cv::cuda::GpuMat(currentCentroidsLeft)
+							, cv::cuda::GpuMat(backupCentroidsRaw)
 							, backupCentroidsLeftGPU
 							, status
 							, error
@@ -166,9 +187,11 @@ namespace TD_MoCap {
 						auto status = cv::cuda::GpuMat();
 						auto error = cv::cuda::GpuMat();
 
+						std::vector<cv::Point2f> backupCentroidsRaw;
+
 						opticalFlow->calc(currentImage
 							, priorImage
-							, cv::cuda::GpuMat(currentCentroidsRight)
+							, cv::cuda::GpuMat(backupCentroidsRaw)
 							, backupCentroidsRightGPU
 							, status
 							, error
@@ -176,8 +199,13 @@ namespace TD_MoCap {
 						);
 					}
 
-					backupCentroidsLeftGPU.download(backupCentroidsLeft, actionQueue);
-					backupCentroidsRightGPU.download(backupCentroidsRight, actionQueue);
+					std::vector<cv::Point2f> backupCentroidsLeftRaw, backupCentroidsRightRaw;
+
+					backupCentroidsLeftGPU.download(backupCentroidsLeftRaw, actionQueue);
+					backupCentroidsRightGPU.download(backupCentroidsRightRaw, actionQueue);
+					backupCentroidsLeft = cameraLeft.undistortImagePoints(backupCentroidsLeftRaw, roiYLeft);
+					backupCentroidsRight = cameraRight.undistortImagePoints(backupCentroidsRightRaw, roiYRight);
+
 					actionQueue.waitForCompletion();
 				}
 				else if (opticalFlowMethod == "CUDA dense async") {
