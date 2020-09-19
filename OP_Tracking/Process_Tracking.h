@@ -19,11 +19,34 @@ namespace TD_MoCap
 			, 0, 10
 		};
 
+		Utils::NumberParameter<int> opticalFlowMaxLevel{
+			"OF max level", ""
+			, 3, 3
+			, 1, 8
+			, 1, 8
+		};
+
+		Utils::NumberParameter<int> opticalFlowMaxIterations{
+			"OF max iterations", ""
+			, 5, 5
+			, 0, 100
+			, 0, 100
+		};
+
+		Utils::NumberParameter<float> opticalFlowMinDelta{
+			"OF min delta", ""
+			, .5, 0.5
+			, 0.0001, 10
+			, 0.0001, 10
+		};
+
+#ifdef ENABLE_QUAD_TREE
 		Utils::ValueParameter<bool> useQuadTree{
 			"Use quad tree"
 			, false, false
 		};
-		
+#endif
+
 		Utils::SelectorParameter opticalFlowMethod{
 			"Compute optical flow method"
 			, {"CPU", "CUDA sparse", "CUDA dense async", "CUDA dense sparse return", "CUDA sparse + linear" }
@@ -33,7 +56,12 @@ namespace TD_MoCap
 		Utils::ParameterList list{
 			&opticalFlowRadius
 			, &searchRadius
+			, &opticalFlowMaxLevel
+			, &opticalFlowMaxIterations
+			, &opticalFlowMinDelta
+#ifdef ENABLE_QUAD_TREE
 			, &useQuadTree
+#endif
 			, &opticalFlowMethod
 		};
 

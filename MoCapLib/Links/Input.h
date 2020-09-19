@@ -45,7 +45,7 @@ namespace TD_MoCap {
 
 			std::shared_ptr<Frames::BaseFrame> lastFrame;
 
-			size_t maxSize = 20;
+			size_t maxSize = 120;
 			size_t droppedFrameCount = 0;
 		};
 	}

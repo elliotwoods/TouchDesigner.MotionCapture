@@ -7,7 +7,7 @@ namespace TD_MoCap
 	struct FilterAndBinParameters : Utils::Parameters {
 		Utils::NumberParameter<int> minimumLifetime{
 			"Minimum lifetime", "frames"
-			, 20, 20
+			, 10, 10
 			, 0, 1024
 			, 0, 64
 		};
@@ -35,7 +35,7 @@ namespace TD_MoCap
 
 		Utils::NumberParameter<float> resurrectionSearchDistance{
 			"Resurrection search distance", "m"
-			, 0.05, 0.05
+			, 0.02, 0.02
 			, 0, 100
 			, 0, 0.5
 		};

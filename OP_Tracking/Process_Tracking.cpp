@@ -108,9 +108,19 @@ namespace TD_MoCap {
 				std::vector<cv::Point2f> backupCentroidsRight;
 
 				const auto opticalFlowMethod = parameters.opticalFlowMethod.getSelectedOption();
-				if (opticalFlowMethod == "CPU") {
+
+				if (parameters.opticalFlowMaxIterations.getValue() == 0) {
+					// no optical flow is performed
+					backupCentroidsLeft = inputFrame->cameraLeftCentroids;
+					backupCentroidsRight = inputFrame->cameraRightCentroids;
+				} if (opticalFlowMethod == "CPU") {
 					std::vector<std::function<void()>> actions;
 					auto windowSize = parameters.opticalFlowRadius.getValue() * 2 + 1;
+
+					auto maxLevel = parameters.opticalFlowMaxLevel.getValue();
+					auto termCriteria = cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS
+						, parameters.opticalFlowMaxIterations.getValue()
+						, parameters.opticalFlowMinDelta.getValue());
 
 					actions.emplace_back([&] {
 						const auto& priorImage = this->previousFrame->inputFrame->inputFrame->cameras[leftID]->greyscale;
@@ -127,6 +137,8 @@ namespace TD_MoCap {
 							, status
 							, error
 							, cv::Size(windowSize, windowSize)
+							, maxLevel
+							, termCriteria
 						);
 
 						backupCentroidsLeft = cameraLeft.undistortImagePoints(backupCentroidsRaw, roiYLeft);
@@ -148,6 +160,8 @@ namespace TD_MoCap {
 							, status
 							, error
 							, cv::Size(windowSize, windowSize)
+							, maxLevel
+							, termCriteria
 						);
 
 						backupCentroidsRight = cameraRight.undistortImagePoints(backupCentroidsRaw, roiYRight);
@@ -319,8 +333,8 @@ namespace TD_MoCap {
 
 				//search for correspondences between cameras in QT Tree
 				const auto maxDistance = parameters.searchRadius.getValue();
-				if (parameters.useQuadTree.getValue()) {
 #ifdef ENABLE_QUAD_TREE
+				if (parameters.useQuadTree.getValue()) {
 					// sort the previous centroids, we'll search through them when looking through backup centroids
 					const auto previousCentroidsLeftQT = imagePointsToQT(previousFrame->inputFrame->cameraLeftCentroids);
 					const auto previousCentroidsRightQT = imagePointsToQT(previousFrame->inputFrame->cameraRightCentroids);
@@ -363,13 +377,13 @@ namespace TD_MoCap {
 							}
 						}
 					}
-#else
 					throw(Exception("Quad tree is not implemented"));
-#endif
 				}
 
 				// Search without QT Tree
-				else {
+				else
+#endif
+				{
 					auto findAdjacentPointsInPreviousFrame = [&](const std::vector<cv::Point2f>& previousFrameCentroids
 						, const cv::Point2f& backupPoint
 						, float maxDistance)
