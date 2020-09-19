@@ -24,9 +24,9 @@ namespace TD_MoCap {
 		Synchroniser::checkConnections(const std::vector<Links::Output::ID>& newOutputIDs)
 	{
 		// gather current IDs (we presume these can't change in the other thread)
-		std::vector<Links::Output::ID> currentOutputIDs;
+		std::set<Links::Output::ID> currentOutputIDs;
 		for (const auto& camera : this->syncMembers) {
-			currentOutputIDs.push_back(camera.first);
+			currentOutputIDs.insert(camera.first);
 		}
 
 		// quit early on empty
@@ -35,7 +35,7 @@ namespace TD_MoCap {
 		}
 
 		// if we've changed
-		if (newOutputIDs != currentOutputIDs) {
+		if (std::set<Links::Output::ID>(newOutputIDs.begin(), newOutputIDs.end()) != currentOutputIDs) {
 			this->workerThread.performBlocking([newOutputIDs, this] {
 				// rebuild syncMembers
 				this->syncMembers.clear();
@@ -48,7 +48,9 @@ namespace TD_MoCap {
 				}
 
 				// record the leader as the first in the input
-				this->leaderID = newOutputIDs.front();
+				if (!newOutputIDs.empty()) {
+					this->leaderID = newOutputIDs.front();
+				}
 
 				// force an immediate resync
 				this->requestResync();

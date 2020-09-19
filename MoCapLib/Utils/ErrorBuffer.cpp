@@ -11,6 +11,7 @@ namespace TD_MoCap {
 		{
 			this->maxErrors.populateInterface(parameterManager);
 			this->printToConsole.populateInterface(parameterManager);
+			this->reportToInterface.populateInterface(parameterManager);
 
 			{
 				OP_NumericParameter param;
@@ -26,6 +27,7 @@ namespace TD_MoCap {
 		{
 			this->maxErrors.updateFromInterface(inputs);
 			this->printToConsole.updateFromInterface(inputs);
+			this->reportToInterface.updateFromInterface(inputs);
 		}
 
 		//----------
@@ -59,12 +61,14 @@ namespace TD_MoCap {
 		void
 			ErrorBuffer::push(const Exception& exception)
 		{
-			if (this->errors.size() < this->maxErrors.getValue())
-			{
-				this->errors.emplace_back(exception);
-			}
-			else {
-				this->overflow = true;
+			if (this->reportToInterface.getValue()) {
+				if (this->errors.size() < this->maxErrors.getValue())
+				{
+					this->errors.emplace_back(exception);
+				}
+				else {
+					this->overflow = true;
+				}
 			}
 
 			if (this->printToConsole.getValue())

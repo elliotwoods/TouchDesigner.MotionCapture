@@ -39,6 +39,12 @@ namespace TD_MoCap {
 				"Print to console"
 				, false, false
 			};
+
+			ValueParameter<bool> reportToInterface
+			{
+				"Report to interface"
+				, true, true
+			};
 		};
 	}
 }
