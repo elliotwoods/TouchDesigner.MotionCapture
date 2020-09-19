@@ -31,3 +31,7 @@ ipch/
 *.pdb
 *.idb
 *.pch
+
+CrashAutoSave.*
+TouchDesignerCrash.*
+**/Backup/*
