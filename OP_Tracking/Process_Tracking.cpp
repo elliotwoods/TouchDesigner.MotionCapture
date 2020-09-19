@@ -397,7 +397,7 @@ namespace TD_MoCap {
 						for (size_t i = 0; i < previousFrameCentroids.size(); i++) {
 							const auto& previousCentroid = previousFrameCentroids[i];
 							if (previousCentroid.y < min_Y_search) {
-								continue; // skip early
+								break; // break early - the contours are oredered by reverse y
 							}
 							if (previousCentroid.y > max_Y_search) {
 								continue; // skip early

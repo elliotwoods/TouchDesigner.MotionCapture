@@ -142,7 +142,7 @@ namespace TD_MoCap {
 							indexByMass.emplace(-output->moments[i].m00, i);
 						}
 
-						// store the trimmed list by index so that it will be sorted in the output vector
+						// store the trimmed list by index so that it will be sorted by the natural contour ordering in the output vector
 						std::set<size_t> trimmedIndices;
 						for (const auto& it : indexByMass) {
 							trimmedIndices.emplace(it.second);

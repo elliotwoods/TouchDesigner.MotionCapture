@@ -152,8 +152,8 @@ namespace TD_MoCap {
 						continue;
 					}
 					else if (leftAngle > rightCentroidAngle + angleThreshold) {
-						// too high - break out early
-						continue;
+						// too high - break out early as the list is sorted by leftAngles
+						break;
 					}
 					else {
 						// perform epipolar constraint test
