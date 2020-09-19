@@ -51,7 +51,7 @@ namespace TD_MoCap {
 			auto& outputBin = outputFrame->particleBins[i];
 
 			if (inputBin.occupied) {
-				if (inputBin.newBinAssignment || !(bool)outputFrame->particleBins[i]) {
+				if (inputBin.newBinAssignment || !outputBin) {
 					// It's new, or we were empty
 					// replace whatever was there before
 					outputBin = std::shared_ptr<Frames::OneEuroFilterFrame::ParticleBin>(new Frames::OneEuroFilterFrame::ParticleBin(
@@ -61,14 +61,18 @@ namespace TD_MoCap {
 						, inputBin.lifetime
 					));
 				}
-				else {
-					// It's an updated bin, update and filter
+				else if(outputBin) {
+					// It's an updated bin (and the output is valid), update and filter
+
+					outputBin->UID = inputBin.UID;
+					outputBin->rawPosition = inputBin.position;
+
 					for (uint8_t j = 0; j < 3; j++) {
-						outputBin->UID = inputBin.UID;
 						outputBin->filteredPosition[j] = outputBin->filter[j].filter(inputBin.position[j]);
-						outputBin->isNew = false;
-						outputBin->lifetime = inputBin.lifetime;
 					}
+
+					outputBin->isNew = false;
+					outputBin->lifetime = inputBin.lifetime;
 				}
 			}
 			else {

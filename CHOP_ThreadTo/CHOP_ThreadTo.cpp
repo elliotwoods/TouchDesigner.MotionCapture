@@ -25,24 +25,26 @@ namespace TD_MoCap {
 		CHOP_ThreadTo::getOutputInfo(CHOP_OutputInfo* info, const OP_Inputs* inputs, void*)
 	{
 		try {
-			auto frameIsNew = (bool) this->input.receiveNextFrameDontWait();
-			auto frame = this->input.getLastFrame();
-			if (frame) {
-				if (!frame->getPreviewCHOP(this->channelSet)) {
-					this->channelSet.clear();
+			auto frameNow = this->input.receiveNextFrameDontWait();
+			if (frameNow) {
+				this->previewDirty = true;
+
+				// we have a new frame
+				if (frameNow->getPreviewCHOP(this->channelSet)) {
+					// it has channel data
+					this->outputEmpty = this->channelSet.empty();
 				}
-
-				outputEmpty = this->channelSet.empty();
-				info->numChannels = this->channelSet.size();
-				info->numSamples = info->numChannels == 0 ? 0 : this->channelSet.front().samples.size();
-				
-				this->previewDirty = frameIsNew;
-				return true;
-			}
-			else {
-				return false;
+				else {
+					// it doesn't have channel data
+					this->channelSet.clear();
+					this->outputEmpty = true;
+				}
 			}
 
+			info->numChannels = this->channelSet.size();
+			info->numSamples = info->numChannels == 0 ? 0 : this->channelSet.front().samples.size();
+
+			return true;
 		}
 		catch (Exception e) {
 			this->errorBuffer.push(e);
