@@ -25,7 +25,7 @@ namespace TD_MoCap {
 		CHOP_ThreadTo::getOutputInfo(CHOP_OutputInfo* info, const OP_Inputs* inputs, void*)
 	{
 		try {
-			auto frameNow = this->input.receiveNextFrameDontWait();
+			auto frameNow = this->input.receiveLatestFrame(false);
 			if (frameNow) {
 				this->previewDirty = true;
 
