@@ -78,6 +78,7 @@ namespace TD_MoCap {
 							, cv::OPTFLOW_USE_INITIAL_FLOW
 						);
 
+						/*
 						{
 							cv::Mat preview;
 							cv::cvtColor(priorImage, preview, cv::COLOR_GRAY2BGR);
@@ -94,6 +95,7 @@ namespace TD_MoCap {
 						cv::waitKey(0);
 
 						std::cout << "pause" << std::endl;
+						*/
 						});
 
 					actions.emplace_back([&] {
@@ -283,7 +285,7 @@ namespace TD_MoCap {
 							const auto& priorCentroidLeft = priorCentroidsLeft[priorTriangulatedIndex];
 							if (priorCentroidLeft.y < minYLeft) {
 								// no more left in this loop which will match (they're in reverse order)
-								break;
+								continue;
 							}
 							if (priorCentroidLeft.y > maxYLeft) {
 								continue;

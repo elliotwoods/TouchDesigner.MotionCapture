@@ -127,8 +127,8 @@ namespace TD_MoCap {
 					auto& bounds = output->boundingRects[i];
 
 					output->centroids.emplace_back(
-						moment.m10 / moment.m00 + float(bounds.x - dilationSize)
-						, moment.m01 / moment.m00 + float(bounds.y - dilationSize)
+						moment.m10 / moment.m00 + (float)bounds.x - dilationSize
+						, moment.m01 / moment.m00 + (float)bounds.y - dilationSize
 					);
 				}
 
@@ -140,6 +140,12 @@ namespace TD_MoCap {
 						std::multimap<float, size_t> indexByMass;
 						for (size_t i = 0; i < output->centroids.size(); i++) {
 							indexByMass.emplace(-output->moments[i].m00, i);
+						}
+
+						// store the trimmed list by index so that it will be sorted in the output vector
+						std::set<size_t> trimmedIndices;
+						for (const auto& it : indexByMass) {
+							trimmedIndices.emplace(it.second);
 						}
 
 						// trim the output
@@ -154,11 +160,11 @@ namespace TD_MoCap {
 							trimmedMoments.reserve(maxCentroids);
 							trimmedCentroids.reserve(maxCentroids);
 
-							for (size_t i = 0; i < maxCentroids; i++) {
-								trimmedContours.push_back(std::move(output->contours[i]));
-								trimmedBoundingRects.push_back(output->boundingRects[i]);
-								trimmedMoments.push_back(output->moments[i]);
-								trimmedCentroids.push_back(output->centroids[i]);
+							for(const auto & index : trimmedIndices) {
+								trimmedContours.push_back(std::move(output->contours[index]));
+								trimmedBoundingRects.push_back(output->boundingRects[index]);
+								trimmedMoments.push_back(output->moments[index]);
+								trimmedCentroids.push_back(output->centroids[index]);
 							}
 
 							//swap the trimmed values in 
