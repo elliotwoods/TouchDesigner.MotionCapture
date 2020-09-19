@@ -4,8 +4,9 @@
 namespace TD_MoCap {
 	namespace Frames {
 		//----------
-		OneEuroFilterFrame::ParticleBin::ParticleBin(glm::vec3 position, const Utils::OneEuroFilter::Params& params, size_t lifetime)
-			: rawPosition(position)
+		OneEuroFilterFrame::ParticleBin::ParticleBin(size_t UID, glm::vec3 position, const Utils::OneEuroFilter::Params& params, size_t lifetime)
+			: UID(UID)
+			, rawPosition(position)
 			, filteredPosition(position)
 			, filter{
 				params
@@ -43,7 +44,7 @@ namespace TD_MoCap {
 		bool
 			OneEuroFilterFrame::getPreviewCHOP(Utils::ChannelSet& channelSet) const
 		{
-			channelSet.setChannels({ "Alive", "New"
+			channelSet.setChannels({ "Alive", "New", "UID"
 				, "x", "y", "z"
 				, "raw_x", "raw_y", "raw_z"
 				, "lifetime" });
@@ -52,6 +53,7 @@ namespace TD_MoCap {
 			for (size_t i = 0; i < this->particleBins.size(); i++) {
 				auto c = 0;
 				if (!this->particleBins[i]) {
+					channelSet[c++].samples[i] = 0;
 					channelSet[c++].samples[i] = 0;
 					channelSet[c++].samples[i] = 0;
 
@@ -70,6 +72,7 @@ namespace TD_MoCap {
 
 					channelSet[c++].samples[i] = 1;
 					channelSet[c++].samples[i] = particle.isNew;
+					channelSet[c++].samples[i] = particle.UID;
 
 					channelSet[c++].samples[i] = particle.filteredPosition[0];
 					channelSet[c++].samples[i] = particle.filteredPosition[1];

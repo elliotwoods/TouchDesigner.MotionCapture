@@ -13,7 +13,8 @@ namespace TD_MoCap {
 		{
 		public:
 			struct TDMOCAP_API ParticleBin {
-				ParticleBin(glm::vec3 position, const Utils::OneEuroFilter::Params &, size_t lifetime);
+				ParticleBin(size_t UID, glm::vec3 position, const Utils::OneEuroFilter::Params &, size_t lifetime);
+				size_t UID;
 				glm::vec3 filteredPosition;
 				glm::vec3 rawPosition;
 				bool isNew;

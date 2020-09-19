@@ -56,6 +56,6 @@ namespace TD_MoCap
 		void process(std::shared_ptr<Frames::TrackingFrame>, std::shared_ptr<Frames::FilterAndBinFrame>, FilterAndBinParameters&) override;
 		std::shared_ptr<Frames::FilterAndBinFrame> previousFrame;
 
-		size_t nextID = 0;
+		size_t nextUID = 0;
 	};
 }

@@ -31,7 +31,9 @@ namespace TD_MoCap {
 				if (priorBin.fullyAlive && priorBin.currentTriangulatedIndex == particle.second.priorTriangulatedIndex) {
 					auto& particleBin = outputFrame->particleBins[i];
 
-					particleBin.occupied = true;
+					particleBin = priorBin;
+
+					particleBin.occupied = true; // redundant
 					particleBin.newBinAssignment = false;
 					particleBin.currentTriangulatedIndex = particle.first;
 					particleBin.position = particle.second.triangulatedParticlePosition;
@@ -66,7 +68,9 @@ namespace TD_MoCap {
 				if (!zombieBin.occupied && priorBin.occupied) {
 					// Has its afterlife expired (afterlifeMaxDuration=0 mean no afterlife)
 					if (priorBin.afterlifeDuration < afterlifeMaxDuration) {
-						zombieBin.occupied = true;
+						zombieBin = priorBin;
+
+						zombieBin.occupied = true; // redundant
 						zombieBin.newBinAssignment = false;
 						zombieBin.currentTriangulatedIndex = priorBin.currentTriangulatedIndex;
 						zombieBin.position = priorBin.position + priorBin.frameVelocityFiltered;
@@ -101,7 +105,7 @@ namespace TD_MoCap {
 						const auto& particleBin = outputFrame->particleBins[binIndex];
 
 						if (particleBin.occupied && !particleBin.fullyAlive) {
-							// this is a zombie - measure its distance
+							// this is a zombie in the current frame - measure its distance
 							auto delta = particleBin.position - trackedParticle.triangulatedParticlePosition;
 							auto distance2 = glm::dot(delta, delta);
 							if (distance2 < closestDistance2) {
@@ -133,7 +137,7 @@ namespace TD_MoCap {
 				}
 
 
-				// Put it in into an empty bin - it's a newly tracked particle without a zombie to resurrect
+				// Put it in into an empty bin (it's a newly tracked particle without a zombie to resurrect)
 				if (!isResurrected) {
 					if (trackedParticle.lifeTime > minimumLifetime) {
 						// Find the next free bin
@@ -144,6 +148,7 @@ namespace TD_MoCap {
 						if (nextFreeBin != outputFrame->particleBins.end()) {
 							nextFreeBin->occupied = true;
 							nextFreeBin->newBinAssignment = true;
+							nextFreeBin->UID = this->nextUID++;
 							nextFreeBin->currentTriangulatedIndex = triangulatedIndex;
 							nextFreeBin->position = trackedParticle.triangulatedParticlePosition;
 							nextFreeBin->frameVelocity = trackedParticle.triangulatedParticlePosition - trackedParticle.priorTriangulatedParticlePosition;

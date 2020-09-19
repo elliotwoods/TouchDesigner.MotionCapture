@@ -28,7 +28,7 @@ namespace TD_MoCap {
 		bool
 			FilterAndBinFrame::getPreviewCHOP(Utils::ChannelSet& channelSet) const
 		{
-			channelSet.setChannels({ "Alive", "New"
+			channelSet.setChannels({ "Alive", "New", "UID"
 				, "x", "y", "z"
 				, "vx", "vy", "vz"
 				, "id", "lifetime"});
@@ -37,6 +37,7 @@ namespace TD_MoCap {
 			for (size_t i = 0; i < this->particleBins.size(); i++) {
 				auto c = 0;
 				if (!particleBins[i].occupied) {
+					channelSet[c++].samples[i] = 0;
 					channelSet[c++].samples[i] = 0;
 					channelSet[c++].samples[i] = 0;
 
@@ -53,8 +54,8 @@ namespace TD_MoCap {
 				}
 				else {
 					channelSet[c++].samples[i] = 1;
-
 					channelSet[c++].samples[i] = this->particleBins[i].newBinAssignment;
+					channelSet[c++].samples[i] = this->particleBins[i].UID;
 
 
 					{

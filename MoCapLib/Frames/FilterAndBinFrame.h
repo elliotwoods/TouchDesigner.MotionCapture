@@ -13,6 +13,7 @@ namespace TD_MoCap {
 			struct ParticleBin {
 				bool occupied;
 				bool newBinAssignment;
+				size_t UID;
 				size_t currentTriangulatedIndex; // or index at death
 				glm::vec3 position;
 				glm::vec3 frameVelocity;

@@ -50,7 +50,5 @@ namespace TD_MoCap
 	public:
 		void process(std::shared_ptr<Frames::FilterAndBinFrame>, std::shared_ptr<Frames::OneEuroFilterFrame>, OneEuroFilterParameters&) override;
 		std::shared_ptr<Frames::OneEuroFilterFrame> previousFrame;
-
-		size_t nextID = 0;
 	};
 }
